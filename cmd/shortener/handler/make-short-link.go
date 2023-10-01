@@ -5,7 +5,6 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
-	"time"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -18,7 +17,7 @@ func (s *shortenerService) makeShortLink(w http.ResponseWriter, r *http.Request)
 	}
 
 	link := string(rawBody)
-	id := generateUniqueId(8)
+	id := generateUniqueID(8)
 
 	s.store.Set(id, link)
 
@@ -28,9 +27,8 @@ func (s *shortenerService) makeShortLink(w http.ResponseWriter, r *http.Request)
 	w.Write([]byte(fullLink))
 }
 
-func generateUniqueId(keyLength int) string {
-	rand.Seed(time.Now().UnixNano())
-	id := make([]byte, keyLength)
+func generateUniqueID(length int) string {
+	id := make([]byte, length)
 
 	for i := range id {
 		id[i] = alphabet[rand.Intn(len(alphabet))]
