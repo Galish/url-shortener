@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/url-shortener/cmd/shortener/storage"
+	"github.com/Galish/url-shortener/cmd/shortener/storage"
 )
 
 type shortenerService struct {

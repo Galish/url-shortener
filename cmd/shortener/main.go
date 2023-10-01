@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/url-shortener/cmd/shortener/handler"
-	"github.com/url-shortener/cmd/shortener/storage"
+	"github.com/Galish/url-shortener/cmd/shortener/handler"
+	"github.com/Galish/url-shortener/cmd/shortener/storage"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/url-shortener/cmd/shortener/storage"
+	"github.com/Galish/url-shortener/cmd/shortener/storage"
 )
 
 func NewHandler(store storage.KeyValueStorage) http.Handler {
