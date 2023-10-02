@@ -1,11 +1,11 @@
-package handler
+package handlers
 
 import (
 	"net/http"
 )
 
-func (s *shortenerService) getFullLink(w http.ResponseWriter, r *http.Request) {
-	fullLink, err := s.store.Get(r.URL.Path[1:])
+func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
+	fullLink, err := h.store.Get(r.URL.Path[1:])
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

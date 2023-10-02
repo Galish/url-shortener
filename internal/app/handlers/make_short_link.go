@@ -1,4 +1,4 @@
-package handler
+package handlers
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func (s *shortenerService) makeShortLink(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
 	rawBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Unable to read request body", http.StatusBadRequest)
@@ -17,9 +17,9 @@ func (s *shortenerService) makeShortLink(w http.ResponseWriter, r *http.Request)
 	}
 
 	link := string(rawBody)
-	id := generateUniqueID(8)
+	id := h.generateUniqueID(8)
 
-	s.store.Set(id, link)
+	h.store.Set(id, link)
 
 	fullLink := fmt.Sprintf("http://localhost:8080/%s", id)
 
@@ -27,7 +27,17 @@ func (s *shortenerService) makeShortLink(w http.ResponseWriter, r *http.Request)
 	w.Write([]byte(fullLink))
 }
 
-func generateUniqueID(length int) string {
+func (h *httpHandler) generateUniqueID(length int) string {
+	for {
+		id := generateID(length)
+
+		if !h.store.Has(id) {
+			return id
+		}
+	}
+}
+
+func generateID(length int) string {
 	id := make([]byte, length)
 
 	for i := range id {

@@ -1,17 +1,16 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/Galish/url-shortener/cmd/shortener/handler"
-	"github.com/Galish/url-shortener/cmd/shortener/storage"
+	"github.com/Galish/url-shortener/internal/app/handlers"
+	"github.com/Galish/url-shortener/internal/app/server"
+	"github.com/Galish/url-shortener/internal/app/storage"
 )
 
 func main() {
 	store := storage.NewKeyValueStorage()
-	httpHandler := handler.NewHandler(store)
+	httpServer := server.NewHttpServer(`:8080`, handlers.NewHandler(store))
 
-	err := http.ListenAndServe(`:8080`, httpHandler)
+	err := httpServer.Run()
 	if err != nil {
 		panic(err)
 	}
