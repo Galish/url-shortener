@@ -5,7 +5,14 @@ import (
 )
 
 func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
-	fullLink, err := h.store.Get(r.URL.Path[1:])
+	id := r.URL.Path[1:]
+
+	if len(id) < 8 {
+		http.Error(w, "invalid identifier", http.StatusBadRequest)
+		return
+	}
+
+	fullLink, err := h.store.Get(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
