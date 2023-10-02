@@ -7,7 +7,7 @@ type httpServer struct {
 	handler http.Handler
 }
 
-func NewHttpServer(addr string, handler http.Handler) httpServer {
+func NewHTTPServer(addr string, handler http.Handler) httpServer {
 	return httpServer{
 		addr,
 		handler,

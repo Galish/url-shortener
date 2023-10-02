@@ -8,7 +8,7 @@ import (
 
 func main() {
 	store := storage.NewKeyValueStorage()
-	httpServer := server.NewHttpServer(`:8080`, handlers.NewHandler(store))
+	httpServer := server.NewHTTPServer(`:8080`, handlers.NewHandler(store))
 
 	err := httpServer.Run()
 	if err != nil {
