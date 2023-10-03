@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/storage"
+	"github.com/go-chi/chi/v5"
 )
 
 type httpHandler struct {
@@ -11,18 +12,11 @@ type httpHandler struct {
 }
 
 func NewHandler(store storage.KeyValueStorage) http.Handler {
+	router := chi.NewRouter()
 	handler := httpHandler{store}
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			handler.makeShortLink(w, r)
+	router.Get("/{id}", handler.getFullLink)
+	router.Post("/", handler.makeShortLink)
 
-		case http.MethodGet:
-			handler.getFullLink(w, r)
-
-		default:
-			http.Error(w, "Method not allowed", http.StatusBadRequest)
-		}
-	})
+	return router
 }

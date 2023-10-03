@@ -14,17 +14,24 @@ import (
 )
 
 func TestMakeShortLink(t *testing.T) {
+	ts := httptest.NewServer(NewHandler(storage.NewKeyValueStorage()))
+	defer ts.Close()
+
 	type want struct {
 		statusCode int
 		body       string
 	}
 	tests := []struct {
-		name string
-		body string
-		want want
+		name   string
+		method string
+		path   string
+		body   string
+		want   want
 	}{
 		{
-			"empty URL",
+			"empty request body",
+			http.MethodPost,
+			"/",
 			"",
 			want{
 				400,
@@ -32,7 +39,19 @@ func TestMakeShortLink(t *testing.T) {
 			},
 		},
 		{
+			"invalid request method",
+			http.MethodGet,
+			"/",
+			"",
+			want{
+				405,
+				"",
+			},
+		},
+		{
 			"valid URL",
+			http.MethodPost,
+			"/",
 			"https://practicum.yandex.ru/",
 			want{
 				201,
@@ -41,25 +60,31 @@ func TestMakeShortLink(t *testing.T) {
 		},
 	}
 
-	store := storage.NewKeyValueStorage()
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			request := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(tt.body))
-			h := &httpHandler{store}
-			w := httptest.NewRecorder()
-
-			h.makeShortLink(w, request)
-			result := w.Result()
-
-			assert.Equal(t, tt.want.statusCode, result.StatusCode)
-
-			raw, err := io.ReadAll(result.Body)
-			require.NoError(t, err)
-			err = result.Body.Close()
+			req, err := http.NewRequest(
+				tt.method,
+				ts.URL+tt.path,
+				strings.NewReader(tt.body),
+			)
 			require.NoError(t, err)
 
-			if result.StatusCode < 300 {
+			client := &http.Client{
+				CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+				},
+			}
+			resp, err := client.Do(req)
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
+
+			raw, err := io.ReadAll(resp.Body)
+			require.NoError(t, err)
+			err = resp.Body.Close()
+			require.NoError(t, err)
+
+			if resp.StatusCode < 300 {
 				assert.Regexp(
 					t,
 					regexp.MustCompile("http://localhost:8080/[0-9A-Za-z]{8}"),

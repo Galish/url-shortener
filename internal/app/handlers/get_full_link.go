@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Path[1:]
+	id := chi.URLParam(r, "id")
 
 	if len(id) < 8 {
 		http.Error(w, "invalid identifier", http.StatusBadRequest)
