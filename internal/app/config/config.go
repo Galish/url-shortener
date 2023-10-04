@@ -24,8 +24,8 @@ func Get() Config {
 		cfg.Addr = envAddr
 	}
 
-	if baseURL := os.Getenv("BASE_URL"); baseURL != "" {
-		cfg.BaseURL = baseURL
+	if envBaseURL := os.Getenv("BASE_URL"); envBaseURL != "" {
+		cfg.BaseURL = envBaseURL
 	}
 
 	return cfg
