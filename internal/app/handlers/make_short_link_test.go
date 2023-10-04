@@ -8,13 +8,19 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestMakeShortLink(t *testing.T) {
-	ts := httptest.NewServer(NewHandler(storage.NewKeyValueStorage()))
+	ts := httptest.NewServer(
+		NewRouter(
+			config.Config{BaseURL: "http://localhost:8080/"},
+			storage.NewKeyValueStorage(),
+		),
+	)
 	defer ts.Close()
 
 	type want struct {

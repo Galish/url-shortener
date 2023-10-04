@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"io"
 	"math/rand"
 	"net/http"
@@ -28,7 +27,7 @@ func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
 
 	h.store.Set(id, link)
 
-	fullLink := fmt.Sprintf("http://localhost:8080/%s", id)
+	fullLink := h.cfg.BaseURL + id
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(fullLink))
