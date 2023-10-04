@@ -15,10 +15,10 @@ import (
 )
 
 func TestMakeShortLink(t *testing.T) {
-	baseUrl := "http://localhost:8080"
+	baseURL := "http://localhost:8080"
 	ts := httptest.NewServer(
 		NewRouter(
-			config.Config{BaseURL: baseUrl},
+			config.Config{BaseURL: baseURL},
 			storage.NewKeyValueStorage(),
 		),
 	)
@@ -94,7 +94,7 @@ func TestMakeShortLink(t *testing.T) {
 			if resp.StatusCode < 300 {
 				assert.Regexp(
 					t,
-					regexp.MustCompile(baseUrl+"/[0-9A-Za-z]{8}"),
+					regexp.MustCompile(baseURL+"/[0-9A-Za-z]{8}"),
 					string(raw),
 				)
 			} else {
