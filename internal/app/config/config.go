@@ -1,6 +1,9 @@
 package config
 
-import "flag"
+import (
+	"flag"
+	"os"
+)
 
 type Config struct {
 	Addr    string
@@ -16,5 +19,14 @@ func init() {
 
 func Get() Config {
 	flag.Parse()
+
+	if envAddr := os.Getenv("SERVER_ADDRESS"); envAddr != "" {
+		cfg.Addr = envAddr
+	}
+
+	if baseURL := os.Getenv("BASE_URL"); baseURL != "" {
+		cfg.BaseURL = baseURL
+	}
+
 	return cfg
 }
