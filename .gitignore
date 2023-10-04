@@ -22,4 +22,8 @@ vendor/
 .idea
 .vscode
 
+#OS files
 .DS_Store
+
+#misc
+cmd/client
