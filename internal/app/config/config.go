@@ -7,9 +7,9 @@ type Config struct {
 
 var cfg Config
 
-func Get() Config {
+func New() *Config {
 	parseFlags()
 	parseEnvVars()
 
-	return cfg
+	return &cfg
 }

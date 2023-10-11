@@ -7,16 +7,16 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/storage"
+	"github.com/Galish/url-shortener/internal/app/storage/kvstorage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetFullLink(t *testing.T) {
-	store := storage.NewKeyValueStorage()
+	store := kvstorage.New()
 	store.Set("c2WD8F2q", "https://practicum.yandex.ru/")
 
-	ts := httptest.NewServer(NewRouter(config.Config{}, store))
+	ts := httptest.NewServer(NewRouter(&config.Config{}, store))
 	defer ts.Close()
 
 	type want struct {

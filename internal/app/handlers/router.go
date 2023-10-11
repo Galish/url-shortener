@@ -9,11 +9,11 @@ import (
 )
 
 type httpHandler struct {
-	cfg   config.Config
-	store storage.KeyValueStorage
+	cfg   *config.Config
+	store storage.Repository
 }
 
-func NewRouter(cfg config.Config, store storage.KeyValueStorage) http.Handler {
+func NewRouter(cfg *config.Config, store storage.Repository) http.Handler {
 	router := chi.NewRouter()
 	handler := httpHandler{cfg, store}
 

@@ -15,7 +15,6 @@ func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unable to read request body", http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
 
 	link := string(rawBody)
 
