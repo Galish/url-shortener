@@ -25,7 +25,7 @@ func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
 
 	id := h.generateUniqueID(8)
 
-	h.store.Set(id, link)
+	h.repo.Set(id, link)
 
 	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
 
@@ -37,7 +37,7 @@ func (h *httpHandler) generateUniqueID(length int) string {
 	for {
 		id := generateID(length)
 
-		if !h.store.Has(id) {
+		if !h.repo.Has(id) {
 			return id
 		}
 	}

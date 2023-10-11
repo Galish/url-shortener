@@ -14,7 +14,7 @@ func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fullLink, err := h.store.Get(id)
+	fullLink, err := h.repo.Get(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

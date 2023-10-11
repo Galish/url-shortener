@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/storage/kvstorage"
+	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +19,7 @@ func TestMakeShortLink(t *testing.T) {
 	ts := httptest.NewServer(
 		NewRouter(
 			&config.Config{BaseURL: baseURL},
-			kvstorage.New(),
+			repository.New(),
 		),
 	)
 	defer ts.Close()
