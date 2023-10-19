@@ -10,4 +10,8 @@ func parseEnvVars() {
 	if envBaseURL := os.Getenv("BASE_URL"); envBaseURL != "" {
 		cfg.BaseURL = envBaseURL
 	}
+
+	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
+		cfg.LogLevel = logLevel
+	}
 }

@@ -1,8 +1,9 @@
 package config
 
 type Config struct {
-	Addr    string
-	BaseURL string
+	Addr     string
+	BaseURL  string
+	LogLevel string
 }
 
 var cfg Config
