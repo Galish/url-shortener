@@ -18,6 +18,7 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 
 	router.Get("/{id}", logger.WithLogging(handler.getFullLink))
 	router.Post("/", logger.WithLogging(handler.makeShortLink))
+	router.Post("/api/shorten", logger.WithLogging(handler.apiShorten))
 
 	return router
 }

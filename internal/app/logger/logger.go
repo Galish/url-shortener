@@ -26,3 +26,7 @@ func Initialize(level string) {
 
 	logger.SetLevel(logLevel)
 }
+
+func WithError(err error) *log.Entry {
+	return log.WithError(err)
+}
