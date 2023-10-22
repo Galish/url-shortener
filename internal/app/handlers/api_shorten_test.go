@@ -36,15 +36,15 @@ func TestAPIShorten(t *testing.T) {
 		name   string
 		method string
 		path   string
-		req    models.ApiRequest
+		req    models.APIRequest
 		want   want
 	}{
 		{
 			"invalid API endpoint",
 			http.MethodPost,
 			"/api/shortener",
-			models.ApiRequest{
-				Url: "https://practicum.yandex.ru/",
+			models.APIRequest{
+				URL: "https://practicum.yandex.ru/",
 			},
 			want{
 				404,
@@ -56,8 +56,8 @@ func TestAPIShorten(t *testing.T) {
 			"invalid request method",
 			http.MethodGet,
 			"/api/shorten",
-			models.ApiRequest{
-				Url: "https://practicum.yandex.ru/",
+			models.APIRequest{
+				URL: "https://practicum.yandex.ru/",
 			},
 			want{
 				405,
@@ -69,10 +69,10 @@ func TestAPIShorten(t *testing.T) {
 			"empty request body",
 			http.MethodPost,
 			"/api/shorten",
-			models.ApiRequest{},
+			models.APIRequest{},
 			want{
 				400,
-				"no URL provided\n",
+				"link not provided\n",
 				"text/plain; charset=utf-8",
 			},
 		},
@@ -80,8 +80,8 @@ func TestAPIShorten(t *testing.T) {
 			"valid URL",
 			http.MethodPost,
 			"/api/shorten",
-			models.ApiRequest{
-				Url: "https://practicum.yandex.ru/",
+			models.APIRequest{
+				URL: "https://practicum.yandex.ru/",
 			},
 			want{
 				201,
@@ -113,7 +113,7 @@ func TestAPIShorten(t *testing.T) {
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 
 			if resp.StatusCode < 300 {
-				var respBody models.ApiResponse
+				var respBody models.APIResponse
 				err = json.NewDecoder(resp.Body).Decode(&respBody)
 				require.NoError(t, err)
 

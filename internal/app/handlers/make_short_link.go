@@ -22,7 +22,7 @@ func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
 	url := string(rawBody)
 
 	if url == "" {
-		http.Error(w, "no URL provided", http.StatusBadRequest)
+		http.Error(w, "link not provided", http.StatusBadRequest)
 		return
 	}
 
