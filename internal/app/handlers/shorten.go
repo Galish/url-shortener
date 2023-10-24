@@ -11,7 +11,7 @@ import (
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	rawBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "unable to read request body", http.StatusBadRequest)

@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMakeShortLink(t *testing.T) {
+func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 	ts := httptest.NewServer(
 		NewRouter(
