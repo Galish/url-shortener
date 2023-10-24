@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func WithGzip(h http.HandlerFunc) http.HandlerFunc {
+func WithCompression(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ow := w
 

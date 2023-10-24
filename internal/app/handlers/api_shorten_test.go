@@ -102,6 +102,9 @@ func TestAPIShorten(t *testing.T) {
 			)
 			require.NoError(t, err)
 
+			// Disable compression
+			req.Header.Set("Accept-Encoding", "identity")
+
 			client := &http.Client{
 				CheckRedirect: func(req *http.Request, via []*http.Request) error {
 					return http.ErrUseLastResponse

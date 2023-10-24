@@ -22,7 +22,7 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	router.Post(
 		"/api/shorten",
 		logger.WithLogging(
-			gzip.WithGzip(handler.apiShorten),
+			gzip.WithCompression(handler.apiShorten),
 		),
 	)
 
