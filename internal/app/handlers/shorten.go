@@ -32,6 +32,7 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
 
+	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(fullLink))
 }
