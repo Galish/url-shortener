@@ -1,4 +1,4 @@
-package repository
+package kvstore
 
 import "errors"
 
@@ -6,7 +6,7 @@ type kvStore struct {
 	store map[string]string
 }
 
-func newKVStore() *kvStore {
+func New() *kvStore {
 	return &kvStore{
 		store: make(map[string]string),
 	}

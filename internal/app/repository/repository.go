@@ -5,7 +5,3 @@ type Repository interface {
 	Set(string, string)
 	Has(string) bool
 }
-
-func New() Repository {
-	return newKVStore()
-}

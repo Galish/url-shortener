@@ -11,7 +11,7 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/models"
-	"github.com/Galish/url-shortener/internal/app/repository"
+	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -21,7 +21,7 @@ func TestAPIShorten(t *testing.T) {
 	ts := httptest.NewServer(
 		NewRouter(
 			&config.Config{BaseURL: baseURL},
-			repository.New(),
+			kvstore.New(),
 		),
 	)
 	defer ts.Close()
