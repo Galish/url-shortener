@@ -14,4 +14,8 @@ func parseEnvVars() {
 	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
 		cfg.LogLevel = logLevel
 	}
+
+	if filePath := os.Getenv("FILE_STORAGE_PATH"); filePath != "" {
+		cfg.FilePath = filePath
+	}
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func (fs *fileStore) restore() error {
-	file, err := os.OpenFile(fs.filename, os.O_RDONLY|os.O_CREATE, 0666)
+	file, err := os.OpenFile(fs.filepath, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}

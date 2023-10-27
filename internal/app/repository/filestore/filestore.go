@@ -11,7 +11,7 @@ import (
 type fileStore struct {
 	size     int
 	store    repository.Repository
-	filename string
+	filepath string
 	file     *os.File
 	writer   *bufio.Writer
 }
@@ -22,10 +22,10 @@ type record struct {
 	OriginalUrl string `json:"original_url"`
 }
 
-func New(filename string) (*fileStore, error) {
+func New(filepath string) (*fileStore, error) {
 	fs := &fileStore{
 		store:    kvstore.New(),
-		filename: filename,
+		filepath: filepath,
 	}
 
 	if err := fs.restore(); err != nil {

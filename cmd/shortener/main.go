@@ -11,7 +11,7 @@ import (
 func main() {
 	cfg := config.New()
 
-	store, err := filestore.New("data")
+	store, err := filestore.New(cfg.FilePath)
 	if err != nil {
 		panic(err)
 	}
