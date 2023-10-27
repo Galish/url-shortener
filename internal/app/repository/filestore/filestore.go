@@ -16,12 +16,6 @@ type fileStore struct {
 	writer   *bufio.Writer
 }
 
-type record struct {
-	ID          string `json:"uuid"`
-	ShortUrl    string `json:"short_url"`
-	OriginalUrl string `json:"original_url"`
-}
-
 func New(filepath string) (*fileStore, error) {
 	fs := &fileStore{
 		store:    kvstore.New(),

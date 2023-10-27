@@ -29,7 +29,7 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	id := h.generateUniqueID(8)
 
 	if err := h.repo.Set(id, url); err != nil {
-		http.Error(w, "unable to write to repository", http.StatusBadRequest)
+		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
 	}

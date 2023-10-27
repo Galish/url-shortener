@@ -24,10 +24,10 @@ func (fs *fileStore) initWriter() error {
 }
 
 func (fs *fileStore) write(key, value string) error {
-	data, err := json.Marshal(record{
-		ID:          strconv.Itoa(fs.size),
-		ShortUrl:    key,
-		OriginalUrl: value,
+	data, err := json.Marshal(link{
+		ID:       strconv.Itoa(fs.size),
+		Short:    key,
+		Original: value,
 	})
 	if err != nil {
 		return err

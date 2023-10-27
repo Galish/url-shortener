@@ -18,12 +18,12 @@ func (fs *fileStore) restore() error {
 
 	for scanner.Scan() {
 		data := scanner.Bytes()
-		var rec record
-		if err := json.Unmarshal(data, &rec); err != nil {
+		var lnk link
+		if err := json.Unmarshal(data, &lnk); err != nil {
 			return err
 		}
 
-		fs.store.Set(rec.ShortUrl, rec.OriginalUrl)
+		fs.store.Set(lnk.Short, lnk.Original)
 		fs.size++
 	}
 
