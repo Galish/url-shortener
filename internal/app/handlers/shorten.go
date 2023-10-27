@@ -28,7 +28,11 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	id := h.generateUniqueID(8)
 
-	h.repo.Set(id, url)
+	if err := h.repo.Set(id, url); err != nil {
+		http.Error(w, "unable to write to repository", http.StatusBadRequest)
+		logger.WithError(err).Debug("unable to write to repository")
+		return
+	}
 
 	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
 

@@ -23,7 +23,12 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := h.generateUniqueID(8)
-	h.repo.Set(id, req.URL)
+
+	if err := h.repo.Set(id, req.URL); err != nil {
+		http.Error(w, "unable to write to repository", http.StatusBadRequest)
+		logger.WithError(err).Debug("unable to write to repository")
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

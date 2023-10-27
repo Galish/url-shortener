@@ -4,18 +4,24 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/filestore"
 	"github.com/Galish/url-shortener/internal/app/server"
 )
 
 func main() {
 	cfg := config.New()
-	router := handlers.NewRouter(cfg, kvstore.New())
+
+	store, err := filestore.New("data")
+	if err != nil {
+		panic(err)
+	}
+	defer store.Close()
+
+	router := handlers.NewRouter(cfg, store)
 	httpServer := server.NewHTTPServer(cfg.Addr, router)
 	logger.Initialize(cfg.LogLevel)
 
-	err := httpServer.Run()
-	if err != nil {
+	if err := httpServer.Run(); err != nil {
 		panic(err)
 	}
 }
