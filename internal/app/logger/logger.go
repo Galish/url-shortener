@@ -7,15 +7,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var logger *log.Logger
-
-func init() {
-	logger = log.New()
-	logger.SetOutput(io.Discard)
+var logger = &log.Logger{
+	Formatter: new(log.JSONFormatter),
+	Out:       io.Discard,
 }
 
+type Fields map[string]interface{}
+
 func Initialize(level string) {
-	logger.SetFormatter(&log.JSONFormatter{})
 	logger.SetOutput(os.Stderr)
 
 	logLevel, err := log.ParseLevel(level)
@@ -27,6 +26,24 @@ func Initialize(level string) {
 	logger.SetLevel(logLevel)
 }
 
+func Debug(args ...interface{}) {
+	logger.Log(log.DebugLevel, args...)
+}
+
+func Info(args ...interface{}) {
+	logger.Log(log.InfoLevel, args...)
+}
+
 func WithError(err error) *log.Entry {
-	return log.WithError(err)
+	return log.NewEntry(logger).WithError(err)
+}
+
+func WithFields(fields Fields) *log.Entry {
+	f := log.Fields{}
+
+	for k, v := range fields {
+		f[k] = v
+	}
+
+	return log.NewEntry(logger).WithFields(f)
 }

@@ -11,6 +11,8 @@ import (
 func main() {
 	cfg := config.New()
 
+	logger.Initialize(cfg.LogLevel)
+
 	store, err := filestore.New(cfg.FilePath)
 	if err != nil {
 		panic(err)
@@ -19,7 +21,6 @@ func main() {
 
 	router := handlers.NewRouter(cfg, store)
 	httpServer := server.NewHTTPServer(cfg.Addr, router)
-	logger.Initialize(cfg.LogLevel)
 
 	if err := httpServer.Run(); err != nil {
 		panic(err)

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 
+	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 )
@@ -20,6 +21,10 @@ func New(filepath string) (*fileStore, error) {
 	fs := &fileStore{
 		store:    kvstore.New(),
 		filepath: filepath,
+	}
+
+	if filepath == "" {
+		logger.Debug("writing to file is disabled")
 	}
 
 	if err := fs.restore(); err != nil {
@@ -52,5 +57,9 @@ func (fs *fileStore) Has(key string) bool {
 }
 
 func (fs *fileStore) Close() error {
-	return fs.file.Close()
+	if fs.file != nil {
+		return fs.file.Close()
+	}
+
+	return nil
 }

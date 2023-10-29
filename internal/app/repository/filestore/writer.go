@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"os"
 	"strconv"
+
+	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
 func (fs *fileStore) initWriter() error {
@@ -24,6 +26,10 @@ func (fs *fileStore) initWriter() error {
 }
 
 func (fs *fileStore) write(key, value string) error {
+	if fs.filepath == "" {
+		return nil
+	}
+
 	data, err := json.Marshal(link{
 		ID:       strconv.Itoa(fs.size),
 		Short:    key,
@@ -44,6 +50,8 @@ func (fs *fileStore) write(key, value string) error {
 	if err := fs.writer.WriteByte('\n'); err != nil {
 		return err
 	}
+
+	logger.Info("writing a record to a file")
 
 	return fs.writer.Flush()
 }
