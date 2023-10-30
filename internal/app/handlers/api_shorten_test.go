@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/models"
 	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -36,14 +35,14 @@ func TestAPIShorten(t *testing.T) {
 		name   string
 		method string
 		path   string
-		req    models.APIRequest
+		req    apiRequest
 		want   want
 	}{
 		{
 			"invalid API endpoint",
 			http.MethodPost,
 			"/api/shortener",
-			models.APIRequest{
+			apiRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
@@ -56,7 +55,7 @@ func TestAPIShorten(t *testing.T) {
 			"invalid request method",
 			http.MethodGet,
 			"/api/shorten",
-			models.APIRequest{
+			apiRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
@@ -69,7 +68,7 @@ func TestAPIShorten(t *testing.T) {
 			"empty request body",
 			http.MethodPost,
 			"/api/shorten",
-			models.APIRequest{},
+			apiRequest{},
 			want{
 				400,
 				"link not provided\n",
@@ -80,7 +79,7 @@ func TestAPIShorten(t *testing.T) {
 			"valid URL",
 			http.MethodPost,
 			"/api/shorten",
-			models.APIRequest{
+			apiRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
@@ -116,7 +115,7 @@ func TestAPIShorten(t *testing.T) {
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 
 			if resp.StatusCode < 300 {
-				var respBody models.APIResponse
+				var respBody apiResponse
 				err = json.NewDecoder(resp.Body).Decode(&respBody)
 				require.NoError(t, err)
 
