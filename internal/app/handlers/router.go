@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/gzip"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/go-chi/chi/v5"
@@ -19,17 +18,21 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 
 	router.Get(
 		"/{id}",
-		middleware.RequestLogger(handler.getFullLink),
+		middleware.WithRequestLogger(handler.getFullLink),
 	)
 
 	router.Post(
 		"/",
-		middleware.RequestLogger(gzip.WithCompression(handler.shorten)),
+		middleware.WithRequestLogger(
+			middleware.WithCompression(handler.shorten),
+		),
 	)
 
 	router.Post(
 		"/api/shorten",
-		middleware.RequestLogger(gzip.WithCompression(handler.apiShorten)),
+		middleware.WithRequestLogger(
+			middleware.WithCompression(handler.apiShorten),
+		),
 	)
 
 	return router

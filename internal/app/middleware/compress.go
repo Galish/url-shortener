@@ -1,26 +1,30 @@
-package gzip
+package middleware
 
 import (
 	"net/http"
 	"strings"
+
+	"github.com/Galish/url-shortener/internal/app/compress"
 )
 
 func WithCompression(h http.HandlerFunc) http.HandlerFunc {
+	compressor := compress.NewCompressor(compress.NewGzipCompressor())
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		acceptEncoding := r.Header.Get("Accept-Encoding")
-		isGzipSupported := strings.Contains(acceptEncoding, "gzip")
+		isCompressionSupported := strings.Contains(acceptEncoding, compressor.Algorithm)
 
-		if isGzipSupported {
-			cw := newCompressWriter(w)
+		if isCompressionSupported {
+			cw := compressor.NewWriter(w)
 			w = cw
 			defer cw.Close()
 		}
 
 		contentEncoding := r.Header.Get("Content-Encoding")
-		isGzipped := strings.Contains(contentEncoding, "gzip")
+		isCompressed := strings.Contains(contentEncoding, compressor.Algorithm)
 
-		if isGzipped {
-			cr, err := newCompressReader(r.Body)
+		if isCompressed {
+			cr, err := compressor.NewReader(r.Body)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return

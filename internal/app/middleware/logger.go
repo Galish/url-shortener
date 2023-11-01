@@ -13,7 +13,7 @@ type loggerResponseWriter struct {
 	size   int
 }
 
-func RequestLogger(h http.HandlerFunc) http.HandlerFunc {
+func WithRequestLogger(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
