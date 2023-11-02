@@ -1,8 +1,9 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
 type httpServer struct {
@@ -18,6 +19,6 @@ func NewHTTPServer(addr string, handler http.Handler) *httpServer {
 }
 
 func (s *httpServer) Run() error {
-	fmt.Println("Running server on", s.addr)
+	logger.Info("Running server on", s.addr)
 	return http.ListenAndServe(s.addr, s.handler)
 }

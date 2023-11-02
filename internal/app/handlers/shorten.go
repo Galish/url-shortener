@@ -5,30 +5,38 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
+
+	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func (h *httpHandler) makeShortLink(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	rawBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "unable to read request body", http.StatusBadRequest)
+		logger.WithError(err).Debug("unable to read request body")
 		return
 	}
 
-	link := string(rawBody)
+	url := string(rawBody)
 
-	if link == "" {
+	if url == "" {
 		http.Error(w, "link not provided", http.StatusBadRequest)
 		return
 	}
 
 	id := h.generateUniqueID(8)
 
-	h.repo.Set(id, link)
+	if err := h.repo.Set(id, url); err != nil {
+		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
+		logger.WithError(err).Debug("unable to write to repository")
+		return
+	}
 
 	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
 
+	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(fullLink))
 }

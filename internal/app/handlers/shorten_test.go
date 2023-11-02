@@ -9,17 +9,17 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository"
+	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestMakeShortLink(t *testing.T) {
+func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 	ts := httptest.NewServer(
 		NewRouter(
 			&config.Config{BaseURL: baseURL},
-			repository.New(),
+			kvstore.New(),
 		),
 	)
 	defer ts.Close()

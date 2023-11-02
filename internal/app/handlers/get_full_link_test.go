@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository"
+	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetFullLink(t *testing.T) {
-	repo := repository.New()
+	repo := kvstore.New()
 	repo.Set("c2WD8F2q", "https://practicum.yandex.ru/")
 
 	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))

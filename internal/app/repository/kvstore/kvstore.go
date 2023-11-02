@@ -1,4 +1,4 @@
-package repository
+package kvstore
 
 import "errors"
 
@@ -6,7 +6,7 @@ type kvStore struct {
 	store map[string]string
 }
 
-func newKVStore() *kvStore {
+func New() *kvStore {
 	return &kvStore{
 		store: make(map[string]string),
 	}
@@ -21,8 +21,9 @@ func (s *kvStore) Get(key string) (string, error) {
 	return value, nil
 }
 
-func (s *kvStore) Set(key, value string) {
+func (s *kvStore) Set(key, value string) error {
 	s.store[key] = value
+	return nil
 }
 
 func (s *kvStore) Has(key string) bool {

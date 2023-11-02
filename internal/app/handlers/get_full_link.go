@@ -17,6 +17,7 @@ func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
 	fullLink, err := h.repo.Get(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	http.Redirect(w, r, fullLink, http.StatusTemporaryRedirect)
