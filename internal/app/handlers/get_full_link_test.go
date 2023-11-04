@@ -16,7 +16,7 @@ func TestGetFullLink(t *testing.T) {
 	repo := kvstore.New()
 	repo.Set("c2WD8F2q", "https://practicum.yandex.ru/")
 
-	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))
+	ts := httptest.NewServer(NewRouter(&config.Config{}, repo, nil))
 	defer ts.Close()
 
 	type want struct {

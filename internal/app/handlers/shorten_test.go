@@ -20,6 +20,7 @@ func TestShorten(t *testing.T) {
 		NewRouter(
 			&config.Config{BaseURL: baseURL},
 			kvstore.New(),
+			nil,
 		),
 	)
 	defer ts.Close()
