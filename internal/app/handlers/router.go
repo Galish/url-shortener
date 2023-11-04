@@ -10,11 +10,17 @@ import (
 type httpHandler struct {
 	cfg  *config.Config
 	repo repository.Repository
+	db   repository.DB
 }
 
-func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
+func NewRouter(cfg *config.Config, repo repository.Repository, db repository.DB) *chi.Mux {
 	router := chi.NewRouter()
-	handler := httpHandler{cfg, repo}
+	handler := httpHandler{cfg, repo, db}
+
+	router.Get(
+		"/ping",
+		middleware.WithRequestLogger(handler.ping),
+	)
 
 	router.Get(
 		"/{id}",

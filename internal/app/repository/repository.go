@@ -5,3 +5,8 @@ type Repository interface {
 	Set(string, string) error
 	Has(string) bool
 }
+
+type DB interface {
+	Ping() (bool, error)
+	Close()
+}

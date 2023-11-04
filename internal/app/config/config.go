@@ -5,6 +5,7 @@ type Config struct {
 	BaseURL  string
 	LogLevel string
 	FilePath string
+	DBAddr   string
 }
 
 var cfg Config
