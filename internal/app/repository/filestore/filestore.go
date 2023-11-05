@@ -56,6 +56,10 @@ func (fs *fileStore) Has(key string) bool {
 	return fs.store.Has(key)
 }
 
+func (fs *fileStore) Ping() (bool, error) {
+	return fs.filepath != "", nil
+}
+
 func (fs *fileStore) Close() error {
 	if fs.file != nil {
 		return fs.file.Close()

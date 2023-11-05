@@ -3,8 +3,7 @@ package handlers
 import "net/http"
 
 func (h *httpHandler) ping(w http.ResponseWriter, r *http.Request) {
-	ping, err := h.db.Ping()
-	if !ping {
+	if ping, err := h.repo.Ping(); !ping {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

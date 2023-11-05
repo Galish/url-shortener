@@ -31,3 +31,7 @@ func (s *kvStore) Has(key string) bool {
 
 	return ok
 }
+
+func (s *kvStore) Ping() (bool, error) {
+	return true, nil
+}
