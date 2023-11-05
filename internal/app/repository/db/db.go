@@ -17,8 +17,8 @@ func New(addr string) (*dbStore, error) {
 	}
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS links (
-		"short_url" TEXT,
-		"original_url" TEXT
+		"short_url" CHAR(8) NOT NULL,
+		"original_url" VARCHAR(250) NOT NULL
 	)`)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,9 @@ func New(addr string) (*dbStore, error) {
 }
 
 func (db *dbStore) Get(key string) (string, error) {
-	row := db.store.QueryRow("SELECT original_url FROM links WHERE short_url = $1;", key)
+	row := db.store.QueryRow(
+		"SELECT original_url FROM links WHERE short_url = $1;", key,
+	)
 
 	var originalLink string
 	if err := row.Scan(&originalLink); err != nil {
@@ -52,7 +54,9 @@ func (db *dbStore) Set(key, value string) error {
 }
 
 func (db *dbStore) Has(key string) bool {
-	row := db.store.QueryRow("SELECT EXISTS(SELECT 1 FROM links WHERE short_url = $1);", key)
+	row := db.store.QueryRow(
+		"SELECT EXISTS(SELECT 1 FROM links WHERE short_url = $1);", key,
+	)
 
 	var value bool
 	if err := row.Scan(&value); err != nil {
@@ -70,6 +74,6 @@ func (db *dbStore) Ping() (bool, error) {
 	return true, nil
 }
 
-func (db *dbStore) Close() {
-	db.store.Close()
+func (db *dbStore) Close() error {
+	return db.store.Close()
 }

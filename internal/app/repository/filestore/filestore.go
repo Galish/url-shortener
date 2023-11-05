@@ -5,13 +5,12 @@ import (
 	"os"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 )
 
 type fileStore struct {
 	size     int
-	store    repository.Repository
+	store    *kvstore.KVStore
 	filepath string
 	file     *os.File
 	writer   *bufio.Writer
