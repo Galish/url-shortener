@@ -2,7 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 
+	"github.com/Galish/url-shortener/internal/app/logger"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -11,6 +13,12 @@ type dbStore struct {
 }
 
 func New(addr string) (*dbStore, error) {
+	if addr == "" {
+		return nil, errors.New("database address missing")
+	}
+
+	logger.Info("Database initialization")
+
 	db, err := sql.Open("pgx", addr)
 	if err != nil {
 		return nil, err
