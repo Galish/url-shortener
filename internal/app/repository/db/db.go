@@ -52,13 +52,42 @@ func (db *dbStore) Get(key string) (string, error) {
 
 func (db *dbStore) Set(key, value string) error {
 	_, err := db.store.Exec(
-		"INSERT INTO links (short_url, original_url) VALUES ($1, $2)", key, value,
+		"INSERT INTO links (short_url, original_url) VALUES ($1, $2)",
+		key,
+		value,
 	)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (db *dbStore) SetBatch(entries ...[2]string) error {
+	tx, err := db.store.Begin()
+	if err != nil {
+		return err
+	}
+
+	stmt, err := tx.Prepare(
+		"INSERT INTO links (short_url, original_url) VALUES ($1, $2)",
+	)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		_, err := stmt.Exec(
+			entry[0],
+			entry[1],
+		)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (db *dbStore) Has(key string) bool {

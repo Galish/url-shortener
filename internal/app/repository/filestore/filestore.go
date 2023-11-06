@@ -51,6 +51,14 @@ func (fs *fileStore) Set(key, value string) error {
 	return nil
 }
 
+func (fs *fileStore) SetBatch(entries ...[2]string) error {
+	for _, entry := range entries {
+		fs.Set(entry[0], entry[1])
+	}
+
+	return nil
+}
+
 func (fs *fileStore) Has(key string) bool {
 	return fs.store.Has(key)
 }

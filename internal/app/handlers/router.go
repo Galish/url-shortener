@@ -40,5 +40,12 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		),
 	)
 
+	router.Post(
+		"/api/shorten/batch",
+		middleware.WithRequestLogger(
+			middleware.WithCompression(handler.apiShortenBatch),
+		),
+	)
+
 	return router
 }

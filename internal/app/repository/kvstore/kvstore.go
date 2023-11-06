@@ -26,6 +26,14 @@ func (s *KVStore) Set(key, value string) error {
 	return nil
 }
 
+func (s *KVStore) SetBatch(entries ...[2]string) error {
+	for _, entry := range entries {
+		s.Set(entry[0], entry[1])
+	}
+
+	return nil
+}
+
 func (s *KVStore) Has(key string) bool {
 	_, ok := s.store[key]
 
