@@ -87,15 +87,15 @@ func (db *dbStore) Set(key, value string) error {
 		value,
 	)
 
-	var shortUrl string
-	if err := row.Scan(&shortUrl); err != nil {
+	var shortURL string
+	if err := row.Scan(&shortURL); err != nil {
 		return err
 	}
 
-	if shortUrl != key {
+	if shortURL != key {
 		return repository.NewRepoError(
 			repository.ErrConflict,
-			shortUrl,
+			shortURL,
 			value,
 		)
 	}
