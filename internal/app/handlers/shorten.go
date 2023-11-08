@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/repository"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -27,17 +28,26 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := h.generateUniqueID(8)
+	err = h.repo.Set(id, url)
+	errConflict := repository.AsErrConflict(err)
 
-	if err := h.repo.Set(id, url); err != nil {
+	if err != nil && errConflict == nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/html")
+
+	if errConflict != nil {
+		id = errConflict.ShortUrl
+		w.WriteHeader(http.StatusConflict)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+
 	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
 
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(fullLink))
 }
 

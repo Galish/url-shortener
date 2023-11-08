@@ -1,7 +1,7 @@
 package config
 
 type Config struct {
-	Addr     string
+	ServAddr string
 	BaseURL  string
 	LogLevel string
 	FilePath string

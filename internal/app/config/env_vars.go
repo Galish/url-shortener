@@ -4,7 +4,7 @@ import "os"
 
 func parseEnvVars() {
 	if envAddr := os.Getenv("SERVER_ADDRESS"); envAddr != "" {
-		cfg.Addr = envAddr
+		cfg.ServAddr = envAddr
 	}
 
 	if envBaseURL := os.Getenv("BASE_URL"); envBaseURL != "" {
