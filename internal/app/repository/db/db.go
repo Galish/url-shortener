@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -18,47 +17,24 @@ func New(addr string) (*dbStore, error) {
 		return nil, errors.New("database address missing")
 	}
 
-	logger.Info("database connection")
+	logger.Info("Database initialization")
 
 	db, err := sql.Open("pgx", addr)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbStore{db}, nil
-}
-
-func (db *dbStore) Bootstrap() error {
-	tx, err := db.store.Begin()
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS links (
+		"short_url" CHAR(8) NOT NULL,
+		"original_url" VARCHAR(250) NOT NULL
+	)`)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	logger.Info("database initialization")
-
-	_, err = tx.Exec(`
-		CREATE TABLE IF NOT EXISTS links (
-			id serial PRIMARY KEY,
-			short_url char(8) NOT NULL,
-			original_url varchar(250) NOT NULL
-		)
-	`)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	_, err = tx.Exec(`
-		CREATE UNIQUE INDEX IF NOT EXISTS original_url_idx ON links (
-			original_url
-		)
-	`)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	return tx.Commit()
+	return &dbStore{
+		store: db,
+	}, nil
 }
 
 func (db *dbStore) Get(key string) (string, error) {
@@ -75,29 +51,13 @@ func (db *dbStore) Get(key string) (string, error) {
 }
 
 func (db *dbStore) Set(key, value string) error {
-	row := db.store.QueryRow(
-		`
-			INSERT INTO links (short_url, original_url)
-			VALUES ($1, $2)
-			ON CONFLICT (original_url)
-			DO UPDATE SET original_url=excluded.original_url
-			RETURNING short_url
-		`,
+	_, err := db.store.Exec(
+		"INSERT INTO links (short_url, original_url) VALUES ($1, $2)",
 		key,
 		value,
 	)
-
-	var shortUrl string
-	if err := row.Scan(&shortUrl); err != nil {
+	if err != nil {
 		return err
-	}
-
-	if shortUrl != key {
-		return repository.NewRepoError(
-			repository.ErrConflict,
-			shortUrl,
-			value,
-		)
 	}
 
 	return nil

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
 )
 
 type apiRequest struct {
@@ -31,23 +30,15 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := h.generateUniqueID(8)
-	err := h.repo.Set(id, req.URL)
-	errConflict := repository.AsErrConflict(err)
 
-	if err != nil && errConflict == nil {
+	if err := h.repo.Set(id, req.URL); err != nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-
-	if errConflict != nil {
-		id = errConflict.ShortUrl
-		w.WriteHeader(http.StatusConflict)
-	} else {
-		w.WriteHeader(http.StatusCreated)
-	}
+	w.WriteHeader(http.StatusCreated)
 
 	resp := apiResponse{
 		Result: fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
