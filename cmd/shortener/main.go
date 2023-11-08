@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/logger"
@@ -37,7 +39,7 @@ func newRepo(cfg *config.Config) (repository.Repository, error) {
 			return nil, err
 		}
 
-		if err := repo.Bootstrap(); err != nil {
+		if err := repo.Bootstrap(context.Background()); err != nil {
 			return nil, err
 		}
 

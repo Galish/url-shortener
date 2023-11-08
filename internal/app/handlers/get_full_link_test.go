@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,7 +15,7 @@ import (
 
 func TestGetFullLink(t *testing.T) {
 	repo := kvstore.New()
-	repo.Set("c2WD8F2q", "https://practicum.yandex.ru/")
+	repo.Set(context.Background(), "c2WD8F2q", "https://practicum.yandex.ru/")
 
 	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))
 	defer ts.Close()

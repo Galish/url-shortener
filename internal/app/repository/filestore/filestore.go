@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"bufio"
+	"context"
 	"os"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
@@ -33,16 +34,16 @@ func New(filepath string) (*fileStore, error) {
 	return fs, nil
 }
 
-func (fs *fileStore) Get(key string) (string, error) {
-	return fs.store.Get(key)
+func (fs *fileStore) Get(ctx context.Context, key string) (string, error) {
+	return fs.store.Get(ctx, key)
 }
 
-func (fs *fileStore) Set(key, value string) error {
+func (fs *fileStore) Set(ctx context.Context, key, value string) error {
 	if err := fs.write(key, value); err != nil {
 		return err
 	}
 
-	if err := fs.store.Set(key, value); err != nil {
+	if err := fs.store.Set(ctx, key, value); err != nil {
 		return err
 	}
 
@@ -51,19 +52,19 @@ func (fs *fileStore) Set(key, value string) error {
 	return nil
 }
 
-func (fs *fileStore) SetBatch(entries ...[2]string) error {
+func (fs *fileStore) SetBatch(ctx context.Context, entries ...[2]string) error {
 	for _, entry := range entries {
-		fs.Set(entry[0], entry[1])
+		fs.Set(ctx, entry[0], entry[1])
 	}
 
 	return nil
 }
 
-func (fs *fileStore) Has(key string) bool {
-	return fs.store.Has(key)
+func (fs *fileStore) Has(ctx context.Context, key string) bool {
+	return fs.store.Has(ctx, key)
 }
 
-func (fs *fileStore) Ping() (bool, error) {
+func (fs *fileStore) Ping(ctx context.Context) (bool, error) {
 	return fs.filepath != "", nil
 }
 

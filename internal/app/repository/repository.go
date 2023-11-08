@@ -1,10 +1,12 @@
 package repository
 
+import "context"
+
 type Repository interface {
-	Get(string) (string, error)
-	Set(string, string) error
-	SetBatch(...[2]string) error
-	Has(string) bool
-	Ping() (bool, error)
+	Get(context.Context, string) (string, error)
+	Set(context.Context, string, string) error
+	SetBatch(context.Context, ...[2]string) error
+	Has(context.Context, string) bool
+	Ping(context.Context) (bool, error)
 	Close() error
 }

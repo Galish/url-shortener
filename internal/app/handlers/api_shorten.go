@@ -18,6 +18,8 @@ type apiResponse struct {
 }
 
 func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var req apiRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
@@ -30,8 +32,8 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := h.generateUniqueID(8)
-	err := h.repo.Set(id, req.URL)
+	id := h.generateUniqueID(ctx, idLength)
+	err := h.repo.Set(ctx, id, req.URL)
 	errConflict := repository.AsErrConflict(err)
 
 	if err != nil && errConflict == nil {

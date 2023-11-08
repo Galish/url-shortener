@@ -15,6 +15,8 @@ type apiBatchEntity struct {
 }
 
 func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var req []apiBatchEntity
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
@@ -36,7 +38,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		id := h.generateUniqueID(8)
+		id := h.generateUniqueID(ctx, idLength)
 
 		resp = append(
 			resp,
@@ -49,7 +51,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 		entries = append(entries, [2]string{id, entity.OriginalURL})
 	}
 
-	if err := h.repo.SetBatch(entries...); err != nil {
+	if err := h.repo.SetBatch(ctx, entries...); err != nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return

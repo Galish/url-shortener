@@ -1,6 +1,9 @@
 package kvstore
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 type KVStore struct {
 	store map[string]string
@@ -12,7 +15,7 @@ func New() *KVStore {
 	}
 }
 
-func (s *KVStore) Get(key string) (string, error) {
+func (s *KVStore) Get(ctx context.Context, key string) (string, error) {
 	value, ok := s.store[key]
 	if !ok {
 		return "", errors.New("record doesn't not exist")
@@ -21,26 +24,26 @@ func (s *KVStore) Get(key string) (string, error) {
 	return value, nil
 }
 
-func (s *KVStore) Set(key, value string) error {
+func (s *KVStore) Set(ctx context.Context, key, value string) error {
 	s.store[key] = value
 	return nil
 }
 
-func (s *KVStore) SetBatch(entries ...[2]string) error {
+func (s *KVStore) SetBatch(ctx context.Context, entries ...[2]string) error {
 	for _, entry := range entries {
-		s.Set(entry[0], entry[1])
+		s.Set(ctx, entry[0], entry[1])
 	}
 
 	return nil
 }
 
-func (s *KVStore) Has(key string) bool {
+func (s *KVStore) Has(ctx context.Context, key string) bool {
 	_, ok := s.store[key]
 
 	return ok
 }
 
-func (s *KVStore) Ping() (bool, error) {
+func (s *KVStore) Ping(ctx context.Context) (bool, error) {
 	return true, nil
 }
 

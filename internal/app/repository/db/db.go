@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -28,21 +29,24 @@ func New(addr string) (*dbStore, error) {
 	return &dbStore{db}, nil
 }
 
-func (db *dbStore) Bootstrap() error {
-	tx, err := db.store.Begin()
+func (db *dbStore) Bootstrap(ctx context.Context) error {
+	tx, err := db.store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	logger.Info("database initialization")
 
-	_, err = tx.Exec(`
-		CREATE TABLE IF NOT EXISTS links (
-			id serial PRIMARY KEY,
-			short_url char(8) NOT NULL,
-			original_url varchar(250) NOT NULL
-		)
-	`)
+	_, err = tx.ExecContext(
+		ctx,
+		`
+			CREATE TABLE IF NOT EXISTS links (
+				id serial PRIMARY KEY,
+				short_url char(8) NOT NULL,
+				original_url varchar(250) NOT NULL
+			)
+		`,
+	)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -61,8 +65,9 @@ func (db *dbStore) Bootstrap() error {
 	return tx.Commit()
 }
 
-func (db *dbStore) Get(key string) (string, error) {
-	row := db.store.QueryRow(
+func (db *dbStore) Get(ctx context.Context, key string) (string, error) {
+	row := db.store.QueryRowContext(
+		ctx,
 		"SELECT original_url FROM links WHERE short_url = $1;", key,
 	)
 
@@ -74,8 +79,9 @@ func (db *dbStore) Get(key string) (string, error) {
 	return originalLink, nil
 }
 
-func (db *dbStore) Set(key, value string) error {
-	row := db.store.QueryRow(
+func (db *dbStore) Set(ctx context.Context, key, value string) error {
+	row := db.store.QueryRowContext(
+		ctx,
 		`
 			INSERT INTO links (short_url, original_url)
 			VALUES ($1, $2)
@@ -103,13 +109,14 @@ func (db *dbStore) Set(key, value string) error {
 	return nil
 }
 
-func (db *dbStore) SetBatch(entries ...[2]string) error {
-	tx, err := db.store.Begin()
+func (db *dbStore) SetBatch(ctx context.Context, entries ...[2]string) error {
+	tx, err := db.store.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.Prepare(
+	stmt, err := tx.PrepareContext(
+		ctx,
 		"INSERT INTO links (short_url, original_url) VALUES ($1, $2)",
 	)
 	if err != nil {
@@ -130,8 +137,9 @@ func (db *dbStore) SetBatch(entries ...[2]string) error {
 	return tx.Commit()
 }
 
-func (db *dbStore) Has(key string) bool {
-	row := db.store.QueryRow(
+func (db *dbStore) Has(ctx context.Context, key string) bool {
+	row := db.store.QueryRowContext(
+		ctx,
 		"SELECT EXISTS(SELECT 1 FROM links WHERE short_url = $1);", key,
 	)
 
@@ -143,8 +151,8 @@ func (db *dbStore) Has(key string) bool {
 	return value
 }
 
-func (db *dbStore) Ping() (bool, error) {
-	if err := db.store.Ping(); err != nil {
+func (db *dbStore) Ping(ctx context.Context) (bool, error) {
+	if err := db.store.PingContext(ctx); err != nil {
 		return false, err
 	}
 
