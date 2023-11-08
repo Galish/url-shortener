@@ -40,7 +40,7 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	if errConflict != nil {
-		id = errConflict.ShortUrl
+		id = errConflict.ShortURL
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)

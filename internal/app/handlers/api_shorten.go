@@ -43,7 +43,7 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if errConflict != nil {
-		id = errConflict.ShortUrl
+		id = errConflict.ShortURL
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
