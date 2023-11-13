@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 )
 
 type apiRequest struct {
@@ -34,7 +34,7 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 
 	id := h.generateUniqueID(ctx, idLength)
 	err := h.repo.Set(ctx, id, req.URL)
-	errConflict := repository.AsErrConflict(err)
+	errConflict := repoErr.AsErrConflict(err)
 
 	if err != nil && errConflict == nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)

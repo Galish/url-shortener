@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 )
@@ -100,8 +100,8 @@ func (db *dbStore) Set(ctx context.Context, key, value string) error {
 	}
 
 	if shortURL != key {
-		return repository.NewRepoError(
-			repository.ErrConflict,
+		return repoErr.New(
+			repoErr.ErrConflict,
 			shortURL,
 			value,
 		)

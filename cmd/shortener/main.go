@@ -1,15 +1,10 @@
 package main
 
 import (
-	"context"
-
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/internal/app/repository/db"
-	"github.com/Galish/url-shortener/internal/app/repository/filestore"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
 	"github.com/Galish/url-shortener/internal/app/server"
 )
 
@@ -18,7 +13,7 @@ func main() {
 
 	logger.Initialize(cfg.LogLevel)
 
-	store, err := newRepo(cfg)
+	store, err := repository.New(cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -30,25 +25,4 @@ func main() {
 	if err := httpServer.Run(); err != nil {
 		panic(err)
 	}
-}
-
-func newRepo(cfg *config.Config) (repository.Repository, error) {
-	if cfg.DBAddr != "" {
-		repo, err := db.New(cfg.DBAddr)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := repo.Bootstrap(context.Background()); err != nil {
-			return nil, err
-		}
-
-		return repo, nil
-	}
-
-	if cfg.FilePath != "" {
-		return filestore.New(cfg.FilePath)
-	}
-
-	return kvstore.New(), nil
 }

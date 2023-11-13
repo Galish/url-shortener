@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -31,7 +31,7 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	id := h.generateUniqueID(ctx, idLength)
 	err = h.repo.Set(ctx, id, url)
-	errConflict := repository.AsErrConflict(err)
+	errConflict := repoErr.AsErrConflict(err)
 
 	if err != nil && errConflict == nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
