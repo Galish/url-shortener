@@ -30,7 +30,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := make([]apiBatchEntity, 0, len(req))
-	entries := make([][2]string, 0, len(req))
+	rows := make([][]interface{}, 0, len(req))
 
 	for _, entity := range req {
 		if entity.OriginalURL == "" {
@@ -48,10 +48,10 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 
-		entries = append(entries, [2]string{id, entity.OriginalURL})
+		rows = append(rows, []interface{}{id, entity.OriginalURL})
 	}
 
-	if err := h.repo.SetBatch(ctx, entries...); err != nil {
+	if err := h.repo.SetBatch(ctx, rows...); err != nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return

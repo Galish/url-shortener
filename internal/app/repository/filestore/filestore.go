@@ -52,9 +52,9 @@ func (fs *fileStore) Set(ctx context.Context, key, value string) error {
 	return nil
 }
 
-func (fs *fileStore) SetBatch(ctx context.Context, entries ...[2]string) error {
-	for _, entry := range entries {
-		fs.Set(ctx, entry[0], entry[1])
+func (fs *fileStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
+	for _, row := range rows {
+		fs.Set(ctx, row[0].(string), row[1].(string))
 	}
 
 	return nil

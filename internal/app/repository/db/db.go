@@ -7,7 +7,8 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 )
 
 type dbStore struct {
@@ -109,32 +110,32 @@ func (db *dbStore) Set(ctx context.Context, key, value string) error {
 	return nil
 }
 
-func (db *dbStore) SetBatch(ctx context.Context, entries ...[2]string) error {
-	tx, err := db.store.BeginTx(ctx, nil)
+func (db *dbStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
+	conn, err := db.store.Conn(context.Background())
 	if err != nil {
 		return err
 	}
 
-	stmt, err := tx.PrepareContext(
-		ctx,
-		"INSERT INTO links (short_url, original_url) VALUES ($1, $2)",
-	)
-	if err != nil {
-		return err
-	}
+	err = conn.Raw(func(driverConn interface{}) error {
+		conn := driverConn.(*stdlib.Conn).Conn()
 
-	for _, entry := range entries {
-		_, err := stmt.Exec(
-			entry[0],
-			entry[1],
+		_, err := conn.CopyFrom(
+			context.Background(),
+			pgx.Identifier{"links"},
+			[]string{"short_url", "original_url"},
+			pgx.CopyFromRows(rows),
 		)
 		if err != nil {
-			tx.Rollback()
 			return err
 		}
+
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 func (db *dbStore) Has(ctx context.Context, key string) bool {

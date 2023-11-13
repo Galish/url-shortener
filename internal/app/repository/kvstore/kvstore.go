@@ -29,9 +29,9 @@ func (s *KVStore) Set(ctx context.Context, key, value string) error {
 	return nil
 }
 
-func (s *KVStore) SetBatch(ctx context.Context, entries ...[2]string) error {
-	for _, entry := range entries {
-		s.Set(ctx, entry[0], entry[1])
+func (s *KVStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
+	for _, row := range rows {
+		s.Set(ctx, row[0].(string), row[1].(string))
 	}
 
 	return nil
