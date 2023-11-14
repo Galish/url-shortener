@@ -1,4 +1,4 @@
-package repoErrors
+package repoerrors
 
 import "errors"
 
