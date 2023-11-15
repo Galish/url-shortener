@@ -3,25 +3,24 @@ package compress
 import (
 	"compress/gzip"
 	"io"
-	"net/http"
 )
 
-type GzipCompressor struct {
+type gzipCompressor struct {
 	algorithm string
 }
 
-func NewGzipCompressor() *GzipCompressor {
-	return &GzipCompressor{"gzip"}
+func NewGzipCompressor() *gzipCompressor {
+	return &gzipCompressor{"gzip"}
 }
 
-func (gz *GzipCompressor) NewReader(r io.ReadCloser) (io.ReadCloser, error) {
+func (gz *gzipCompressor) NewReader(r io.Reader) (io.ReadCloser, error) {
 	return gzip.NewReader(r)
 }
 
-func (gz *GzipCompressor) NewWriter(w http.ResponseWriter) io.WriteCloser {
+func (gz *gzipCompressor) NewWriter(w io.Writer) io.WriteCloser {
 	return gzip.NewWriter(w)
 }
 
-func (gz *GzipCompressor) String() string {
+func (gz *gzipCompressor) String() string {
 	return gz.algorithm
 }
