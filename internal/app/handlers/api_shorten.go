@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 )
 
 type apiRequest struct {
@@ -17,6 +18,8 @@ type apiResponse struct {
 }
 
 func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var req apiRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
@@ -29,16 +32,24 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := h.generateUniqueID(8)
+	id := h.generateUniqueID(ctx, idLength)
+	err := h.repo.Set(ctx, id, req.URL)
+	errConflict := repoErr.AsErrConflict(err)
 
-	if err := h.repo.Set(id, req.URL); err != nil {
+	if err != nil && errConflict == nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+
+	if errConflict != nil {
+		id = errConflict.ShortURL
+		w.WriteHeader(http.StatusConflict)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
 
 	resp := apiResponse{
 		Result: fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),

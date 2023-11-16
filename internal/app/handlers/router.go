@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/Galish/url-shortener/internal/app/compress"
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository"
@@ -15,6 +16,12 @@ type httpHandler struct {
 func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	router := chi.NewRouter()
 	handler := httpHandler{cfg, repo}
+	compressor := compress.NewGzipCompressor()
+
+	router.Get(
+		"/ping",
+		middleware.WithRequestLogger(handler.ping),
+	)
 
 	router.Get(
 		"/{id}",
@@ -24,14 +31,21 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	router.Post(
 		"/",
 		middleware.WithRequestLogger(
-			middleware.WithCompression(handler.shorten),
+			middleware.WithCompression(handler.shorten, compressor),
 		),
 	)
 
 	router.Post(
 		"/api/shorten",
 		middleware.WithRequestLogger(
-			middleware.WithCompression(handler.apiShorten),
+			middleware.WithCompression(handler.apiShorten, compressor),
+		),
+	)
+
+	router.Post(
+		"/api/shorten/batch",
+		middleware.WithRequestLogger(
+			middleware.WithCompression(handler.apiShortenBatch, compressor),
 		),
 	)
 

@@ -2,6 +2,7 @@ package filestore
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"os"
 
@@ -29,7 +30,7 @@ func (fs *fileStore) restore() error {
 			return err
 		}
 
-		fs.store.Set(lnk.Short, lnk.Original)
+		fs.store.Set(context.Background(), lnk.Short, lnk.Original)
 		fs.size++
 	}
 

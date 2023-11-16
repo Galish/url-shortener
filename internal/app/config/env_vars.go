@@ -4,7 +4,7 @@ import "os"
 
 func parseEnvVars() {
 	if envAddr := os.Getenv("SERVER_ADDRESS"); envAddr != "" {
-		cfg.Addr = envAddr
+		cfg.ServAddr = envAddr
 	}
 
 	if envBaseURL := os.Getenv("BASE_URL"); envBaseURL != "" {
@@ -17,5 +17,9 @@ func parseEnvVars() {
 
 	if filePath := os.Getenv("FILE_STORAGE_PATH"); filePath != "" {
 		cfg.FilePath = filePath
+	}
+
+	if dbAddr := os.Getenv("DATABASE_DSN"); dbAddr != "" {
+		cfg.DBAddr = dbAddr
 	}
 }

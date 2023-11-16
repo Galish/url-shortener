@@ -1,10 +1,11 @@
 package config
 
 type Config struct {
-	Addr     string
+	ServAddr string
 	BaseURL  string
 	LogLevel string
 	FilePath string
+	DBAddr   string
 }
 
 var cfg Config
