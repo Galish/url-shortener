@@ -13,6 +13,12 @@ var supportedContentTypes = [2]string{
 	"text/html",
 }
 
+func WithCompressor(compressor compress.Compressor) func(http.HandlerFunc) http.HandlerFunc {
+	return func(handlerFn http.HandlerFunc) http.HandlerFunc {
+		return WithCompression(handlerFn, compressor)
+	}
+}
+
 func WithCompression(h http.HandlerFunc, compressor compress.Compressor) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		acceptEncoding := r.Header.Get("Accept-Encoding")

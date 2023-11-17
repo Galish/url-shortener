@@ -20,32 +20,46 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 
 	router.Get(
 		"/ping",
-		middleware.WithRequestLogger(handler.ping),
+		middleware.Apply(
+			handler.ping,
+			middleware.WithRequestLogger,
+			middleware.WithAuthentication,
+		),
 	)
 
 	router.Get(
 		"/{id}",
-		middleware.WithRequestLogger(handler.getFullLink),
+		middleware.Apply(
+			handler.getFullLink,
+			middleware.WithRequestLogger,
+			middleware.WithAuthentication,
+		),
 	)
 
 	router.Post(
 		"/",
-		middleware.WithRequestLogger(
-			middleware.WithCompression(handler.shorten, compressor),
+		middleware.Apply(
+			handler.shorten,
+			middleware.WithRequestLogger,
+			middleware.WithCompressor(compressor),
 		),
 	)
 
 	router.Post(
 		"/api/shorten",
-		middleware.WithRequestLogger(
-			middleware.WithCompression(handler.apiShorten, compressor),
+		middleware.Apply(
+			handler.apiShorten,
+			middleware.WithRequestLogger,
+			middleware.WithCompressor(compressor),
 		),
 	)
 
 	router.Post(
 		"/api/shorten/batch",
-		middleware.WithRequestLogger(
-			middleware.WithCompression(handler.apiShortenBatch, compressor),
+		middleware.Apply(
+			handler.apiShortenBatch,
+			middleware.WithRequestLogger,
+			middleware.WithCompressor(compressor),
 		),
 	)
 
