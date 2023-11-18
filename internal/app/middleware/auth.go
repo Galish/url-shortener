@@ -67,13 +67,13 @@ func retrieveUserID(r *http.Request) (string, bool) {
 		logger.WithError(err).Debug("unable to extract auth cookie")
 	}
 	if cookie == nil {
-		return uuid.New().String(), false
+		return uuid.New().String(), true
 	}
 
 	claims, err := auth.ParseToken(cookie.Value)
 	if err != nil {
 		logger.WithError(err).Debug("unable to parse auth token")
-		return uuid.New().String(), false
+		return uuid.New().String(), true
 	}
 	if claims.UserID == "" {
 		return uuid.New().String(), false
