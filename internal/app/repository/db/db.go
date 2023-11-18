@@ -129,7 +129,7 @@ func (db *dbStore) Set(ctx context.Context, shortLink *models.ShortLink) error {
 		return err
 	}
 
-	if shortURL != shortLink.ID {
+	if shortURL != shortLink.Short {
 		return repoErr.New(
 			repoErr.ErrConflict,
 			shortURL,
