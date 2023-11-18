@@ -14,8 +14,9 @@ func WithAuthentication(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, isNewUser := getUserDetails(r)
 
+		r.Header.Set("UserID", userID)
+
 		if !isNewUser {
-			r.Header.Set("UserID", userID)
 			h(w, r)
 			return
 		}

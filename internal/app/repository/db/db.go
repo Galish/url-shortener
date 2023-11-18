@@ -106,6 +106,10 @@ func (db *dbStore) GetByUser(ctx context.Context, userID string) ([]*models.Shor
 		list = append(list, &link)
 	}
 
+	if err := rows.Err(); err != nil {
+		return []*models.ShortLink{}, err
+	}
+
 	return list, nil
 }
 
