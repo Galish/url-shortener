@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/middleware"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
@@ -32,7 +33,7 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 		&models.ShortLink{
 			Short:    id,
 			Original: req.URL,
-			User:     r.Header.Get("UserID"),
+			User:     r.Header.Get(middleware.AuthHeaderName),
 		},
 	)
 	errConflict := repoErr.AsErrConflict(err)

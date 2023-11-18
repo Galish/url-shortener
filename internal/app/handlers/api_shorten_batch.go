@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
 
@@ -48,7 +49,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 			&models.ShortLink{
 				Short:    id,
 				Original: entity.OriginalURL,
-				User:     r.Header.Get("UserID"),
+				User:     r.Header.Get(middleware.AuthHeaderName),
 			},
 		)
 	}

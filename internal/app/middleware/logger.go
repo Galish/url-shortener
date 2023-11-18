@@ -27,6 +27,7 @@ func WithRequestLogger(h http.HandlerFunc) http.HandlerFunc {
 			"duration": time.Since(start),
 			"method":   r.Method,
 			"uri":      r.RequestURI,
+			"user":     r.Header.Get(AuthHeaderName),
 		}).Info("incoming request")
 	}
 }

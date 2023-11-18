@@ -8,15 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
-const authCookieName = "auth"
+const (
+	AuthCookieName = "auth"
+	AuthHeaderName = "X-User"
+)
 
-func WithAuthentication(h http.HandlerFunc) http.HandlerFunc {
+func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, isNewUser := getUserDetails(r)
+		userID, isAuthorized := getUserDetails(r)
 
-		r.Header.Set("UserID", userID)
+		r.Header.Set(AuthHeaderName, userID)
 
-		if !isNewUser {
+		if isAuthorized {
 			h(w, r)
 			return
 		}
@@ -33,7 +36,7 @@ func WithAuthentication(h http.HandlerFunc) http.HandlerFunc {
 		http.SetCookie(
 			w,
 			&http.Cookie{
-				Name:  authCookieName,
+				Name:  AuthCookieName,
 				Value: token,
 			},
 		)
@@ -42,23 +45,40 @@ func WithAuthentication(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID, isAuthorized := getUserDetails(r)
+
+		if isAuthorized {
+			r.Header.Set(AuthHeaderName, userID)
+			h(w, r)
+			return
+		}
+
+		logger.Debug("unauthorized access attempt")
+
+		r.Header.Del(AuthHeaderName)
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
+
 func getUserDetails(r *http.Request) (string, bool) {
-	cookie, err := r.Cookie(authCookieName)
+	cookie, err := r.Cookie(AuthCookieName)
 	if err != nil {
-		logger.WithError(err).Error("unable to extract auth cookie")
+		logger.WithError(err).Debug("unable to extract auth cookie")
 	}
 	if cookie == nil {
-		return uuid.New().String(), true
+		return uuid.New().String(), false
 	}
 
 	claims, err := auth.ParseToken(cookie.Value)
 	if err != nil {
-		logger.WithError(err).Error("unable to parse auth token")
-		return uuid.New().String(), true
+		logger.WithError(err).Debug("unable to parse auth token")
+		return uuid.New().String(), false
 	}
 	if claims.UserID == "" {
-		return uuid.New().String(), true
+		return uuid.New().String(), false
 	}
 
-	return claims.UserID, false
+	return claims.UserID, true
 }

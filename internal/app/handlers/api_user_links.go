@@ -6,15 +6,12 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/middleware"
 )
 
 func (h *httpHandler) apiUserLinks(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("UserID") == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	shortLinks, err := h.repo.GetByUser(r.Context(), r.Header.Get("UserID"))
+	userID := r.Header.Get(middleware.AuthHeaderName)
+	shortLinks, err := h.repo.GetByUser(r.Context(), userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger.WithError(err).Error("unable to read from repository")

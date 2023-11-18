@@ -23,7 +23,6 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		middleware.Apply(
 			handler.ping,
 			middleware.WithRequestLogger,
-			middleware.WithAuthentication,
 		),
 	)
 
@@ -32,37 +31,6 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		middleware.Apply(
 			handler.getFullLink,
 			middleware.WithRequestLogger,
-			middleware.WithAuthentication,
-		),
-	)
-
-	router.Post(
-		"/",
-		middleware.Apply(
-			handler.shorten,
-			middleware.WithRequestLogger,
-			middleware.WithCompressor(compressor),
-			middleware.WithAuthentication,
-		),
-	)
-
-	router.Post(
-		"/api/shorten",
-		middleware.Apply(
-			handler.apiShorten,
-			middleware.WithRequestLogger,
-			middleware.WithCompressor(compressor),
-			middleware.WithAuthentication,
-		),
-	)
-
-	router.Post(
-		"/api/shorten/batch",
-		middleware.Apply(
-			handler.apiShortenBatch,
-			middleware.WithRequestLogger,
-			middleware.WithCompressor(compressor),
-			middleware.WithAuthentication,
 		),
 	)
 
@@ -72,7 +40,37 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 			handler.apiUserLinks,
 			middleware.WithRequestLogger,
 			middleware.WithCompressor(compressor),
-			middleware.WithAuthentication,
+			middleware.WithAuthChecker,
+		),
+	)
+
+	router.Post(
+		"/",
+		middleware.Apply(
+			handler.shorten,
+			middleware.WithCompressor(compressor),
+			middleware.WithAuthToken,
+			middleware.WithRequestLogger,
+		),
+	)
+
+	router.Post(
+		"/api/shorten",
+		middleware.Apply(
+			handler.apiShorten,
+			middleware.WithCompressor(compressor),
+			middleware.WithAuthToken,
+			middleware.WithRequestLogger,
+		),
+	)
+
+	router.Post(
+		"/api/shorten/batch",
+		middleware.Apply(
+			handler.apiShortenBatch,
+			middleware.WithCompressor(compressor),
+			middleware.WithAuthToken,
+			middleware.WithRequestLogger,
 		),
 	)
 
