@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/auth"
@@ -13,16 +15,24 @@ const (
 	AuthHeaderName = "X-User"
 )
 
+var errMissingUserID = errors.New("user id not specified")
+
 func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, isAuthorized := retrieveUserID(r)
+		userID, err := retrieveUserID(r)
+		if err != nil {
+			logger.Debug(err)
+		}
 
-		r.Header.Set(AuthHeaderName, userID)
-
-		if isAuthorized {
+		if userID != "" {
+			r.Header.Set(AuthHeaderName, userID)
 			h(w, r)
 			return
 		}
+
+		userID = uuid.NewString()
+
+		r.Header.Set(AuthHeaderName, userID)
 
 		token, err := auth.NewToken(&auth.JWTClaims{
 			UserID: userID,
@@ -47,37 +57,34 @@ func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 
 func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, isAuthorized := retrieveUserID(r)
-
-		if isAuthorized {
-			r.Header.Set(AuthHeaderName, userID)
-			h(w, r)
-			return
+		userID, err := retrieveUserID(r)
+		if err != nil {
+			logger.Debug(err)
 		}
 
-		logger.Debug("unauthorized access attempt")
+		if errors.Is(err, errMissingUserID) {
+			logger.Debug("unauthorized access attempt")
+			w.WriteHeader(http.StatusUnauthorized)
+		}
 
-		w.WriteHeader(http.StatusUnauthorized)
+		r.Header.Set(AuthHeaderName, userID)
+		h(w, r)
 	}
 }
 
-func retrieveUserID(r *http.Request) (string, bool) {
+func retrieveUserID(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(AuthCookieName)
 	if err != nil {
-		logger.WithError(err).Debug("unable to extract auth cookie")
-	}
-	if cookie == nil {
-		return uuid.New().String(), true
+		return "", fmt.Errorf("unable to extract auth cookie: %w", err)
 	}
 
 	claims, err := auth.ParseToken(cookie.Value)
 	if err != nil {
-		logger.WithError(err).Debug("unable to parse auth token")
-		return uuid.New().String(), true
+		return "", fmt.Errorf("unable to parse auth token: %w", err)
 	}
 	if claims.UserID == "" {
-		return uuid.New().String(), false
+		return "", errMissingUserID
 	}
 
-	return claims.UserID, true
+	return claims.UserID, nil
 }

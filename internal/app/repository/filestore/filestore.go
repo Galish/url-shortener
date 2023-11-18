@@ -40,6 +40,7 @@ func (fs *fileStore) Get(ctx context.Context, key string) (string, error) {
 }
 
 func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*models.ShortLink, error) {
+	// TODO: implement
 	return []*models.ShortLink{}, nil
 }
 
