@@ -7,12 +7,14 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/db"
 	"github.com/Galish/url-shortener/internal/app/repository/filestore"
 	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
 
 type Repository interface {
 	Get(context.Context, string) (string, error)
-	Set(context.Context, string, string) error
-	SetBatch(context.Context, ...[]interface{}) error
+	GetByUser(context.Context, string) ([]*models.ShortLink, error)
+	Set(context.Context, *models.ShortLink) error
+	SetBatch(context.Context, ...*models.ShortLink) error
 	Has(context.Context, string) bool
 	Ping(context.Context) (bool, error)
 	Close() error

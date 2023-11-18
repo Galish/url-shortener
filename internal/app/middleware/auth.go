@@ -14,9 +14,8 @@ func WithAuthentication(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, isNewUser := getUserDetails(r)
 
-		r.Header.Set("UserID", userID)
-
 		if !isNewUser {
+			r.Header.Set("UserID", userID)
 			h(w, r)
 			return
 		}
@@ -56,7 +55,6 @@ func getUserDetails(r *http.Request) (string, bool) {
 		logger.WithError(err).Error("unable to parse auth token")
 		return uuid.New().String(), true
 	}
-
 	if claims.UserID == "" {
 		return uuid.New().String(), true
 	}

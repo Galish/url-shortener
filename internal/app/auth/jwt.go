@@ -20,14 +20,10 @@ func NewToken(claims *JWTClaims) (string, error) {
 		claims,
 	)
 
-	fmt.Println("token:", token)
-
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return "", err
 	}
-
-	fmt.Println("tokenString:", tokenString)
 
 	return tokenString, nil
 }

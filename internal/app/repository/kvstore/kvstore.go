@@ -3,6 +3,8 @@ package kvstore
 import (
 	"context"
 	"errors"
+
+	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
 
 type KVStore struct {
@@ -24,14 +26,18 @@ func (s *KVStore) Get(ctx context.Context, key string) (string, error) {
 	return value, nil
 }
 
-func (s *KVStore) Set(ctx context.Context, key, value string) error {
-	s.store[key] = value
+func (s *KVStore) GetByUser(ctx context.Context, userID string) ([]*models.ShortLink, error) {
+	return []*models.ShortLink{}, nil
+}
+
+func (s *KVStore) Set(ctx context.Context, shortLink *models.ShortLink) error {
+	s.store[shortLink.Short] = shortLink.Original
 	return nil
 }
 
-func (s *KVStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
-	for _, row := range rows {
-		s.Set(ctx, row[0].(string), row[1].(string))
+func (s *KVStore) SetBatch(ctx context.Context, shortLinks ...*models.ShortLink) error {
+	for _, shortLink := range shortLinks {
+		s.Set(ctx, shortLink)
 	}
 
 	return nil

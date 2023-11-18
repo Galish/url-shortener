@@ -42,6 +42,7 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 			handler.shorten,
 			middleware.WithRequestLogger,
 			middleware.WithCompressor(compressor),
+			middleware.WithAuthentication,
 		),
 	)
 
@@ -51,6 +52,7 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 			handler.apiShorten,
 			middleware.WithRequestLogger,
 			middleware.WithCompressor(compressor),
+			middleware.WithAuthentication,
 		),
 	)
 
@@ -60,6 +62,17 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 			handler.apiShortenBatch,
 			middleware.WithRequestLogger,
 			middleware.WithCompressor(compressor),
+			middleware.WithAuthentication,
+		),
+	)
+
+	router.Get(
+		"/api/user/urls",
+		middleware.Apply(
+			handler.apiUserLinks,
+			middleware.WithRequestLogger,
+			middleware.WithCompressor(compressor),
+			middleware.WithAuthentication,
 		),
 	)
 

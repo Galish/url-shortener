@@ -3,11 +3,11 @@ package handlers
 import (
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
+	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -30,7 +30,15 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := h.generateUniqueID(ctx, idLength)
-	err = h.repo.Set(ctx, id, url)
+
+	err = h.repo.Set(
+		ctx,
+		&models.ShortLink{
+			Short:    id,
+			Original: url,
+			User:     r.Header.Get("UserID"),
+		},
+	)
 	errConflict := repoErr.AsErrConflict(err)
 
 	if err != nil && errConflict == nil {
@@ -51,14 +59,4 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
 
 	w.Write([]byte(fullLink))
-}
-
-func generateID(length int) string {
-	id := make([]byte, length)
-
-	for i := range id {
-		id[i] = alphabet[rand.Intn(len(alphabet))]
-	}
-
-	return string(id)
 }

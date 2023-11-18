@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
 
 func (fs *fileStore) initWriter() error {
@@ -25,16 +26,14 @@ func (fs *fileStore) initWriter() error {
 	return nil
 }
 
-func (fs *fileStore) write(key, value string) error {
+func (fs *fileStore) write(shortLink *models.ShortLink) error {
 	if fs.filepath == "" {
 		return nil
 	}
 
-	data, err := json.Marshal(link{
-		ID:       strconv.Itoa(fs.size),
-		Short:    key,
-		Original: value,
-	})
+	shortLink.ID = strconv.Itoa(fs.size)
+
+	data, err := json.Marshal(shortLink)
 	if err != nil {
 		return err
 	}

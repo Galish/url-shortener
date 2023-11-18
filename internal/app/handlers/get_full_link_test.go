@@ -9,13 +9,20 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetFullLink(t *testing.T) {
 	repo := kvstore.New()
-	repo.Set(context.Background(), "c2WD8F2q", "https://practicum.yandex.ru/")
+	repo.Set(
+		context.Background(),
+		&models.ShortLink{
+			Short:    "c2WD8F2q",
+			Original: "https://practicum.yandex.ru/",
+		},
+	)
 
 	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))
 	defer ts.Close()

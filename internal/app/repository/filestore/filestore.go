@@ -7,6 +7,7 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/models"
 )
 
 type fileStore struct {
@@ -38,12 +39,16 @@ func (fs *fileStore) Get(ctx context.Context, key string) (string, error) {
 	return fs.store.Get(ctx, key)
 }
 
-func (fs *fileStore) Set(ctx context.Context, key, value string) error {
-	if err := fs.write(key, value); err != nil {
+func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*models.ShortLink, error) {
+	return []*models.ShortLink{}, nil
+}
+
+func (fs *fileStore) Set(ctx context.Context, shortLink *models.ShortLink) error {
+	if err := fs.write(shortLink); err != nil {
 		return err
 	}
 
-	if err := fs.store.Set(ctx, key, value); err != nil {
+	if err := fs.store.Set(ctx, shortLink); err != nil {
 		return err
 	}
 
@@ -52,9 +57,9 @@ func (fs *fileStore) Set(ctx context.Context, key, value string) error {
 	return nil
 }
 
-func (fs *fileStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
-	for _, row := range rows {
-		fs.Set(ctx, row[0].(string), row[1].(string))
+func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*models.ShortLink) error {
+	for _, shortLink := range shortLinks {
+		fs.Set(ctx, shortLink)
 	}
 
 	return nil
