@@ -19,20 +19,22 @@ var errMissingUserID = errors.New("user id not specified")
 
 func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, err := retrieveUserID(r)
+		userID, err := getUserID(r)
 		if err != nil {
 			logger.Debug(err)
 		}
 
-		if userID != "" {
-			r.Header.Set(AuthHeaderName, userID)
+		isAuthorized := userID != ""
+		if !isAuthorized {
+			userID = uuid.NewString()
+		}
+
+		r.Header.Set(AuthHeaderName, userID)
+
+		if isAuthorized {
 			h(w, r)
 			return
 		}
-
-		userID = uuid.NewString()
-
-		r.Header.Set(AuthHeaderName, userID)
 
 		token, err := auth.NewToken(&auth.JWTClaims{
 			UserID: userID,
@@ -57,7 +59,7 @@ func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 
 func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, err := retrieveUserID(r)
+		userID, err := getUserID(r)
 		if err != nil {
 			logger.Debug(err)
 		}
@@ -65,6 +67,7 @@ func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 		if errors.Is(err, errMissingUserID) {
 			logger.Debug("unauthorized access attempt")
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 
 		r.Header.Set(AuthHeaderName, userID)
@@ -72,7 +75,7 @@ func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func retrieveUserID(r *http.Request) (string, error) {
+func getUserID(r *http.Request) (string, error) {
 	cookie, err := r.Cookie(AuthCookieName)
 	if err != nil {
 		return "", fmt.Errorf("unable to extract auth cookie: %w", err)
