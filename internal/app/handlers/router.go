@@ -30,6 +30,7 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		"/{id}",
 		middleware.Apply(
 			handler.getFullLink,
+			middleware.WithAuthToken,
 			middleware.WithRequestLogger,
 		),
 	)
@@ -38,9 +39,10 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		"/api/user/urls",
 		middleware.Apply(
 			handler.apiUserLinks,
-			middleware.WithRequestLogger,
-			middleware.WithCompressor(compressor),
+			middleware.WithAuthToken,
 			middleware.WithAuthChecker,
+			middleware.WithCompressor(compressor),
+			middleware.WithRequestLogger,
 		),
 	)
 
@@ -48,8 +50,8 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		"/",
 		middleware.Apply(
 			handler.shorten,
-			middleware.WithCompressor(compressor),
 			middleware.WithAuthToken,
+			middleware.WithCompressor(compressor),
 			middleware.WithRequestLogger,
 		),
 	)
@@ -58,8 +60,8 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		"/api/shorten",
 		middleware.Apply(
 			handler.apiShorten,
-			middleware.WithCompressor(compressor),
 			middleware.WithAuthToken,
+			middleware.WithCompressor(compressor),
 			middleware.WithRequestLogger,
 		),
 	)
@@ -68,8 +70,8 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 		"/api/shorten/batch",
 		middleware.Apply(
 			handler.apiShortenBatch,
-			middleware.WithCompressor(compressor),
 			middleware.WithAuthToken,
+			middleware.WithCompressor(compressor),
 			middleware.WithRequestLogger,
 		),
 	)

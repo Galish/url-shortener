@@ -8,8 +8,8 @@ func Apply(
 ) http.HandlerFunc {
 	wrappedFn := handlerFn
 
-	for _, middleware := range middlewares {
-		wrappedFn = middleware(wrappedFn)
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		wrappedFn = middlewares[i](wrappedFn)
 	}
 
 	return wrappedFn

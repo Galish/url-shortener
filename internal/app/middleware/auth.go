@@ -15,7 +15,7 @@ const (
 
 func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, isAuthorized := getUserDetails(r)
+		userID, isAuthorized := retrieveUserID(r)
 
 		r.Header.Set(AuthHeaderName, userID)
 
@@ -47,7 +47,7 @@ func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 
 func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID, isAuthorized := getUserDetails(r)
+		userID, isAuthorized := retrieveUserID(r)
 
 		if isAuthorized {
 			r.Header.Set(AuthHeaderName, userID)
@@ -57,12 +57,11 @@ func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 
 		logger.Debug("unauthorized access attempt")
 
-		r.Header.Del(AuthHeaderName)
 		w.WriteHeader(http.StatusUnauthorized)
 	}
 }
 
-func getUserDetails(r *http.Request) (string, bool) {
+func retrieveUserID(r *http.Request) (string, bool) {
 	cookie, err := r.Cookie(AuthCookieName)
 	if err != nil {
 		logger.WithError(err).Debug("unable to extract auth cookie")
