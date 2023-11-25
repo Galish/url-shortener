@@ -66,6 +66,10 @@ func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*models.ShortLi
 	return nil
 }
 
+func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*models.ShortLink) error {
+	return nil
+}
+
 func (fs *fileStore) Has(ctx context.Context, key string) bool {
 	return fs.store.Has(ctx, key)
 }

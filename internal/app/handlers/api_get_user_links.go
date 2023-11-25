@@ -9,7 +9,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/middleware"
 )
 
-func (h *httpHandler) apiUserLinks(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(middleware.AuthHeaderName)
 	shortLinks, err := h.repo.GetByUser(r.Context(), userID)
 	if err != nil {

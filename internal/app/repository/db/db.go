@@ -46,7 +46,8 @@ func (db *dbStore) Bootstrap(ctx context.Context) error {
 				id serial PRIMARY KEY,
 				short_url char(8) NOT NULL,
 				original_url varchar(250) NOT NULL,
-				user_id char(36)
+				user_id char(36),
+				is_deleted boolean DEFAULT false
 			)
 		`,
 	)
@@ -162,7 +163,7 @@ func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*models.ShortLink
 		}
 
 		_, err := conn.CopyFrom(
-			context.Background(),
+			ctx,
 			pgx.Identifier{"links"},
 			[]string{"short_url", "original_url", "user_id"},
 			pgx.CopyFromRows(rows),
@@ -170,6 +171,54 @@ func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*models.ShortLink
 		if err != nil {
 			return err
 		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *dbStore) Delete(ctx context.Context, shortLinks ...*models.ShortLink) error {
+	conn, err := db.store.Conn(context.Background())
+	if err != nil {
+		return err
+	}
+
+	query := `
+		UPDATE links
+		AS t
+		SET
+			is_deleted = true
+		FROM (
+			VALUES (@shortURL, @userID)
+		)
+		AS c(short_url, user_id)
+		WHERE (
+			c.short_url = t.short_url
+			AND
+			c.user_id = t.user_id
+		)
+	`
+
+	err = conn.Raw(func(driverConn interface{}) error {
+		conn := driverConn.(*stdlib.Conn).Conn()
+
+		batch := &pgx.Batch{}
+		for _, link := range shortLinks {
+			args := pgx.NamedArgs{
+				"shortURL": link.Short,
+				"userID":   link.User,
+			}
+			batch.Queue(query, args)
+		}
+
+		conn.SendBatch(
+			ctx,
+			batch,
+		)
 
 		return nil
 	})

@@ -15,6 +15,7 @@ type Repository interface {
 	GetByUser(context.Context, string) ([]*models.ShortLink, error)
 	Set(context.Context, *models.ShortLink) error
 	SetBatch(context.Context, ...*models.ShortLink) error
+	Delete(context.Context, ...*models.ShortLink) error
 	Has(context.Context, string) bool
 	Ping(context.Context) (bool, error)
 	Close() error

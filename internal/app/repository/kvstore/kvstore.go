@@ -44,6 +44,10 @@ func (s *KVStore) SetBatch(ctx context.Context, shortLinks ...*models.ShortLink)
 	return nil
 }
 
+func (s *KVStore) Delete(ctx context.Context, shortLinks ...*models.ShortLink) error {
+	return nil
+}
+
 func (s *KVStore) Has(ctx context.Context, key string) bool {
 	_, ok := s.store[key]
 
