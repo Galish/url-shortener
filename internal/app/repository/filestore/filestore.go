@@ -35,7 +35,7 @@ func New(filepath string) (*fileStore, error) {
 	return fs, nil
 }
 
-func (fs *fileStore) Get(ctx context.Context, key string) (string, error) {
+func (fs *fileStore) Get(ctx context.Context, key string) (*models.ShortLink, error) {
 	return fs.store.Get(ctx, key)
 }
 

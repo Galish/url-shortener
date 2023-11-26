@@ -69,18 +69,32 @@ func (db *dbStore) Bootstrap(ctx context.Context) error {
 	return tx.Commit()
 }
 
-func (db *dbStore) Get(ctx context.Context, key string) (string, error) {
+func (db *dbStore) Get(ctx context.Context, key string) (*models.ShortLink, error) {
 	row := db.store.QueryRowContext(
 		ctx,
-		"SELECT original_url FROM links WHERE short_url = $1;", key,
+		"SELECT * FROM links WHERE short_url = $1;", key,
 	)
 
-	var originalLink string
-	if err := row.Scan(&originalLink); err != nil {
-		return "", err
+	var shortLink models.ShortLink
+
+	// ID        string `json:"uuid"`
+	// Short     string `json:"short_url"`
+	// Original  string `json:"original_url"`
+	// User      string `json:"user_id,omitempty"`
+	// IsDeleted bool   `json:"is_deleted"`
+
+	// var originalLink string
+	if err := row.Scan(
+		&shortLink.ID,
+		&shortLink.Short,
+		&shortLink.Original,
+		&shortLink.User,
+		&shortLink.IsDeleted,
+	); err != nil {
+		return nil, err
 	}
 
-	return originalLink, nil
+	return &shortLink, nil
 }
 
 func (db *dbStore) GetByUser(ctx context.Context, userID string) ([]*models.ShortLink, error) {
@@ -187,40 +201,31 @@ func (db *dbStore) Delete(ctx context.Context, shortLinks ...*models.ShortLink) 
 		return err
 	}
 
-	query := `
-		UPDATE links
-		AS t
-		SET
-			is_deleted = true
-		FROM (
-			VALUES (@shortURL, @userID)
-		)
-		AS c(short_url, user_id)
-		WHERE (
-			c.short_url = t.short_url
-			AND
-			c.user_id = t.user_id
-		)
-	`
-
 	err = conn.Raw(func(driverConn interface{}) error {
 		conn := driverConn.(*stdlib.Conn).Conn()
 
+		query := `
+			UPDATE links
+			SET
+				is_deleted = true
+			WHERE (
+				short_url = $1
+				AND
+				user_id = $2
+			)
+		`
+
 		batch := &pgx.Batch{}
 		for _, link := range shortLinks {
-			args := pgx.NamedArgs{
-				"shortURL": link.Short,
-				"userID":   link.User,
-			}
-			batch.Queue(query, args)
+			batch.Queue(query, link.Short, link.User)
 		}
 
-		conn.SendBatch(
+		batchResults := conn.SendBatch(
 			ctx,
 			batch,
 		)
 
-		return nil
+		return batchResults.Close()
 	})
 	if err != nil {
 		return err

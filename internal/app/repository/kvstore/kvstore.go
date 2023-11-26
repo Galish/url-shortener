@@ -17,13 +17,16 @@ func New() *KVStore {
 	}
 }
 
-func (s *KVStore) Get(ctx context.Context, key string) (string, error) {
+func (s *KVStore) Get(ctx context.Context, key string) (*models.ShortLink, error) {
 	value, ok := s.store[key]
 	if !ok {
-		return "", errors.New("record doesn't not exist")
+		return nil, errors.New("record doesn't not exist")
 	}
 
-	return value, nil
+	return &models.ShortLink{
+		Short:    key,
+		Original: value,
+	}, nil
 }
 
 func (s *KVStore) GetByUser(ctx context.Context, userID string) ([]*models.ShortLink, error) {

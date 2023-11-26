@@ -11,7 +11,7 @@ import (
 )
 
 type Repository interface {
-	Get(context.Context, string) (string, error)
+	Get(context.Context, string) (*models.ShortLink, error)
 	GetByUser(context.Context, string) ([]*models.ShortLink, error)
 	Set(context.Context, *models.ShortLink) error
 	SetBatch(context.Context, ...*models.ShortLink) error

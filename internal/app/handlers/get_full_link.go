@@ -16,12 +16,17 @@ func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fullLink, err := h.repo.Get(ctx, id)
+	shortLink, err := h.repo.Get(ctx, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		logger.WithError(err).Debug("unable to read from repository")
 		return
 	}
 
-	http.Redirect(w, r, fullLink, http.StatusTemporaryRedirect)
+	if shortLink.IsDeleted {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
+
+	http.Redirect(w, r, shortLink.Original, http.StatusTemporaryRedirect)
 }
