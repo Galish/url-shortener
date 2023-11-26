@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func (fs *fileStore) restore() error {
@@ -26,7 +26,7 @@ func (fs *fileStore) restore() error {
 
 	for scanner.Scan() {
 		data := scanner.Bytes()
-		var shortLink models.ShortLink
+		var shortLink model.ShortLink
 		if err := json.Unmarshal(data, &shortLink); err != nil {
 			return err
 		}

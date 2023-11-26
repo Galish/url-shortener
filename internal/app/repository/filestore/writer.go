@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func (fs *fileStore) initWriter() error {
@@ -26,7 +26,7 @@ func (fs *fileStore) initWriter() error {
 	return nil
 }
 
-func (fs *fileStore) write(shortLink *models.ShortLink) error {
+func (fs *fileStore) write(shortLink *model.ShortLink) error {
 	if fs.filepath == "" {
 		return nil
 	}

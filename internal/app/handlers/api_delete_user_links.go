@@ -6,7 +6,7 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func (h *httpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request) {
@@ -19,9 +19,12 @@ func (h *httpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request)
 
 	go func() {
 		for _, shortURL := range shortURLs {
-			h.deleteCh <- &models.ShortLink{
-				Short: shortURL,
-				User:  r.Header.Get(middleware.AuthHeaderName),
+			h.messageCh <- &handlerMessage{
+				action: "delete",
+				shortLink: &model.ShortLink{
+					Short: shortURL,
+					User:  r.Header.Get(middleware.AuthHeaderName),
+				},
 			}
 		}
 	}()

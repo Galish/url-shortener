@@ -8,7 +8,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -34,7 +34,7 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 
 	err = h.repo.Set(
 		ctx,
-		&models.ShortLink{
+		&model.ShortLink{
 			Short:    id,
 			Original: url,
 			User:     r.Header.Get(middleware.AuthHeaderName),

@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +20,7 @@ func TestAPIShorten(t *testing.T) {
 	ts := httptest.NewServer(
 		NewRouter(
 			&config.Config{BaseURL: baseURL},
-			kvstore.New(),
+			memstore.New(),
 		),
 	)
 	defer ts.Close()

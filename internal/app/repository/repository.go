@@ -6,16 +6,16 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/db"
 	"github.com/Galish/url-shortener/internal/app/repository/filestore"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 type Repository interface {
-	Get(context.Context, string) (*models.ShortLink, error)
-	GetByUser(context.Context, string) ([]*models.ShortLink, error)
-	Set(context.Context, *models.ShortLink) error
-	SetBatch(context.Context, ...*models.ShortLink) error
-	Delete(context.Context, ...*models.ShortLink) error
+	Get(context.Context, string) (*model.ShortLink, error)
+	GetByUser(context.Context, string) ([]*model.ShortLink, error)
+	Set(context.Context, *model.ShortLink) error
+	SetBatch(context.Context, ...*model.ShortLink) error
+	Delete(context.Context, ...*model.ShortLink) error
 	Has(context.Context, string) bool
 	Ping(context.Context) (bool, error)
 	Close() error
@@ -39,5 +39,5 @@ func New(cfg *config.Config) (Repository, error) {
 		return filestore.New(cfg.FilePath)
 	}
 
-	return kvstore.New(), nil
+	return memstore.New(), nil
 }

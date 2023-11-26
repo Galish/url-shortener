@@ -7,7 +7,7 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := make([]apiBatchEntity, 0, len(req))
-	rows := make([]*models.ShortLink, 0, len(req))
+	rows := make([]*model.ShortLink, 0, len(req))
 
 	for _, entity := range req {
 		if entity.OriginalURL == "" {
@@ -46,7 +46,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 
 		rows = append(
 			rows,
-			&models.ShortLink{
+			&model.ShortLink{
 				Short:    id,
 				Original: entity.OriginalURL,
 				User:     r.Header.Get(middleware.AuthHeaderName),

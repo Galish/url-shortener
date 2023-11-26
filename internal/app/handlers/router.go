@@ -1,33 +1,16 @@
 package handlers
 
 import (
-	"context"
-	"time"
-
 	"github.com/Galish/url-shortener/internal/app/compress"
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
 	"github.com/go-chi/chi/v5"
 )
 
-type httpHandler struct {
-	cfg      *config.Config
-	repo     repository.Repository
-	deleteCh chan *models.ShortLink
-}
-
 func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
+	handler := NewHandler(cfg, repo)
 	router := chi.NewRouter()
-	handler := httpHandler{
-		cfg:      cfg,
-		repo:     repo,
-		deleteCh: make(chan *models.ShortLink, 100),
-	}
-	go handler.flushMessages()
-
 	compressor := compress.NewGzipCompressor()
 
 	router.Get(
@@ -100,28 +83,4 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	)
 
 	return router
-}
-
-func (h *httpHandler) flushMessages() {
-	ticker := time.NewTicker(2 * time.Second)
-
-	var list []*models.ShortLink
-
-	for {
-		select {
-		case shortLink := <-h.deleteCh:
-			list = append(list, shortLink)
-		case <-ticker.C:
-			if len(list) == 0 {
-				continue
-			}
-
-			if err := h.repo.Delete(context.TODO(), list...); err != nil {
-				logger.WithError(err).Debug("cannot delete messages")
-				continue
-			}
-
-			list = nil
-		}
-	}
 }

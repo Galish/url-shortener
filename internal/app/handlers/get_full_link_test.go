@@ -8,17 +8,17 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
-	"github.com/Galish/url-shortener/internal/app/repository/models"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetFullLink(t *testing.T) {
-	repo := kvstore.New()
+	repo := memstore.New()
 	repo.Set(
 		context.Background(),
-		&models.ShortLink{
+		&model.ShortLink{
 			Short:    "c2WD8F2q",
 			Original: "https://practicum.yandex.ru/",
 		},

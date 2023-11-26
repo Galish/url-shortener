@@ -1,4 +1,4 @@
-package models
+package model
 
 type ShortLink struct {
 	ID        string `json:"uuid"`
