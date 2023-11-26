@@ -16,11 +16,17 @@ import (
 
 func TestGetFullLink(t *testing.T) {
 	repo := memstore.New()
-	repo.Set(
+
+	repo.SetBatch(
 		context.Background(),
 		&model.ShortLink{
 			Short:    "c2WD8F2q",
 			Original: "https://practicum.yandex.ru/",
+		},
+		&model.ShortLink{
+			Short:     "h9h2fhfU",
+			Original:  "https://practicum.yandex.ru/",
+			IsDeleted: true,
 		},
 	)
 
@@ -43,7 +49,7 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodGet,
 			"/",
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -53,7 +59,7 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodPost,
 			"/abKs232d",
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -63,7 +69,7 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodGet,
 			"/abKs232d",
 			want{
-				400,
+				http.StatusBadRequest,
 				"",
 				"record doesn't not exist\n",
 			},
@@ -73,9 +79,19 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodGet,
 			"/c2WD8F2q",
 			want{
-				307,
+				http.StatusTemporaryRedirect,
 				"https://practicum.yandex.ru/",
 				"<a href=\"https://practicum.yandex.ru/\">Temporary Redirect</a>.\n\n",
+			},
+		},
+		{
+			"deleted entry",
+			http.MethodGet,
+			"/h9h2fhfU",
+			want{
+				http.StatusGone,
+				"",
+				"",
 			},
 		},
 	}
