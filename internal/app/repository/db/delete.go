@@ -4,42 +4,32 @@ import (
 	"context"
 
 	"github.com/Galish/url-shortener/internal/app/repository/model"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/stdlib"
+	sq "github.com/Masterminds/squirrel"
 )
 
 func (db *dbStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
-	conn, err := db.store.Conn(context.Background())
+	updateQuery := sq.Update("links").
+		Set("is_deleted", true).
+		PlaceholderFormat(sq.Dollar)
+
+	where := sq.Or{}
+
+	for _, link := range shortLinks {
+		where = append(
+			where,
+			sq.Eq{
+				"links.short_url":  link.Short,
+				"links.user_id":    link.User,
+				"links.is_deleted": false,
+			})
+	}
+
+	sqlStr, params, err := updateQuery.Where(where).ToSql()
 	if err != nil {
 		return err
 	}
 
-	err = conn.Raw(func(driverConn interface{}) error {
-		conn := driverConn.(*stdlib.Conn).Conn()
-
-		query := `
-			UPDATE links
-			SET
-				is_deleted = true
-			WHERE (
-				short_url = $1
-				AND
-				user_id = $2
-			)
-		`
-
-		batch := &pgx.Batch{}
-		for _, link := range shortLinks {
-			batch.Queue(query, link.Short, link.User)
-		}
-
-		batchResults := conn.SendBatch(
-			ctx,
-			batch,
-		)
-
-		return batchResults.Close()
-	})
+	_, err = db.store.ExecContext(ctx, sqlStr, params...)
 	if err != nil {
 		return err
 	}

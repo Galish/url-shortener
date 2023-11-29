@@ -23,7 +23,6 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.WithCompressor(compress.NewGzipCompressor()))
 		r.Use(middleware.WithAuthToken)
-
 		r.Post("/", handler.shorten)
 
 		r.Route("/api/user/urls", func(r chi.Router) {

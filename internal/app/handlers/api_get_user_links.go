@@ -25,6 +25,10 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 	resp := make([]apiBatchEntity, 0, len(shortLinks))
 
 	for _, link := range shortLinks {
+		if link.IsDeleted {
+			continue
+		}
+
 		resp = append(
 			resp,
 			apiBatchEntity{
