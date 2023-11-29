@@ -12,28 +12,34 @@ func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	handler := NewHandler(cfg, repo)
 	router := chi.NewRouter()
 
-	router.Use(middleware.WithRequestLogger)
-	router.Get("/ping", handler.ping)
-
 	router.Group(func(r chi.Router) {
-		r.Use(middleware.WithAuthToken)
-		r.Get("/{id}", handler.getFullLink)
+		r.Use(middleware.WithRequestLogger)
+
+		r.Get("/ping", handler.ping)
 	})
 
 	router.Group(func(r chi.Router) {
-		r.Use(middleware.WithCompressor(compress.NewGzipCompressor()))
 		r.Use(middleware.WithAuthToken)
-		r.Post("/", handler.shorten)
+		r.Use(middleware.WithRequestLogger)
 
-		r.Route("/api/user/urls", func(r chi.Router) {
-			r.Use(middleware.WithAuthChecker)
-			r.Get("/", handler.apiGetUserLinks)
-			r.Delete("/", handler.apiDeleteUserLinks)
-		})
+		r.Get("/{id}", handler.getFullLink)
 
-		r.Route("/api/shorten", func(r chi.Router) {
-			r.Post("/", handler.apiShorten)
-			r.Post("/batch", handler.apiShortenBatch)
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.WithCompressor(compress.NewGzipCompressor()))
+
+			r.Post("/", handler.shorten)
+
+			r.Route("/api/user/urls", func(r chi.Router) {
+				r.Use(middleware.WithAuthChecker)
+
+				r.Get("/", handler.apiGetUserLinks)
+				r.Delete("/", handler.apiDeleteUserLinks)
+			})
+
+			r.Route("/api/shorten", func(r chi.Router) {
+				r.Post("/", handler.apiShorten)
+				r.Post("/batch", handler.apiShortenBatch)
+			})
 		})
 	})
 

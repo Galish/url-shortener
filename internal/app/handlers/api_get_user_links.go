@@ -17,20 +17,15 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 		logger.WithError(err).Error("unable to read from repository")
 	}
 
-	if len(shortLinks) == 0 {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	resp := make([]apiBatchEntity, 0, len(shortLinks))
+	userLinks := make([]apiBatchEntity, 0, len(shortLinks))
 
 	for _, link := range shortLinks {
 		if link.IsDeleted {
 			continue
 		}
 
-		resp = append(
-			resp,
+		userLinks = append(
+			userLinks,
 			apiBatchEntity{
 				ShortURL:    fmt.Sprintf("%s/%s", h.cfg.BaseURL, link.Short),
 				OriginalURL: link.Original,
@@ -38,10 +33,15 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
+	if len(userLinks) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
+	if err := json.NewEncoder(w).Encode(userLinks); err != nil {
 		http.Error(w, "cannot encode request JSON body", http.StatusInternalServerError)
 		logger.WithError(err).Debug("cannot encode request JSON body")
 	}
