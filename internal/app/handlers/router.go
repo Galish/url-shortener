@@ -11,76 +11,32 @@ import (
 func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
 	handler := NewHandler(cfg, repo)
 	router := chi.NewRouter()
-	compressor := compress.NewGzipCompressor()
 
-	router.Get(
-		"/ping",
-		middleware.Apply(
-			handler.ping,
-			middleware.WithRequestLogger,
-		),
-	)
+	router.Use(middleware.WithRequestLogger)
+	router.Get("/ping", handler.ping)
 
-	router.Get(
-		"/{id}",
-		middleware.Apply(
-			handler.getFullLink,
-			middleware.WithAuthToken,
-			middleware.WithRequestLogger,
-		),
-	)
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.WithAuthToken)
+		r.Get("/{id}", handler.getFullLink)
+	})
 
-	router.Get(
-		"/api/user/urls",
-		middleware.Apply(
-			handler.apiGetUserLinks,
-			middleware.WithAuthToken,
-			middleware.WithAuthChecker,
-			middleware.WithCompressor(compressor),
-			middleware.WithRequestLogger,
-		),
-	)
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.WithCompressor(compress.NewGzipCompressor()))
+		r.Use(middleware.WithAuthToken)
 
-	router.Delete(
-		"/api/user/urls",
-		middleware.Apply(
-			handler.apiDeleteUserLinks,
-			middleware.WithAuthToken,
-			middleware.WithAuthChecker,
-			middleware.WithCompressor(compressor),
-			middleware.WithRequestLogger,
-		),
-	)
+		r.Post("/", handler.shorten)
 
-	router.Post(
-		"/",
-		middleware.Apply(
-			handler.shorten,
-			middleware.WithAuthToken,
-			middleware.WithCompressor(compressor),
-			middleware.WithRequestLogger,
-		),
-	)
+		r.Route("/api/user/urls", func(r chi.Router) {
+			r.Use(middleware.WithAuthChecker)
+			r.Get("/", handler.apiGetUserLinks)
+			r.Delete("/", handler.apiDeleteUserLinks)
+		})
 
-	router.Post(
-		"/api/shorten",
-		middleware.Apply(
-			handler.apiShorten,
-			middleware.WithAuthToken,
-			middleware.WithCompressor(compressor),
-			middleware.WithRequestLogger,
-		),
-	)
-
-	router.Post(
-		"/api/shorten/batch",
-		middleware.Apply(
-			handler.apiShortenBatch,
-			middleware.WithAuthToken,
-			middleware.WithCompressor(compressor),
-			middleware.WithRequestLogger,
-		),
-	)
+		r.Route("/api/shorten", func(r chi.Router) {
+			r.Post("/", handler.apiShorten)
+			r.Post("/batch", handler.apiShortenBatch)
+		})
+	})
 
 	return router
 }

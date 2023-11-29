@@ -13,14 +13,14 @@ var supportedContentTypes = [2]string{
 	"text/html",
 }
 
-func WithCompressor(compressor compress.Compressor) func(http.HandlerFunc) http.HandlerFunc {
-	return func(handlerFn http.HandlerFunc) http.HandlerFunc {
-		return WithCompression(handlerFn, compressor)
+func WithCompressor(compressor compress.Compressor) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return WithCompression(h, compressor)
 	}
 }
 
-func WithCompression(h http.HandlerFunc, compressor compress.Compressor) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func WithCompression(h http.Handler, compressor compress.Compressor) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		acceptEncoding := r.Header.Get("Accept-Encoding")
 		isCompressionSupported := strings.Contains(acceptEncoding, compressor.String())
 
@@ -44,8 +44,8 @@ func WithCompression(h http.HandlerFunc, compressor compress.Compressor) http.Ha
 			defer cr.Close()
 		}
 
-		h(w, r)
-	}
+		h.ServeHTTP(w, r)
+	})
 }
 
 type compressReader struct {

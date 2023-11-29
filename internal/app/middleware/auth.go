@@ -17,8 +17,8 @@ const (
 
 var errMissingUserID = errors.New("user id not specified")
 
-func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func WithAuthToken(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)
 		if err != nil {
 			logger.Debug(err)
@@ -32,7 +32,7 @@ func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 		r.Header.Set(AuthHeaderName, userID)
 
 		if isAuthorized {
-			h(w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 
@@ -41,7 +41,7 @@ func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 		})
 		if err != nil {
 			logger.WithError(err).Error("unable to generate auth token")
-			h(w, r)
+			h.ServeHTTP(w, r)
 			return
 		}
 
@@ -53,12 +53,12 @@ func WithAuthToken(h http.HandlerFunc) http.HandlerFunc {
 			},
 		)
 
-		h(w, r)
-	}
+		h.ServeHTTP(w, r)
+	})
 }
 
-func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func WithAuthChecker(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)
 		if err != nil {
 			logger.Debug(err)
@@ -71,8 +71,8 @@ func WithAuthChecker(h http.HandlerFunc) http.HandlerFunc {
 		}
 
 		r.Header.Set(AuthHeaderName, userID)
-		h(w, r)
-	}
+		h.ServeHTTP(w, r)
+	})
 }
 
 func getUserID(r *http.Request) (string, error) {
