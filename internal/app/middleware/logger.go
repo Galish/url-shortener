@@ -13,13 +13,11 @@ type loggerResponseWriter struct {
 	size   int
 }
 
-func WithRequestLogger(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func WithRequestLogger(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		respWriter := loggerResponseWriter{rw: w}
-
-		h(&respWriter, r)
 
 		logger.WithFields(logger.Fields{
 			"size":     respWriter.size,
@@ -27,8 +25,11 @@ func WithRequestLogger(h http.HandlerFunc) http.HandlerFunc {
 			"duration": time.Since(start),
 			"method":   r.Method,
 			"uri":      r.RequestURI,
+			"user":     r.Header.Get(AuthHeaderName),
 		}).Info("incoming request")
-	}
+
+		h.ServeHTTP(&respWriter, r)
+	})
 }
 
 func (l *loggerResponseWriter) Write(b []byte) (int, error) {

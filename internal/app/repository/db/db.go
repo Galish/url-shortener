@@ -6,9 +6,6 @@ import (
 	"errors"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/stdlib"
 )
 
 type dbStore struct {
@@ -44,7 +41,9 @@ func (db *dbStore) Bootstrap(ctx context.Context) error {
 			CREATE TABLE IF NOT EXISTS links (
 				id serial PRIMARY KEY,
 				short_url char(8) NOT NULL,
-				original_url varchar(250) NOT NULL
+				original_url varchar(250) NOT NULL,
+				user_id char(36),
+				is_deleted boolean DEFAULT false
 			)
 		`,
 	)
@@ -64,92 +63,6 @@ func (db *dbStore) Bootstrap(ctx context.Context) error {
 	}
 
 	return tx.Commit()
-}
-
-func (db *dbStore) Get(ctx context.Context, key string) (string, error) {
-	row := db.store.QueryRowContext(
-		ctx,
-		"SELECT original_url FROM links WHERE short_url = $1;", key,
-	)
-
-	var originalLink string
-	if err := row.Scan(&originalLink); err != nil {
-		return "", err
-	}
-
-	return originalLink, nil
-}
-
-func (db *dbStore) Set(ctx context.Context, key, value string) error {
-	row := db.store.QueryRowContext(
-		ctx,
-		`
-			INSERT INTO links (short_url, original_url)
-			VALUES ($1, $2)
-			ON CONFLICT (original_url)
-			DO UPDATE SET original_url=excluded.original_url
-			RETURNING short_url
-		`,
-		key,
-		value,
-	)
-
-	var shortURL string
-	if err := row.Scan(&shortURL); err != nil {
-		return err
-	}
-
-	if shortURL != key {
-		return repoErr.New(
-			repoErr.ErrConflict,
-			shortURL,
-			value,
-		)
-	}
-
-	return nil
-}
-
-func (db *dbStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
-	conn, err := db.store.Conn(context.Background())
-	if err != nil {
-		return err
-	}
-
-	err = conn.Raw(func(driverConn interface{}) error {
-		conn := driverConn.(*stdlib.Conn).Conn()
-
-		_, err := conn.CopyFrom(
-			context.Background(),
-			pgx.Identifier{"links"},
-			[]string{"short_url", "original_url"},
-			pgx.CopyFromRows(rows),
-		)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (db *dbStore) Has(ctx context.Context, key string) bool {
-	row := db.store.QueryRowContext(
-		ctx,
-		"SELECT EXISTS(SELECT 1 FROM links WHERE short_url = $1);", key,
-	)
-
-	var value bool
-	if err := row.Scan(&value); err != nil {
-		return false
-	}
-
-	return value
 }
 
 func (db *dbStore) Ping(ctx context.Context) (bool, error) {

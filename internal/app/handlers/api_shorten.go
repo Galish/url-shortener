@@ -6,16 +6,10 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/middleware"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
-
-type apiRequest struct {
-	URL string `json:"url"`
-}
-
-type apiResponse struct {
-	Result string `json:"result"`
-}
 
 func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -33,7 +27,15 @@ func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := h.generateUniqueID(ctx, idLength)
-	err := h.repo.Set(ctx, id, req.URL)
+
+	err := h.repo.Set(
+		ctx,
+		&model.ShortLink{
+			Short:    id,
+			Original: req.URL,
+			User:     r.Header.Get(middleware.AuthHeaderName),
+		},
+	)
 	errConflict := repoErr.AsErrConflict(err)
 
 	if err != nil && errConflict == nil {

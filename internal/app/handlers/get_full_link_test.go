@@ -8,14 +8,27 @@ import (
 	"testing"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetFullLink(t *testing.T) {
-	repo := kvstore.New()
-	repo.Set(context.Background(), "c2WD8F2q", "https://practicum.yandex.ru/")
+	repo := memstore.New()
+
+	repo.SetBatch(
+		context.Background(),
+		&model.ShortLink{
+			Short:    "c2WD8F2q",
+			Original: "https://practicum.yandex.ru/",
+		},
+		&model.ShortLink{
+			Short:     "h9h2fhfU",
+			Original:  "https://practicum.yandex.ru/",
+			IsDeleted: true,
+		},
+	)
 
 	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))
 	defer ts.Close()
@@ -36,7 +49,7 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodGet,
 			"/",
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -46,7 +59,7 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodPost,
 			"/abKs232d",
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -56,7 +69,7 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodGet,
 			"/abKs232d",
 			want{
-				400,
+				http.StatusBadRequest,
 				"",
 				"record doesn't not exist\n",
 			},
@@ -66,9 +79,19 @@ func TestGetFullLink(t *testing.T) {
 			http.MethodGet,
 			"/c2WD8F2q",
 			want{
-				307,
+				http.StatusTemporaryRedirect,
 				"https://practicum.yandex.ru/",
 				"<a href=\"https://practicum.yandex.ru/\">Temporary Redirect</a>.\n\n",
+			},
+		},
+		{
+			"deleted entry",
+			http.MethodGet,
+			"/h9h2fhfU",
+			want{
+				http.StatusGone,
+				"",
+				"",
 			},
 		},
 	}

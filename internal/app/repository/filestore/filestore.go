@@ -6,12 +6,13 @@ import (
 	"os"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository/kvstore"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 type fileStore struct {
 	size     int
-	store    *kvstore.KVStore
+	store    *memstore.MemStore
 	filepath string
 	file     *os.File
 	writer   *bufio.Writer
@@ -19,7 +20,7 @@ type fileStore struct {
 
 func New(filepath string) (*fileStore, error) {
 	fs := &fileStore{
-		store:    kvstore.New(),
+		store:    memstore.New(),
 		filepath: filepath,
 	}
 
@@ -34,16 +35,20 @@ func New(filepath string) (*fileStore, error) {
 	return fs, nil
 }
 
-func (fs *fileStore) Get(ctx context.Context, key string) (string, error) {
+func (fs *fileStore) Get(ctx context.Context, key string) (*model.ShortLink, error) {
 	return fs.store.Get(ctx, key)
 }
 
-func (fs *fileStore) Set(ctx context.Context, key, value string) error {
-	if err := fs.write(key, value); err != nil {
+func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*model.ShortLink, error) {
+	return fs.store.GetByUser(ctx, userID)
+}
+
+func (fs *fileStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
+	if err := fs.write(shortLink); err != nil {
 		return err
 	}
 
-	if err := fs.store.Set(ctx, key, value); err != nil {
+	if err := fs.store.Set(ctx, shortLink); err != nil {
 		return err
 	}
 
@@ -52,12 +57,38 @@ func (fs *fileStore) Set(ctx context.Context, key, value string) error {
 	return nil
 }
 
-func (fs *fileStore) SetBatch(ctx context.Context, rows ...[]interface{}) error {
-	for _, row := range rows {
-		fs.Set(ctx, row[0].(string), row[1].(string))
+func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {
+	for _, shortLink := range shortLinks {
+		fs.Set(ctx, shortLink)
 	}
 
 	return nil
+}
+
+func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
+	if err := fs.store.Delete(ctx, shortLinks...); err != nil {
+		return err
+	}
+
+	for _, shortLink := range shortLinks {
+		deleteLink, err := fs.store.Get(ctx, shortLink.Short)
+		if err != nil {
+			logger.WithError(err).Debug("unable to read from store")
+			continue
+		}
+
+		if !deleteLink.IsDeleted {
+			continue
+		}
+
+		if err := fs.write(deleteLink); err != nil {
+			logger.WithError(err).Debug("unable to write to repository")
+			continue
+		}
+	}
+
+	return nil
+
 }
 
 func (fs *fileStore) Has(ctx context.Context, key string) bool {

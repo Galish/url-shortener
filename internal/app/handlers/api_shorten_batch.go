@@ -6,13 +6,9 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/internal/app/middleware"
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
-
-type apiBatchEntity struct {
-	CorrelationID string `json:"correlation_id"`
-	OriginalURL   string `json:"original_url,omitempty"`
-	ShortURL      string `json:"short_url,omitempty"`
-}
 
 func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -30,7 +26,7 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := make([]apiBatchEntity, 0, len(req))
-	rows := make([][]interface{}, 0, len(req))
+	rows := make([]*model.ShortLink, 0, len(req))
 
 	for _, entity := range req {
 		if entity.OriginalURL == "" {
@@ -48,7 +44,14 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 			},
 		)
 
-		rows = append(rows, []interface{}{id, entity.OriginalURL})
+		rows = append(
+			rows,
+			&model.ShortLink{
+				Short:    id,
+				Original: entity.OriginalURL,
+				User:     r.Header.Get(middleware.AuthHeaderName),
+			},
+		)
 	}
 
 	if err := h.repo.SetBatch(ctx, rows...); err != nil {

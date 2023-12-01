@@ -1,6 +1,9 @@
 package handlers
 
-import "context"
+import (
+	"context"
+	"math/rand"
+)
 
 const idLength = 8
 
@@ -12,4 +15,14 @@ func (h *httpHandler) generateUniqueID(ctx context.Context, length int) string {
 			return id
 		}
 	}
+}
+
+func generateID(length int) string {
+	id := make([]byte, length)
+
+	for i := range id {
+		id[i] = alphabet[rand.Intn(len(alphabet))]
+	}
+
+	return string(id)
 }
