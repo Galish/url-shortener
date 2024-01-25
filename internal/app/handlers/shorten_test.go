@@ -18,8 +18,10 @@ func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 	ts := httptest.NewServer(
 		NewRouter(
-			&config.Config{BaseURL: baseURL},
-			memstore.New(),
+			NewHandler(
+				&config.Config{BaseURL: baseURL},
+				memstore.New(),
+			),
 		),
 	)
 	defer ts.Close()

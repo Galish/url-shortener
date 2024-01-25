@@ -2,14 +2,11 @@ package handlers
 
 import (
 	"github.com/Galish/url-shortener/internal/app/compress"
-	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/go-chi/chi/v5"
 )
 
-func NewRouter(cfg *config.Config, repo repository.Repository) *chi.Mux {
-	handler := NewHandler(cfg, repo)
+func NewRouter(handler *httpHandler) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Group(func(r chi.Router) {

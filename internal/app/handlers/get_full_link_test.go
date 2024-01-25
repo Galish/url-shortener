@@ -30,7 +30,14 @@ func TestGetFullLink(t *testing.T) {
 		},
 	)
 
-	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))
+	ts := httptest.NewServer(
+		NewRouter(
+			NewHandler(
+				&config.Config{},
+				repo,
+			),
+		),
+	)
 	defer ts.Close()
 
 	type want struct {
