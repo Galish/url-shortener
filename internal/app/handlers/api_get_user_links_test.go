@@ -138,6 +138,8 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 		nil,
 	)
 
+	rEmpty := r.Clone(context.Background())
+
 	r.Header.Add(middleware.AuthHeaderName, "e44d9088-1bd6-44dc-af86-f1a551b02db3")
 
 	w := httptest.NewRecorder()
@@ -157,7 +159,15 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
-		handler.apiGetUserLinks(w, r)
-	}
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiGetUserLinks(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiGetUserLinks(w, r)
+		}
+	})
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -127,4 +128,49 @@ func TestGetFullLink(t *testing.T) {
 			assert.Equal(t, string(raw), tt.want.body)
 		})
 	}
+}
+
+func BenchmarkGetFullLink(b *testing.B) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	rCtxEmpty := chi.NewRouteContext()
+	rCtxEmpty.URLParams.Add("id", "Edz0Thb1")
+	rEmpty := r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rCtxEmpty))
+
+	rCtxFound := chi.NewRouteContext()
+	rCtxFound.URLParams.Add("id", "Edz0ThbX")
+	rFound := r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rCtxFound))
+
+	w := httptest.NewRecorder()
+
+	store := memstore.New()
+	store.Set(context.Background(), &model.ShortLink{
+		ID:       "#123111",
+		Short:    "Edz0ThbX",
+		Original: "https://practicum.yandex.ru/",
+		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
+	})
+
+	handler := NewHandler(&config.Config{}, store)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("wrong", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.getFullLink(w, r)
+		}
+	})
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.getFullLink(w, rEmpty)
+		}
+	})
+
+	b.Run("found", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.getFullLink(w, rFound)
+		}
+	})
 }

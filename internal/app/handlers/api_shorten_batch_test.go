@@ -51,7 +51,7 @@ func TestAPIShortenBatch(t *testing.T) {
 				},
 			},
 			want{
-				404,
+				http.StatusNotFound,
 				"404 page not found\n",
 				"text/plain; charset=utf-8",
 			},
@@ -67,7 +67,7 @@ func TestAPIShortenBatch(t *testing.T) {
 				},
 			},
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -78,7 +78,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			"/api/shorten/batch",
 			[]apiBatchEntity{},
 			want{
-				400,
+				http.StatusBadRequest,
 				"empty request body\n",
 				"text/plain; charset=utf-8",
 			},
@@ -93,7 +93,7 @@ func TestAPIShortenBatch(t *testing.T) {
 				},
 			},
 			want{
-				400,
+				http.StatusBadRequest,
 				"link not provided\n",
 				"text/plain; charset=utf-8",
 			},
@@ -113,7 +113,7 @@ func TestAPIShortenBatch(t *testing.T) {
 				},
 			},
 			want{
-				201,
+				http.StatusCreated,
 				"",
 				"application/json",
 			},
@@ -177,4 +177,54 @@ func TestAPIShortenBatch(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func BenchmarkAPIShortenBatch(b *testing.B) {
+	bodyRaw, _ := json.Marshal([]apiBatchEntity{
+		{
+			CorrelationID: "#11111",
+			OriginalURL:   "https://practicum.yandex.ru/",
+		},
+		{
+			CorrelationID: "#22222",
+			OriginalURL:   "https://www.google.com/",
+		},
+		{
+			CorrelationID: "#33333",
+			OriginalURL:   "https://www.ozon.ru/",
+		},
+	})
+
+	r, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten/batch",
+		bytes.NewBuffer(bodyRaw),
+	)
+
+	bodyEmptyRaw, _ := json.Marshal([]apiBatchEntity{})
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten/batch",
+		bytes.NewBuffer(bodyEmptyRaw),
+	)
+
+	w := httptest.NewRecorder()
+
+	handler := NewHandler(&config.Config{}, memstore.New())
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiShortenBatch(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiShortenBatch(w, r)
+		}
+	})
 }

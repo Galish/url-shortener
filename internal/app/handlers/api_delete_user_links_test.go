@@ -140,3 +140,52 @@ func TestAPIDeleteUserLinks(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkAPIDeleteUserLinks(b *testing.B) {
+	bodyRaw, _ := json.Marshal([]string{"qw21df123"})
+
+	r, _ := http.NewRequest(
+		http.MethodDelete,
+		"/api/user/urls",
+		bytes.NewBuffer(bodyRaw),
+	)
+
+	bodyEmptyRaw, _ := json.Marshal([]string{})
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodDelete,
+		"/api/user/urls",
+		bytes.NewBuffer(bodyEmptyRaw),
+	)
+
+	r.Header.Add(middleware.AuthHeaderName, "e44d9088-1bd6-44dc-af86-f1a551b02db3")
+
+	w := httptest.NewRecorder()
+
+	store := memstore.New()
+	defer store.Close()
+
+	store.Set(context.Background(), &model.ShortLink{
+		ID:       "#123111",
+		Short:    "qw21dfasf",
+		Original: "https://practicum.yandex.ru/",
+		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
+	})
+
+	handler := NewHandler(&config.Config{}, store)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiDeleteUserLinks(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiDeleteUserLinks(w, r)
+		}
+	})
+}

@@ -90,6 +90,7 @@ func TestShorten(t *testing.T) {
 
 			raw, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
+
 			err = resp.Body.Close()
 			require.NoError(t, err)
 
@@ -104,4 +105,37 @@ func TestShorten(t *testing.T) {
 			}
 		})
 	}
+}
+
+func BenchmarkShorten(b *testing.B) {
+	r, _ := http.NewRequest(
+		http.MethodPost,
+		"/",
+		strings.NewReader("qwewqewqe"),
+	)
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodPost,
+		"/",
+		strings.NewReader(""),
+	)
+
+	w := httptest.NewRecorder()
+
+	handler := NewHandler(&config.Config{}, memstore.New())
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.shorten(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.shorten(w, r)
+		}
+	})
 }

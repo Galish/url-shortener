@@ -48,7 +48,7 @@ func TestAPIShorten(t *testing.T) {
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
-				404,
+				http.StatusNotFound,
 				"404 page not found\n",
 				"text/plain; charset=utf-8",
 			},
@@ -61,7 +61,7 @@ func TestAPIShorten(t *testing.T) {
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -72,7 +72,7 @@ func TestAPIShorten(t *testing.T) {
 			"/api/shorten",
 			apiRequest{},
 			want{
-				400,
+				http.StatusBadRequest,
 				"link not provided\n",
 				"text/plain; charset=utf-8",
 			},
@@ -85,7 +85,7 @@ func TestAPIShorten(t *testing.T) {
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
-				201,
+				http.StatusCreated,
 				"",
 				"application/json",
 			},
@@ -140,4 +140,45 @@ func TestAPIShorten(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func BenchmarkAPIShorten(b *testing.B) {
+	bodyRaw, _ := json.Marshal(apiRequest{
+		URL: "https://practicum.yandex.ru/",
+	})
+
+	r, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten",
+		bytes.NewBuffer(bodyRaw),
+	)
+
+	bodyEmptyRaw, _ := json.Marshal(apiRequest{
+		URL: "",
+	})
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten",
+		bytes.NewBuffer(bodyEmptyRaw),
+	)
+
+	w := httptest.NewRecorder()
+
+	handler := NewHandler(&config.Config{}, memstore.New())
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiShorten(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.apiShorten(w, r)
+		}
+	})
 }
