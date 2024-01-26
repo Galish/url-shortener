@@ -20,6 +20,8 @@ func main() {
 	defer store.Close()
 
 	handler := handlers.NewHandler(cfg, store)
+	defer handler.Close()
+
 	router := handlers.NewRouter(handler)
 	httpServer := server.NewHTTPServer(cfg.ServAddr, router)
 

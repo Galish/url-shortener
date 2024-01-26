@@ -14,6 +14,7 @@ type httpHandler struct {
 	cfg       *config.Config
 	repo      repository.Repository
 	messageCh chan *handlerMessage
+	ticker    *time.Ticker
 }
 
 type handlerMessage struct {
@@ -34,7 +35,7 @@ func NewHandler(cfg *config.Config, repo repository.Repository) *httpHandler {
 }
 
 func (h *httpHandler) flushMessages() {
-	ticker := time.NewTicker(2 * time.Second)
+	h.ticker = time.NewTicker(2 * time.Second)
 
 	var deleteLinks []*model.ShortLink
 
@@ -47,7 +48,7 @@ func (h *httpHandler) flushMessages() {
 				deleteLinks = append(deleteLinks, message.shortLink)
 
 			}
-		case <-ticker.C:
+		case <-h.ticker.C:
 			if len(deleteLinks) == 0 {
 				continue
 			}
@@ -60,4 +61,9 @@ func (h *httpHandler) flushMessages() {
 			deleteLinks = nil
 		}
 	}
+}
+
+func (h *httpHandler) Close() {
+	h.ticker.Stop()
+	close(h.messageCh)
 }
