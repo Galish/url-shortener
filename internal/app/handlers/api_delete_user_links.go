@@ -17,17 +17,19 @@ func (h *httpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	go func() {
-		for _, shortURL := range shortURLs {
-			h.messageCh <- &handlerMessage{
-				action: "delete",
-				shortLink: &model.ShortLink{
-					Short: shortURL,
-					User:  r.Header.Get(middleware.AuthHeaderName),
-				},
+	if len(shortURLs) != 0 {
+		go func() {
+			for _, shortURL := range shortURLs {
+				h.messageCh <- &handlerMessage{
+					action: "delete",
+					shortLink: &model.ShortLink{
+						Short: shortURL,
+						User:  r.Header.Get(middleware.AuthHeaderName),
+					},
+				}
 			}
-		}
-	}()
+		}()
+	}
 
 	w.WriteHeader(http.StatusAccepted)
 }
