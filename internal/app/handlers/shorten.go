@@ -24,7 +24,6 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := string(rawBody)
-
 	if url == "" {
 		http.Error(w, "link not provided", http.StatusBadRequest)
 		return
