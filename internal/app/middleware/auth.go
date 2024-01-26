@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
+
 	"github.com/Galish/url-shortener/internal/app/auth"
 	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/google/uuid"
 )
 
 const (

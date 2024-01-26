@@ -3,8 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/go-chi/chi/v5"
+
+	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
 func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {

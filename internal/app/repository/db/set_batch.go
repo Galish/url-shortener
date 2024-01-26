@@ -3,9 +3,10 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {

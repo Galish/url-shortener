@@ -8,10 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
 func TestShorten(t *testing.T) {

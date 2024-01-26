@@ -1,9 +1,10 @@
 package handlers
 
 import (
+	"github.com/go-chi/chi/v5"
+
 	"github.com/Galish/url-shortener/internal/app/compress"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	"github.com/go-chi/chi/v5"
 )
 
 func NewRouter(handler *httpHandler) *chi.Mux {

@@ -3,8 +3,9 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	sq "github.com/Masterminds/squirrel"
+
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func (db *dbStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
