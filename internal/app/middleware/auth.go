@@ -64,8 +64,8 @@ func WithAuthChecker(h http.Handler) http.Handler {
 			logger.Debug(err)
 		}
 
-		if errors.Is(err, errMissingUserID) {
-			logger.Debug("unauthorized access attempt")
+		if err != nil {
+			logger.WithError(err).Debug("unauthorized access attempt")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

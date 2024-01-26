@@ -74,6 +74,17 @@ func TestAPIGetUserLinks(t *testing.T) {
 			},
 		},
 		{
+			"unauthorized",
+			http.MethodGet,
+			"/api/user/urls",
+			"",
+			want{
+				http.StatusUnauthorized,
+				"",
+				"",
+			},
+		},
+		{
 			"user has no links",
 			http.MethodGet,
 			"/api/user/urls",
@@ -106,10 +117,12 @@ func TestAPIGetUserLinks(t *testing.T) {
 			)
 			require.NoError(t, err)
 
-			req.AddCookie(&http.Cookie{
-				Name:  middleware.AuthCookieName,
-				Value: tt.token,
-			})
+			if tt.token != "" {
+				req.AddCookie(&http.Cookie{
+					Name:  middleware.AuthCookieName,
+					Value: tt.token,
+				})
+			}
 
 			// Disable compression
 			req.Header.Set("Accept-Encoding", "identity")
