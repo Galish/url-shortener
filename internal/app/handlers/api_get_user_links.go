@@ -17,6 +17,11 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 		logger.WithError(err).Error("unable to read from repository")
 	}
 
+	if len(shortLinks) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	userLinks := make([]apiBatchEntity, 0, len(shortLinks))
 
 	for _, link := range shortLinks {
@@ -31,11 +36,6 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 				OriginalURL: link.Original,
 			},
 		)
-	}
-
-	if len(userLinks) == 0 {
-		w.WriteHeader(http.StatusNoContent)
-		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
