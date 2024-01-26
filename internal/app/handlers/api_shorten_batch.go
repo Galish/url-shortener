@@ -25,10 +25,10 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := make([]apiBatchEntity, 0, len(req))
-	rows := make([]*model.ShortLink, 0, len(req))
+	resp := make([]apiBatchEntity, len(req))
+	rows := make([]*model.ShortLink, len(req))
 
-	for _, entity := range req {
+	for i, entity := range req {
 		if entity.OriginalURL == "" {
 			http.Error(w, "link not provided", http.StatusBadRequest)
 			return
@@ -36,22 +36,16 @@ func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 
 		id := h.generateUniqueID(ctx, idLength)
 
-		resp = append(
-			resp,
-			apiBatchEntity{
-				CorrelationID: entity.CorrelationID,
-				ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
-			},
-		)
+		resp[i] = apiBatchEntity{
+			CorrelationID: entity.CorrelationID,
+			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
+		}
 
-		rows = append(
-			rows,
-			&model.ShortLink{
-				Short:    id,
-				Original: entity.OriginalURL,
-				User:     r.Header.Get(middleware.AuthHeaderName),
-			},
-		)
+		rows[i] = &model.ShortLink{
+			Short:    id,
+			Original: entity.OriginalURL,
+			User:     r.Header.Get(middleware.AuthHeaderName),
+		}
 	}
 
 	if err := h.repo.SetBatch(ctx, rows...); err != nil {
