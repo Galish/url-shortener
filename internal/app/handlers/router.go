@@ -9,7 +9,7 @@ import (
 )
 
 // NewRouter returns a new Mux object that implements the Router interface.
-func NewRouter(handler *HttpHandler) *chi.Mux {
+func NewRouter(handler *HTTPHandler) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Group(func(r chi.Router) {

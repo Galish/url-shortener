@@ -11,7 +11,7 @@ import (
 )
 
 // apiShortenBatch is an API handler for creating short links in batches.
-func (h *HttpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
+func (h *HTTPHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var req []apiBatchEntity

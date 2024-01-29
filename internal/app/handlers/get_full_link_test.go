@@ -178,7 +178,7 @@ func BenchmarkGetFullLink(b *testing.B) {
 	})
 }
 
-func ExampleHttpHandler_GetFullLink() {
+func ExampleHTTPHandler_GetFullLink() {
 	store := memstore.New()
 	store.Set(
 		context.Background(),
@@ -203,6 +203,7 @@ func ExampleHttpHandler_GetFullLink() {
 		},
 	}
 	resp, _ := client.Do(req)
+	defer resp.Body.Close()
 
 	fmt.Println(resp.StatusCode)
 	fmt.Println(resp.Header.Get("Content-Type"))

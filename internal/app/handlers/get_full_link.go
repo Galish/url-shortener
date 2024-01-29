@@ -9,7 +9,7 @@ import (
 )
 
 // GetFullLink redirects to the original page URL for the given short link.
-func (h *HttpHandler) GetFullLink(w http.ResponseWriter, r *http.Request) {
+func (h *HTTPHandler) GetFullLink(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")
 

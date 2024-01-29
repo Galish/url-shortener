@@ -10,7 +10,7 @@ import (
 )
 
 // apiGetUserLinks is an API handler that returns a list of links created by the user.
-func (h *HttpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
+func (h *HTTPHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(middleware.AuthHeaderName)
 	shortLinks, err := h.repo.GetByUser(r.Context(), userID)
 	if err != nil {

@@ -143,7 +143,7 @@ func BenchmarkShorten(b *testing.B) {
 	})
 }
 
-func ExampleHttpHandler_Shorten() {
+func ExampleHTTPHandler_Shorten() {
 	apiHandler := handlers.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		memstore.New(),
