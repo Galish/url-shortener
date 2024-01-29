@@ -1,3 +1,4 @@
+// Package  implements the file storage.
 package filestore
 
 import (

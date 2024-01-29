@@ -1,3 +1,4 @@
+// Package implements in-memory storage.
 package memstore
 
 import (

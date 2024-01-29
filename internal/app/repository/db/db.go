@@ -1,3 +1,4 @@
+// Package implements PostgreSQL storage.
 package db
 
 import (

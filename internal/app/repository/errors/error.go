@@ -1,3 +1,4 @@
+// Package contains custom repository errors.
 package repoerrors
 
 // RepoErr is a custom repository error object.
