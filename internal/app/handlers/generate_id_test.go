@@ -7,3 +7,7 @@ func BenchmarkGenerateID(b *testing.B) {
 		generateID(10)
 	}
 }
+
+func Example_generateID() {
+	generateID(10)
+}

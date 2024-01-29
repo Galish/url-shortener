@@ -7,7 +7,7 @@ import (
 )
 
 // ping verifies the server is running.
-func (h *httpHandler) ping(w http.ResponseWriter, r *http.Request) {
+func (h *HttpHandler) ping(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if ping, err := h.repo.Ping(ctx); !ping {

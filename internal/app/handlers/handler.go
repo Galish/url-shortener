@@ -10,7 +10,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-type httpHandler struct {
+type HttpHandler struct {
 	cfg       *config.Config
 	repo      repository.Repository
 	messageCh chan *handlerMessage
@@ -23,8 +23,8 @@ type handlerMessage struct {
 }
 
 // NewHandler implements HTTP handlers.
-func NewHandler(cfg *config.Config, repo repository.Repository) *httpHandler {
-	handler := &httpHandler{
+func NewHandler(cfg *config.Config, repo repository.Repository) *HttpHandler {
+	handler := &HttpHandler{
 		cfg:       cfg,
 		repo:      repo,
 		messageCh: make(chan *handlerMessage, 100),
@@ -35,7 +35,7 @@ func NewHandler(cfg *config.Config, repo repository.Repository) *httpHandler {
 	return handler
 }
 
-func (h *httpHandler) flushMessages() {
+func (h *HttpHandler) flushMessages() {
 	h.ticker = time.NewTicker(2 * time.Second)
 
 	var deleteLinks []*model.ShortLink
@@ -65,7 +65,7 @@ func (h *httpHandler) flushMessages() {
 }
 
 // Close  is executed to release the memory
-func (h *httpHandler) Close() {
+func (h *HttpHandler) Close() {
 	h.ticker.Stop()
 	close(h.messageCh)
 }

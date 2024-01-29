@@ -12,7 +12,7 @@ import (
 )
 
 // apiShorten is an API handler for creating a short link.
-func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
+func (h *HttpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var req apiRequest

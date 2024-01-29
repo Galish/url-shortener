@@ -9,7 +9,7 @@ import (
 )
 
 // NewRouter returns a new Mux object that implements the Router interface.
-func NewRouter(handler *httpHandler) *chi.Mux {
+func NewRouter(handler *HttpHandler) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Group(func(r chi.Router) {
@@ -22,12 +22,12 @@ func NewRouter(handler *httpHandler) *chi.Mux {
 		r.Use(middleware.WithAuthToken)
 		r.Use(middleware.WithRequestLogger)
 
-		r.Get("/{id}", handler.getFullLink)
+		r.Get("/{id}", handler.GetFullLink)
 
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.WithCompressor(compress.NewGzipCompressor()))
 
-			r.Post("/", handler.shorten)
+			r.Post("/", handler.Shorten)
 
 			r.Route("/api/user/urls", func(r chi.Router) {
 				r.Use(middleware.WithAuthChecker)

@@ -1,7 +1,8 @@
-package handlers
+package handlers_test
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
@@ -33,8 +35,8 @@ func TestGetFullLink(t *testing.T) {
 	)
 
 	ts := httptest.NewServer(
-		NewRouter(
-			NewHandler(
+		handlers.NewRouter(
+			handlers.NewHandler(
 				&config.Config{},
 				repo,
 			),
@@ -152,26 +154,62 @@ func BenchmarkGetFullLink(b *testing.B) {
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	handler := NewHandler(&config.Config{}, store)
+	handler := handlers.NewHandler(&config.Config{}, store)
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	b.Run("wrong", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.getFullLink(w, r)
+			handler.GetFullLink(w, r)
 		}
 	})
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.getFullLink(w, rEmpty)
+			handler.GetFullLink(w, rEmpty)
 		}
 	})
 
 	b.Run("found", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.getFullLink(w, rFound)
+			handler.GetFullLink(w, rFound)
 		}
 	})
+}
+
+func ExampleHttpHandler_GetFullLink() {
+	store := memstore.New()
+	store.Set(
+		context.Background(),
+		&model.ShortLink{
+			Short:    "Edz0Thb1",
+			Original: "https://practicum.yandex.ru/",
+		},
+	)
+
+	apiHandler := handlers.NewHandler(
+		&config.Config{BaseURL: "http://www.shortener.io"},
+		store,
+	)
+
+	router := handlers.NewRouter(apiHandler)
+	server := httptest.NewServer(router)
+
+	req, _ := http.NewRequest(http.MethodGet, server.URL+"/Edz0Thb1", nil)
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	resp, _ := client.Do(req)
+
+	fmt.Println(resp.StatusCode)
+	fmt.Println(resp.Header.Get("Content-Type"))
+	fmt.Println(resp.Header.Get("Location"))
+
+	// Output:
+	// 307
+	// text/html; charset=utf-8
+	// https://practicum.yandex.ru/
 }

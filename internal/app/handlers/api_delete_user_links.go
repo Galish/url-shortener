@@ -10,7 +10,7 @@ import (
 )
 
 // apiDeleteUserLinks is an API handler for deleting user short links.
-func (h *httpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request) {
+func (h *HttpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request) {
 	var shortURLs []string
 	if err := json.NewDecoder(r.Body).Decode(&shortURLs); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
