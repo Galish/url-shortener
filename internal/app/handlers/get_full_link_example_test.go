@@ -39,6 +39,7 @@ func ExampleHTTPHandler_GetFullLink() {
 	apiHandler.GetFullLink(w, r)
 
 	resp := w.Result()
+	defer resp.Body.Close()
 
 	fmt.Println(resp.StatusCode)
 	fmt.Println(resp.Header.Get("Content-Type"))
