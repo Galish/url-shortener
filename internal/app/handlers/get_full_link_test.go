@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -196,13 +197,20 @@ func ExampleHTTPHandler_GetFullLink() {
 	router := handlers.NewRouter(apiHandler)
 	server := httptest.NewServer(router)
 
-	req, _ := http.NewRequest(http.MethodGet, server.URL+"/Edz0Thb1", nil)
+	req, err := http.NewRequest(http.MethodGet, server.URL+"/Edz0Thb1", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
 	}
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer resp.Body.Close()
 
 	fmt.Println(resp.StatusCode)

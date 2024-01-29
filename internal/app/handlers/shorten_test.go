@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -152,16 +153,22 @@ func ExampleHTTPHandler_Shorten() {
 	router := handlers.NewRouter(apiHandler)
 	server := httptest.NewServer(router)
 
-	resp, _ := http.Post(
+	resp, err := http.Post(
 		server.URL,
 		"text/plain",
 		strings.NewReader("https://practicum.yandex.ru/"),
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println(resp.StatusCode)
 	fmt.Println(resp.Header.Get("Content-Type"))
 
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer resp.Body.Close()
 
 	re := regexp.MustCompile("[A-Za-z0-9]+$")

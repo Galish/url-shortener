@@ -10,6 +10,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// HTTPHandler represents API handler.
 type HTTPHandler struct {
 	cfg       *config.Config
 	repo      repository.Repository
