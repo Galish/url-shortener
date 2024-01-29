@@ -13,6 +13,7 @@ var logger = &log.Logger{
 	Out:       io.Discard,
 }
 
+// Fields type, used to pass to `WithFields`.
 type Fields map[string]interface{}
 
 // Initialize configures the logger based on the provided level parameter.

@@ -9,6 +9,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// SetBatch inserts new entities in batches.
 func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {
 	conn, err := db.store.Conn(context.Background())
 	if err != nil {

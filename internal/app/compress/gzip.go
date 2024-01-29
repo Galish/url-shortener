@@ -14,12 +14,12 @@ func NewGzipCompressor() *gzipCompressor {
 	return &gzipCompressor{"gzip"}
 }
 
-// NewReader reads compressed data.
+// NewReader returns a new Reader.
 func (gz *gzipCompressor) NewReader(r io.Reader) (io.ReadCloser, error) {
 	return gzip.NewReader(r)
 }
 
-// NewWriter writes compressed data.
+// NewWriter returns a new Writer.
 func (gz *gzipCompressor) NewWriter(w io.Writer) io.WriteCloser {
 	return gzip.NewWriter(w)
 }

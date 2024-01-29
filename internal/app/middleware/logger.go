@@ -33,6 +33,7 @@ func WithRequestLogger(h http.Handler) http.Handler {
 	})
 }
 
+// Write overrides response Write method.
 func (l *loggerResponseWriter) Write(b []byte) (int, error) {
 	size, error := l.rw.Write(b)
 	l.size = size
@@ -40,11 +41,13 @@ func (l *loggerResponseWriter) Write(b []byte) (int, error) {
 	return size, error
 }
 
+// WriteHeader overrides response WriteHeader method.
 func (l *loggerResponseWriter) WriteHeader(statusCode int) {
 	l.status = statusCode
 	l.rw.WriteHeader(statusCode)
 }
 
+// Header overrides response Header method.
 func (l *loggerResponseWriter) Header() http.Header {
 	return l.rw.Header()
 }

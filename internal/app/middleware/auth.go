@@ -12,6 +12,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
+// Generic authentication middleware constants.
 const (
 	AuthCookieName = "auth"
 	AuthHeaderName = "X-User"

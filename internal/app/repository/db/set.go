@@ -7,6 +7,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// Set inserts a new entity or returns a conflict error if one exists.
 func (db *dbStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
 	row := db.store.QueryRowContext(
 		ctx,

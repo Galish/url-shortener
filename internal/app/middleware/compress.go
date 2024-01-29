@@ -67,10 +67,12 @@ func newCompressReader(r io.ReadCloser, compressor compress.Compressor) (*compre
 	}, nil
 }
 
+// Read implements io.Reader, reading uncompressed bytes from its underlying Reader.
 func (cr *compressReader) Read(p []byte) (n int, err error) {
 	return cr.zr.Read(p)
 }
 
+// Close closes the Reader.
 func (cr *compressReader) Close() error {
 	if err := cr.r.Close(); err != nil {
 		return err
@@ -92,10 +94,12 @@ func newCompressWriter(w http.ResponseWriter, compressor compress.Compressor) *c
 	}
 }
 
+// Header overrides response Header method.
 func (cw *compressWriter) Header() http.Header {
 	return cw.w.Header()
 }
 
+// Write writes a compressed form of p to the underlying io.Writer.
 func (cw *compressWriter) Write(p []byte) (int, error) {
 	if !cw.isContentTypeSupported() {
 		return cw.w.Write(p)
@@ -106,6 +110,7 @@ func (cw *compressWriter) Write(p []byte) (int, error) {
 	return cw.zw.Write(p)
 }
 
+// WriteHeader overrides response WriteHeader method.
 func (cw *compressWriter) WriteHeader(statusCode int) {
 	if cw.isContentTypeSupported() {
 		cw.w.Header().Set("Content-Encoding", "gzip")
@@ -114,6 +119,7 @@ func (cw *compressWriter) WriteHeader(statusCode int) {
 	cw.w.WriteHeader(statusCode)
 }
 
+// Close closes the Writer by flushing any unwritten data to the underlying io.Writer and writing the GZIP footer.
 func (cw *compressWriter) Close() error {
 	if cw.zw == nil {
 		return nil

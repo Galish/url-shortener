@@ -2,6 +2,7 @@ package db
 
 import "context"
 
+// Has checks whether an entity with a given short URL exists.
 func (db *dbStore) Has(ctx context.Context, key string) bool {
 	row := db.store.QueryRowContext(
 		ctx,

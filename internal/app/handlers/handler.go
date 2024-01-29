@@ -64,6 +64,7 @@ func (h *httpHandler) flushMessages() {
 	}
 }
 
+// Close  is executed to release the memory
 func (h *httpHandler) Close() {
 	h.ticker.Stop()
 	close(h.messageCh)
