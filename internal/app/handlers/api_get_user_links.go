@@ -9,8 +9,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/middleware"
 )
 
-// apiGetUserLinks is an API handler that returns a list of links created by the user.
-func (h *HTTPHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
+// APIGetUserLinks is an API handler that returns a list of links created by the user.
+//
+//	POST /api/user/urls
+func (h *HTTPHandler) APIGetUserLinks(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(middleware.AuthHeaderName)
 	shortLinks, err := h.repo.GetByUser(r.Context(), userID)
 	if err != nil {
@@ -23,7 +25,7 @@ func (h *HTTPHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userLinks := make([]apiBatchEntity, 0, len(shortLinks))
+	userLinks := make([]APIBatchEntity, 0, len(shortLinks))
 
 	for _, link := range shortLinks {
 		if link.IsDeleted {
@@ -32,7 +34,7 @@ func (h *HTTPHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 
 		userLinks = append(
 			userLinks,
-			apiBatchEntity{
+			APIBatchEntity{
 				ShortURL:    fmt.Sprintf("%s/%s", h.cfg.BaseURL, link.Short),
 				OriginalURL: link.Original,
 			},

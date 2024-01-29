@@ -38,14 +38,14 @@ func TestAPIShortenBatch(t *testing.T) {
 		name   string
 		method string
 		path   string
-		req    []apiBatchEntity
+		req    []APIBatchEntity
 		want   want
 	}{
 		{
 			"invalid API endpoint",
 			http.MethodPost,
 			"/api/shorten/batches",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 					OriginalURL:   "https://practicum.yandex.ru/",
@@ -61,7 +61,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			"invalid request method",
 			http.MethodGet,
 			"/api/shorten/batch",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 					OriginalURL:   "https://practicum.yandex.ru/",
@@ -77,7 +77,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			"empty request body",
 			http.MethodPost,
 			"/api/shorten/batch",
-			[]apiBatchEntity{},
+			[]APIBatchEntity{},
 			want{
 				http.StatusBadRequest,
 				"empty request body\n",
@@ -88,7 +88,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			"link not provided",
 			http.MethodPost,
 			"/api/shorten/batch",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 				},
@@ -103,7 +103,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			"valid URL list",
 			http.MethodPost,
 			"/api/shorten/batch",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 					OriginalURL:   "https://practicum.yandex.ru/",
@@ -147,7 +147,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 
 			if resp.StatusCode < 300 {
-				var respBody []apiBatchEntity
+				var respBody []APIBatchEntity
 				err = json.NewDecoder(resp.Body).Decode(&respBody)
 				require.NoError(t, err)
 
@@ -181,7 +181,7 @@ func TestAPIShortenBatch(t *testing.T) {
 }
 
 func BenchmarkAPIShortenBatch(b *testing.B) {
-	bodyRaw, _ := json.Marshal([]apiBatchEntity{
+	bodyRaw, _ := json.Marshal([]APIBatchEntity{
 		{
 			CorrelationID: "#11111",
 			OriginalURL:   "https://practicum.yandex.ru/",
@@ -202,7 +202,7 @@ func BenchmarkAPIShortenBatch(b *testing.B) {
 		bytes.NewBuffer(bodyRaw),
 	)
 
-	bodyEmptyRaw, _ := json.Marshal([]apiBatchEntity{})
+	bodyEmptyRaw, _ := json.Marshal([]APIBatchEntity{})
 
 	rEmpty, _ := http.NewRequest(
 		http.MethodPost,
@@ -219,13 +219,13 @@ func BenchmarkAPIShortenBatch(b *testing.B) {
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiShortenBatch(w, rEmpty)
+			handler.APIShortenBatch(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiShortenBatch(w, r)
+			handler.APIShortenBatch(w, r)
 		}
 	})
 }

@@ -175,13 +175,13 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiGetUserLinks(w, rEmpty)
+			handler.APIGetUserLinks(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiGetUserLinks(w, r)
+			handler.APIGetUserLinks(w, r)
 		}
 	})
 }

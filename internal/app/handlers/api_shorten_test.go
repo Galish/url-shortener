@@ -38,14 +38,14 @@ func TestAPIShorten(t *testing.T) {
 		name   string
 		method string
 		path   string
-		req    apiRequest
+		req    APIRequest
 		want   want
 	}{
 		{
 			"invalid API endpoint",
 			http.MethodPost,
 			"/api/shortener",
-			apiRequest{
+			APIRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
@@ -58,7 +58,7 @@ func TestAPIShorten(t *testing.T) {
 			"invalid request method",
 			http.MethodGet,
 			"/api/shorten",
-			apiRequest{
+			APIRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
@@ -71,7 +71,7 @@ func TestAPIShorten(t *testing.T) {
 			"empty request body",
 			http.MethodPost,
 			"/api/shorten",
-			apiRequest{},
+			APIRequest{},
 			want{
 				http.StatusBadRequest,
 				"link not provided\n",
@@ -82,7 +82,7 @@ func TestAPIShorten(t *testing.T) {
 			"valid URL",
 			http.MethodPost,
 			"/api/shorten",
-			apiRequest{
+			APIRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
@@ -118,7 +118,7 @@ func TestAPIShorten(t *testing.T) {
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 
 			if resp.StatusCode < 300 {
-				var respBody apiResponse
+				var respBody APIResponse
 				err = json.NewDecoder(resp.Body).Decode(&respBody)
 				require.NoError(t, err)
 
@@ -144,7 +144,7 @@ func TestAPIShorten(t *testing.T) {
 }
 
 func BenchmarkAPIShorten(b *testing.B) {
-	bodyRaw, _ := json.Marshal(apiRequest{
+	bodyRaw, _ := json.Marshal(APIRequest{
 		URL: "https://practicum.yandex.ru/",
 	})
 
@@ -154,7 +154,7 @@ func BenchmarkAPIShorten(b *testing.B) {
 		bytes.NewBuffer(bodyRaw),
 	)
 
-	bodyEmptyRaw, _ := json.Marshal(apiRequest{
+	bodyEmptyRaw, _ := json.Marshal(APIRequest{
 		URL: "",
 	})
 
@@ -173,13 +173,13 @@ func BenchmarkAPIShorten(b *testing.B) {
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiShorten(w, rEmpty)
+			handler.APIShorten(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiShorten(w, r)
+			handler.APIShorten(w, r)
 		}
 	})
 }

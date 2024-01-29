@@ -11,11 +11,13 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-// apiShorten is an API handler for creating a short link.
-func (h *HTTPHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
+// APIShorten is an API handler for creating a short link.
+//
+//	POST /api/shorten
+func (h *HTTPHandler) APIShorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var req apiRequest
+	var req APIRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
 		logger.WithError(err).Debug("cannot decode request JSON body")
@@ -54,7 +56,7 @@ func (h *HTTPHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 	}
 
-	resp := apiResponse{
+	resp := APIResponse{
 		Result: fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
 	}
 

@@ -10,11 +10,13 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-// apiShortenBatch is an API handler for creating short links in batches.
-func (h *HTTPHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
+// APIShortenBatch is an API handler for creating short links in batches.
+//
+//	POST /api/shorten/batch
+func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var req []apiBatchEntity
+	var req []APIBatchEntity
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
 		logger.WithError(err).Debug("cannot decode request JSON body")
@@ -26,7 +28,7 @@ func (h *HTTPHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := make([]apiBatchEntity, len(req))
+	resp := make([]APIBatchEntity, len(req))
 	rows := make([]*model.ShortLink, len(req))
 
 	for i, entity := range req {
@@ -37,7 +39,7 @@ func (h *HTTPHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 
 		id := h.generateUniqueID(ctx, idLength)
 
-		resp[i] = apiBatchEntity{
+		resp[i] = APIBatchEntity{
 			CorrelationID: entity.CorrelationID,
 			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
 		}

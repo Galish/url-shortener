@@ -180,13 +180,13 @@ func BenchmarkAPIDeleteUserLinks(b *testing.B) {
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiDeleteUserLinks(w, rEmpty)
+			handler.APIDeleteUserLinks(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.apiDeleteUserLinks(w, r)
+			handler.APIDeleteUserLinks(w, r)
 		}
 	})
 }

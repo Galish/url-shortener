@@ -14,6 +14,8 @@ import (
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 // Shorten generates and returns a short URL for the given one.
+//
+//	POST /
 func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

@@ -32,13 +32,13 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 			r.Route("/api/user/urls", func(r chi.Router) {
 				r.Use(middleware.WithAuthChecker)
 
-				r.Get("/", handler.apiGetUserLinks)
-				r.Delete("/", handler.apiDeleteUserLinks)
+				r.Get("/", handler.APIGetUserLinks)
+				r.Delete("/", handler.APIDeleteUserLinks)
 			})
 
 			r.Route("/api/shorten", func(r chi.Router) {
-				r.Post("/", handler.apiShorten)
-				r.Post("/batch", handler.apiShortenBatch)
+				r.Post("/", handler.APIShorten)
+				r.Post("/batch", handler.APIShortenBatch)
 			})
 		})
 	})
