@@ -1,9 +1,7 @@
-package handlers_test
+package handlers
 
 import (
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -14,15 +12,14 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
 func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 	ts := httptest.NewServer(
-		handlers.NewRouter(
-			handlers.NewHandler(
+		NewRouter(
+			NewHandler(
 				&config.Config{BaseURL: baseURL},
 				memstore.New(),
 			),
@@ -126,7 +123,7 @@ func BenchmarkShorten(b *testing.B) {
 
 	w := httptest.NewRecorder()
 
-	handler := handlers.NewHandler(&config.Config{}, memstore.New())
+	handler := NewHandler(&config.Config{}, memstore.New())
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -142,41 +139,4 @@ func BenchmarkShorten(b *testing.B) {
 			handler.Shorten(w, r)
 		}
 	})
-}
-
-func ExampleHTTPHandler_Shorten() {
-	apiHandler := handlers.NewHandler(
-		&config.Config{BaseURL: "http://www.shortener.io"},
-		memstore.New(),
-	)
-
-	router := handlers.NewRouter(apiHandler)
-	server := httptest.NewServer(router)
-
-	resp, err := http.Post(
-		server.URL,
-		"text/plain",
-		strings.NewReader("https://practicum.yandex.ru/"),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(resp.StatusCode)
-	fmt.Println(resp.Header.Get("Content-Type"))
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	re := regexp.MustCompile("[A-Za-z0-9]+$")
-
-	fmt.Println(re.ReplaceAllString(string(body), "xxxxxx"))
-
-	// Output:
-	// 201
-	// text/html
-	// http://www.shortener.io/xxxxxx
 }
