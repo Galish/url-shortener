@@ -35,6 +35,7 @@ func ExampleHTTPHandler_APIShorten() {
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		memstore.New(),
 	)
+	defer apiHandler.Close()
 
 	apiHandler.APIShorten(w, r)
 

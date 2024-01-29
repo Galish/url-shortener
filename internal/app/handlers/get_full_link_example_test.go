@@ -35,6 +35,7 @@ func ExampleHTTPHandler_GetFullLink() {
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		store,
 	)
+	defer apiHandler.Close()
 
 	apiHandler.GetFullLink(w, r)
 

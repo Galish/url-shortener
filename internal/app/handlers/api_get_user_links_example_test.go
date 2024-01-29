@@ -39,6 +39,7 @@ func ExampleHTTPHandler_APIGetUserLinks() {
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		store,
 	)
+	defer apiHandler.Close()
 
 	apiHandler.APIGetUserLinks(w, r)
 

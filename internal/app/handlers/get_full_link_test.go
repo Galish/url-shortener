@@ -32,13 +32,14 @@ func TestGetFullLink(t *testing.T) {
 		},
 	)
 
+	handler := NewHandler(
+		&config.Config{},
+		repo,
+	)
+	defer handler.Close()
+
 	ts := httptest.NewServer(
-		NewRouter(
-			NewHandler(
-				&config.Config{},
-				repo,
-			),
-		),
+		NewRouter(handler),
 	)
 	defer ts.Close()
 
@@ -153,6 +154,7 @@ func BenchmarkGetFullLink(b *testing.B) {
 	})
 
 	handler := NewHandler(&config.Config{}, store)
+	defer handler.Close()
 
 	b.ReportAllocs()
 	b.ResetTimer()

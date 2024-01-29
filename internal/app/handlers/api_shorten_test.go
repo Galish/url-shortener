@@ -18,13 +18,15 @@ import (
 
 func TestAPIShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
+
+	handler := NewHandler(
+		&config.Config{BaseURL: baseURL},
+		memstore.New(),
+	)
+	defer handler.Close()
+
 	ts := httptest.NewServer(
-		NewRouter(
-			NewHandler(
-				&config.Config{BaseURL: baseURL},
-				memstore.New(),
-			),
-		),
+		NewRouter(handler),
 	)
 	defer ts.Close()
 
@@ -167,6 +169,7 @@ func BenchmarkAPIShorten(b *testing.B) {
 	w := httptest.NewRecorder()
 
 	handler := NewHandler(&config.Config{}, memstore.New())
+	defer handler.Close()
 
 	b.ReportAllocs()
 	b.ResetTimer()

@@ -47,6 +47,7 @@ func ExampleHTTPHandler_APIDeleteUserLinks() {
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		store,
 	)
+	defer apiHandler.Close()
 
 	apiHandler.APIDeleteUserLinks(w, r)
 

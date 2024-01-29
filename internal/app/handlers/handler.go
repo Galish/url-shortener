@@ -44,12 +44,12 @@ func (h *HTTPHandler) flushMessages() {
 	for {
 		select {
 		case message := <-h.messageCh:
-
 			switch message.action {
 			case "delete":
 				deleteLinks = append(deleteLinks, message.shortLink)
 
 			}
+
 		case <-h.ticker.C:
 			if len(deleteLinks) == 0 {
 				continue
@@ -67,6 +67,14 @@ func (h *HTTPHandler) flushMessages() {
 
 // Close  is executed to release the memory
 func (h *HTTPHandler) Close() {
-	h.ticker.Stop()
-	close(h.messageCh)
+	if h.ticker != nil {
+		h.ticker.Stop()
+	}
+
+	select {
+	case <-h.messageCh:
+		close(h.messageCh)
+		return
+	default:
+	}
 }

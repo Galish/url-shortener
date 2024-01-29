@@ -29,13 +29,14 @@ func TestAPIGetUserLinks(t *testing.T) {
 
 	baseURL := "http://localhost:8080"
 
+	handler := NewHandler(
+		&config.Config{BaseURL: baseURL},
+		store,
+	)
+	defer handler.Close()
+
 	ts := httptest.NewServer(
-		NewRouter(
-			NewHandler(
-				&config.Config{BaseURL: baseURL},
-				store,
-			),
-		),
+		NewRouter(handler),
 	)
 	defer ts.Close()
 
@@ -169,6 +170,7 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 	})
 
 	handler := NewHandler(&config.Config{}, store)
+	defer handler.Close()
 
 	b.ReportAllocs()
 	b.ResetTimer()
