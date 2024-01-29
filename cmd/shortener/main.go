@@ -2,11 +2,11 @@
 package main
 
 import (
-	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
-	"github.com/Galish/url-shortener/internal/app/logger"
-	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/internal/app/server"
+	"github.com/Galish/url-shortener/internal/config"
+	"github.com/Galish/url-shortener/internal/handlers"
+	"github.com/Galish/url-shortener/internal/logger"
+	"github.com/Galish/url-shortener/internal/repository"
+	"github.com/Galish/url-shortener/internal/server"
 )
 
 func main() {
