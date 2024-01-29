@@ -1,3 +1,4 @@
+// Package middleware implements common middlewares for http handlers.
 package middleware
 
 import (
@@ -18,6 +19,7 @@ const (
 
 var errMissingUserID = errors.New("user id not specified")
 
+// WithAuthToken generates and stores a token in a cookie if one is not specified.
 func WithAuthToken(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)
@@ -58,6 +60,7 @@ func WithAuthToken(h http.Handler) http.Handler {
 	})
 }
 
+// WithAuthChecker serves 401 error if authorization fails.
 func WithAuthChecker(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)

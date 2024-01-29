@@ -1,3 +1,4 @@
+// Package auth provides functions for user authentication and authorization.
 package auth
 
 import (
@@ -7,13 +8,16 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// A secretKey is used to sign the token.
 const secretKey = "supersecretkey"
 
+// JWTClaims represents data encoded into a token.
 type JWTClaims struct {
 	jwt.RegisteredClaims
 	UserID string
 }
 
+// NewToken generates a token.
 func NewToken(claims *JWTClaims) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -28,6 +32,7 @@ func NewToken(claims *JWTClaims) (string, error) {
 	return tokenString, nil
 }
 
+// ParseToken decodes the token string.
 func ParseToken(tokenString string) (*JWTClaims, error) {
 	var claims JWTClaims
 

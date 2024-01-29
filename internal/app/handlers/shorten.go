@@ -13,6 +13,7 @@ import (
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
+// shorten generates and returns a short URL for the given one.
 func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

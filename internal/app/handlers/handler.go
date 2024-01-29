@@ -22,6 +22,7 @@ type handlerMessage struct {
 	shortLink *model.ShortLink
 }
 
+// NewHandler implements HTTP handlers.
 func NewHandler(cfg *config.Config, repo repository.Repository) *httpHandler {
 	handler := &httpHandler{
 		cfg:       cfg,

@@ -8,6 +8,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
+// getFullLink redirects to the original page URL for the given short link.
 func (h *httpHandler) getFullLink(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")

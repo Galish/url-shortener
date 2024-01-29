@@ -6,6 +6,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
+// ping verifies the server is running.
 func (h *httpHandler) ping(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

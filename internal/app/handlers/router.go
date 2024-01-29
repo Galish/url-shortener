@@ -1,3 +1,4 @@
+// Package implements the HTTP router and handlers.
 package handlers
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/middleware"
 )
 
+// NewRouter returns a new Mux object that implements the Router interface.
 func NewRouter(handler *httpHandler) *chi.Mux {
 	router := chi.NewRouter()
 

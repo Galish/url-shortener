@@ -13,12 +13,14 @@ var supportedContentTypes = [2]string{
 	"text/html",
 }
 
+// WithCompressor implements a specific compression algorithm.
 func WithCompressor(compressor compress.Compressor) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
 		return WithCompression(h, compressor)
 	}
 }
 
+// WithCompression implements request and response compression, if supported.
 func WithCompression(h http.Handler, compressor compress.Compressor) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		acceptEncoding := r.Header.Get("Accept-Encoding")

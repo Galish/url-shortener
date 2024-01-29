@@ -1,5 +1,6 @@
 package repoerrors
 
+// RepoErr is a custom repository error object.
 type RepoErr struct {
 	Err         error
 	ShortURL    string

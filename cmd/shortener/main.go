@@ -1,3 +1,4 @@
+// Package main is the entry point to the Shortener application.
 package main
 
 import (

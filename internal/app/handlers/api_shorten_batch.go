@@ -10,6 +10,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// apiShortenBatch is an API handler for creating short links in batches.
 func (h *httpHandler) apiShortenBatch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

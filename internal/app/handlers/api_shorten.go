@@ -11,6 +11,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// apiShorten is an API handler for creating a short link.
 func (h *httpHandler) apiShorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

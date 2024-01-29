@@ -7,6 +7,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// MemStore represents in-memory storage.
 type MemStore struct {
 	store map[string]*model.ShortLink
 }

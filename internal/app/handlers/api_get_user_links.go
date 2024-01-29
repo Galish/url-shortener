@@ -9,6 +9,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/middleware"
 )
 
+// apiGetUserLinks is an API handler that returns a list of links created by the user.
 func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(middleware.AuthHeaderName)
 	shortLinks, err := h.repo.GetByUser(r.Context(), userID)
