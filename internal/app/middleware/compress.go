@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Galish/url-shortener/internal/app/compress"
+	"github.com/Galish/url-shortener/pkg/compress"
 )
 
 var supportedContentTypes = [2]string{

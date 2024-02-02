@@ -4,8 +4,8 @@ package handlers
 import (
 	"github.com/go-chi/chi/v5"
 
-	"github.com/Galish/url-shortener/internal/app/compress"
 	"github.com/Galish/url-shortener/internal/app/middleware"
+	"github.com/Galish/url-shortener/pkg/compress"
 )
 
 // NewRouter returns a new Mux object that implements the Router interface.

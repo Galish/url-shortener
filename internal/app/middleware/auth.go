@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Galish/url-shortener/internal/app/auth"
 	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/pkg/auth"
 )
 
 // Generic authentication middleware constants.
