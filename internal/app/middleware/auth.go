@@ -1,3 +1,4 @@
+// Package middleware implements common middlewares for http handlers.
 package middleware
 
 import (
@@ -5,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Galish/url-shortener/internal/app/auth"
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/google/uuid"
+
+	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/pkg/auth"
 )
 
+// Generic authentication middleware constants.
 const (
 	AuthCookieName = "auth"
 	AuthHeaderName = "X-User"
@@ -17,6 +20,7 @@ const (
 
 var errMissingUserID = errors.New("user id not specified")
 
+// WithAuthToken generates and stores a token in a cookie if one is not specified.
 func WithAuthToken(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)
@@ -57,6 +61,7 @@ func WithAuthToken(h http.Handler) http.Handler {
 	})
 }
 
+// WithAuthChecker serves 401 error if authorization fails.
 func WithAuthChecker(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := getUserID(r)
@@ -64,8 +69,8 @@ func WithAuthChecker(h http.Handler) http.Handler {
 			logger.Debug(err)
 		}
 
-		if errors.Is(err, errMissingUserID) {
-			logger.Debug("unauthorized access attempt")
+		if err != nil {
+			logger.WithError(err).Debug("unauthorized access attempt")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

@@ -1,3 +1,4 @@
+// Package main is the entry point to the Shortener application.
 package main
 
 import (
@@ -5,7 +6,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/internal/app/server"
+	"github.com/Galish/url-shortener/pkg/server"
 )
 
 func main() {
@@ -19,7 +20,10 @@ func main() {
 	}
 	defer store.Close()
 
-	router := handlers.NewRouter(cfg, store)
+	handler := handlers.NewHandler(cfg, store)
+	defer handler.Close()
+
+	router := handlers.NewRouter(handler)
 	httpServer := server.NewHTTPServer(cfg.ServAddr, router)
 
 	if err := httpServer.Run(); err != nil {

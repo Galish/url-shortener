@@ -1,5 +1,6 @@
 package model
 
+// ShortLink represents a link short link entity.
 type ShortLink struct {
 	ID        string `json:"uuid"`
 	Short     string `json:"short_url"`

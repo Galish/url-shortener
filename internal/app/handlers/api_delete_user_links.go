@@ -9,7 +9,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-func (h *httpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request) {
+// APIDeleteUserLinks is an API handler for deleting user short links.
+//
+//	DELETE /api/user/urls
+func (h *HTTPHandler) APIDeleteUserLinks(w http.ResponseWriter, r *http.Request) {
 	var shortURLs []string
 	if err := json.NewDecoder(r.Body).Decode(&shortURLs); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
@@ -17,17 +20,19 @@ func (h *httpHandler) apiDeleteUserLinks(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	go func() {
-		for _, shortURL := range shortURLs {
-			h.messageCh <- &handlerMessage{
-				action: "delete",
-				shortLink: &model.ShortLink{
-					Short: shortURL,
-					User:  r.Header.Get(middleware.AuthHeaderName),
-				},
+	if len(shortURLs) != 0 {
+		go func() {
+			for _, shortURL := range shortURLs {
+				h.messageCh <- &handlerMessage{
+					action: "delete",
+					shortLink: &model.ShortLink{
+						Short: shortURL,
+						User:  r.Header.Get(middleware.AuthHeaderName),
+					},
+				}
 			}
-		}
-	}()
+		}()
+	}
 
 	w.WriteHeader(http.StatusAccepted)
 }

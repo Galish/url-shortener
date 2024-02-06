@@ -3,11 +3,13 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// SetBatch inserts new entities in batches.
 func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {
 	conn, err := db.store.Conn(context.Background())
 	if err != nil {

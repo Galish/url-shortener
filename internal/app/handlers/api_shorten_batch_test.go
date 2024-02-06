@@ -9,19 +9,24 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
 func TestAPIShortenBatch(t *testing.T) {
 	baseURL := "http://localhost:8080"
+
+	handler := NewHandler(
+		&config.Config{BaseURL: baseURL},
+		memstore.New(),
+	)
+	defer handler.Close()
+
 	ts := httptest.NewServer(
-		NewRouter(
-			&config.Config{BaseURL: baseURL},
-			memstore.New(),
-		),
+		NewRouter(handler),
 	)
 	defer ts.Close()
 
@@ -35,21 +40,21 @@ func TestAPIShortenBatch(t *testing.T) {
 		name   string
 		method string
 		path   string
-		req    []apiBatchEntity
+		req    []APIBatchEntity
 		want   want
 	}{
 		{
 			"invalid API endpoint",
 			http.MethodPost,
 			"/api/shorten/batches",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 					OriginalURL:   "https://practicum.yandex.ru/",
 				},
 			},
 			want{
-				404,
+				http.StatusNotFound,
 				"404 page not found\n",
 				"text/plain; charset=utf-8",
 			},
@@ -58,14 +63,14 @@ func TestAPIShortenBatch(t *testing.T) {
 			"invalid request method",
 			http.MethodGet,
 			"/api/shorten/batch",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 					OriginalURL:   "https://practicum.yandex.ru/",
 				},
 			},
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -74,9 +79,9 @@ func TestAPIShortenBatch(t *testing.T) {
 			"empty request body",
 			http.MethodPost,
 			"/api/shorten/batch",
-			[]apiBatchEntity{},
+			[]APIBatchEntity{},
 			want{
-				400,
+				http.StatusBadRequest,
 				"empty request body\n",
 				"text/plain; charset=utf-8",
 			},
@@ -85,13 +90,13 @@ func TestAPIShortenBatch(t *testing.T) {
 			"link not provided",
 			http.MethodPost,
 			"/api/shorten/batch",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 				},
 			},
 			want{
-				400,
+				http.StatusBadRequest,
 				"link not provided\n",
 				"text/plain; charset=utf-8",
 			},
@@ -100,7 +105,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			"valid URL list",
 			http.MethodPost,
 			"/api/shorten/batch",
-			[]apiBatchEntity{
+			[]APIBatchEntity{
 				{
 					CorrelationID: "#12345",
 					OriginalURL:   "https://practicum.yandex.ru/",
@@ -111,7 +116,7 @@ func TestAPIShortenBatch(t *testing.T) {
 				},
 			},
 			want{
-				201,
+				http.StatusCreated,
 				"",
 				"application/json",
 			},
@@ -144,7 +149,7 @@ func TestAPIShortenBatch(t *testing.T) {
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 
 			if resp.StatusCode < 300 {
-				var respBody []apiBatchEntity
+				var respBody []APIBatchEntity
 				err = json.NewDecoder(resp.Body).Decode(&respBody)
 				require.NoError(t, err)
 
@@ -175,4 +180,55 @@ func TestAPIShortenBatch(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func BenchmarkAPIShortenBatch(b *testing.B) {
+	bodyRaw, _ := json.Marshal([]APIBatchEntity{
+		{
+			CorrelationID: "#11111",
+			OriginalURL:   "https://practicum.yandex.ru/",
+		},
+		{
+			CorrelationID: "#22222",
+			OriginalURL:   "https://www.google.com/",
+		},
+		{
+			CorrelationID: "#33333",
+			OriginalURL:   "https://www.ozon.ru/",
+		},
+	})
+
+	r, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten/batch",
+		bytes.NewBuffer(bodyRaw),
+	)
+
+	bodyEmptyRaw, _ := json.Marshal([]APIBatchEntity{})
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten/batch",
+		bytes.NewBuffer(bodyEmptyRaw),
+	)
+
+	w := httptest.NewRecorder()
+
+	handler := NewHandler(&config.Config{}, memstore.New())
+	defer handler.Close()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.APIShortenBatch(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.APIShortenBatch(w, r)
+		}
+	})
 }

@@ -10,10 +10,12 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-type httpHandler struct {
+// HTTPHandler represents API handler.
+type HTTPHandler struct {
 	cfg       *config.Config
 	repo      repository.Repository
 	messageCh chan *handlerMessage
+	ticker    *time.Ticker
 }
 
 type handlerMessage struct {
@@ -21,8 +23,9 @@ type handlerMessage struct {
 	shortLink *model.ShortLink
 }
 
-func NewHandler(cfg *config.Config, repo repository.Repository) *httpHandler {
-	handler := &httpHandler{
+// NewHandler implements HTTP handlers.
+func NewHandler(cfg *config.Config, repo repository.Repository) *HTTPHandler {
+	handler := &HTTPHandler{
 		cfg:       cfg,
 		repo:      repo,
 		messageCh: make(chan *handlerMessage, 100),
@@ -33,21 +36,21 @@ func NewHandler(cfg *config.Config, repo repository.Repository) *httpHandler {
 	return handler
 }
 
-func (h *httpHandler) flushMessages() {
-	ticker := time.NewTicker(2 * time.Second)
+func (h *HTTPHandler) flushMessages() {
+	h.ticker = time.NewTicker(2 * time.Second)
 
 	var deleteLinks []*model.ShortLink
 
 	for {
 		select {
 		case message := <-h.messageCh:
-
 			switch message.action {
 			case "delete":
 				deleteLinks = append(deleteLinks, message.shortLink)
 
 			}
-		case <-ticker.C:
+
+		case <-h.ticker.C:
 			if len(deleteLinks) == 0 {
 				continue
 			}
@@ -59,5 +62,19 @@ func (h *httpHandler) flushMessages() {
 
 			deleteLinks = nil
 		}
+	}
+}
+
+// Close  is executed to release the memory
+func (h *HTTPHandler) Close() {
+	if h.ticker != nil {
+		h.ticker.Stop()
+	}
+
+	select {
+	case <-h.messageCh:
+		close(h.messageCh)
+		return
+	default:
 	}
 }

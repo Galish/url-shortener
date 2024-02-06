@@ -7,11 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestGetFullLink(t *testing.T) {
@@ -30,7 +32,15 @@ func TestGetFullLink(t *testing.T) {
 		},
 	)
 
-	ts := httptest.NewServer(NewRouter(&config.Config{}, repo))
+	handler := NewHandler(
+		&config.Config{},
+		repo,
+	)
+	defer handler.Close()
+
+	ts := httptest.NewServer(
+		NewRouter(handler),
+	)
 	defer ts.Close()
 
 	type want struct {
@@ -120,4 +130,50 @@ func TestGetFullLink(t *testing.T) {
 			assert.Equal(t, string(raw), tt.want.body)
 		})
 	}
+}
+
+func BenchmarkGetFullLink(b *testing.B) {
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	rCtxEmpty := chi.NewRouteContext()
+	rCtxEmpty.URLParams.Add("id", "Edz0Thb1")
+	rEmpty := r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rCtxEmpty))
+
+	rCtxFound := chi.NewRouteContext()
+	rCtxFound.URLParams.Add("id", "Edz0ThbX")
+	rFound := r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rCtxFound))
+
+	w := httptest.NewRecorder()
+
+	store := memstore.New()
+	store.Set(context.Background(), &model.ShortLink{
+		ID:       "#123111",
+		Short:    "Edz0ThbX",
+		Original: "https://practicum.yandex.ru/",
+		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
+	})
+
+	handler := NewHandler(&config.Config{}, store)
+	defer handler.Close()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("wrong", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.GetFullLink(w, r)
+		}
+	})
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.GetFullLink(w, rEmpty)
+		}
+	})
+
+	b.Run("found", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.GetFullLink(w, rFound)
+		}
+	})
 }

@@ -9,7 +9,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/middleware"
 )
 
-func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
+// APIGetUserLinks is an API handler that returns a list of links created by the user.
+//
+//	POST /api/user/urls
+func (h *HTTPHandler) APIGetUserLinks(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get(middleware.AuthHeaderName)
 	shortLinks, err := h.repo.GetByUser(r.Context(), userID)
 	if err != nil {
@@ -17,7 +20,12 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 		logger.WithError(err).Error("unable to read from repository")
 	}
 
-	userLinks := make([]apiBatchEntity, 0, len(shortLinks))
+	if len(shortLinks) == 0 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	userLinks := make([]APIBatchEntity, 0, len(shortLinks))
 
 	for _, link := range shortLinks {
 		if link.IsDeleted {
@@ -26,16 +34,11 @@ func (h *httpHandler) apiGetUserLinks(w http.ResponseWriter, r *http.Request) {
 
 		userLinks = append(
 			userLinks,
-			apiBatchEntity{
+			APIBatchEntity{
 				ShortURL:    fmt.Sprintf("%s/%s", h.cfg.BaseURL, link.Short),
 				OriginalURL: link.Original,
 			},
 		)
-	}
-
-	if len(userLinks) == 0 {
-		w.WriteHeader(http.StatusNoContent)
-		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

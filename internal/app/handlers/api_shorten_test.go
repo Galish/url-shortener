@@ -9,19 +9,24 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
 func TestAPIShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
+
+	handler := NewHandler(
+		&config.Config{BaseURL: baseURL},
+		memstore.New(),
+	)
+	defer handler.Close()
+
 	ts := httptest.NewServer(
-		NewRouter(
-			&config.Config{BaseURL: baseURL},
-			memstore.New(),
-		),
+		NewRouter(handler),
 	)
 	defer ts.Close()
 
@@ -35,18 +40,18 @@ func TestAPIShorten(t *testing.T) {
 		name   string
 		method string
 		path   string
-		req    apiRequest
+		req    APIRequest
 		want   want
 	}{
 		{
 			"invalid API endpoint",
 			http.MethodPost,
 			"/api/shortener",
-			apiRequest{
+			APIRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
-				404,
+				http.StatusNotFound,
 				"404 page not found\n",
 				"text/plain; charset=utf-8",
 			},
@@ -55,11 +60,11 @@ func TestAPIShorten(t *testing.T) {
 			"invalid request method",
 			http.MethodGet,
 			"/api/shorten",
-			apiRequest{
+			APIRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
-				405,
+				http.StatusMethodNotAllowed,
 				"",
 				"",
 			},
@@ -68,9 +73,9 @@ func TestAPIShorten(t *testing.T) {
 			"empty request body",
 			http.MethodPost,
 			"/api/shorten",
-			apiRequest{},
+			APIRequest{},
 			want{
-				400,
+				http.StatusBadRequest,
 				"link not provided\n",
 				"text/plain; charset=utf-8",
 			},
@@ -79,11 +84,11 @@ func TestAPIShorten(t *testing.T) {
 			"valid URL",
 			http.MethodPost,
 			"/api/shorten",
-			apiRequest{
+			APIRequest{
 				URL: "https://practicum.yandex.ru/",
 			},
 			want{
-				201,
+				http.StatusCreated,
 				"",
 				"application/json",
 			},
@@ -115,7 +120,7 @@ func TestAPIShorten(t *testing.T) {
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 
 			if resp.StatusCode < 300 {
-				var respBody apiResponse
+				var respBody APIResponse
 				err = json.NewDecoder(resp.Body).Decode(&respBody)
 				require.NoError(t, err)
 
@@ -138,4 +143,46 @@ func TestAPIShorten(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
+}
+
+func BenchmarkAPIShorten(b *testing.B) {
+	bodyRaw, _ := json.Marshal(APIRequest{
+		URL: "https://practicum.yandex.ru/",
+	})
+
+	r, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten",
+		bytes.NewBuffer(bodyRaw),
+	)
+
+	bodyEmptyRaw, _ := json.Marshal(APIRequest{
+		URL: "",
+	})
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodPost,
+		"/api/shorten",
+		bytes.NewBuffer(bodyEmptyRaw),
+	)
+
+	w := httptest.NewRecorder()
+
+	handler := NewHandler(&config.Config{}, memstore.New())
+	defer handler.Close()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.APIShorten(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.APIShorten(w, r)
+		}
+	})
 }

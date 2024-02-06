@@ -1,3 +1,4 @@
+// Package implements PostgreSQL storage.
 package db
 
 import (
@@ -12,6 +13,7 @@ type dbStore struct {
 	store *sql.DB
 }
 
+// New returns a new database connection instance.
 func New(addr string) (*dbStore, error) {
 	if addr == "" {
 		return nil, errors.New("database address missing")
@@ -27,6 +29,7 @@ func New(addr string) (*dbStore, error) {
 	return &dbStore{db}, nil
 }
 
+// Bootstrap initializes default database state.
 func (db *dbStore) Bootstrap(ctx context.Context) error {
 	tx, err := db.store.BeginTx(ctx, nil)
 	if err != nil {
@@ -65,6 +68,7 @@ func (db *dbStore) Bootstrap(ctx context.Context) error {
 	return tx.Commit()
 }
 
+// Ping is used to make sure the database connection is alive.
 func (db *dbStore) Ping(ctx context.Context) (bool, error) {
 	if err := db.store.PingContext(ctx); err != nil {
 		return false, err
@@ -73,6 +77,7 @@ func (db *dbStore) Ping(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
+// Close closes a connection.
 func (db *dbStore) Close() error {
 	return db.store.Close()
 }

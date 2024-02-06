@@ -6,6 +6,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// GetByUser returns all entities created by the user.
 func (db *dbStore) GetByUser(ctx context.Context, userID string) ([]*model.ShortLink, error) {
 	rows, err := db.store.QueryContext(
 		ctx,

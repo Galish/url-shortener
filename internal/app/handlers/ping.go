@@ -6,7 +6,8 @@ import (
 	"github.com/Galish/url-shortener/internal/app/logger"
 )
 
-func (h *httpHandler) ping(w http.ResponseWriter, r *http.Request) {
+// ping verifies the server is running.
+func (h *HTTPHandler) ping(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if ping, err := h.repo.Ping(ctx); !ping {

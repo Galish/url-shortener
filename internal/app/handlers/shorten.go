@@ -13,7 +13,10 @@ import (
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
+// Shorten generates and returns a short URL for the given one.
+//
+//	POST /
+func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	rawBody, err := io.ReadAll(r.Body)
@@ -24,7 +27,6 @@ func (h *httpHandler) shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := string(rawBody)
-
 	if url == "" {
 		http.Error(w, "link not provided", http.StatusBadRequest)
 		return

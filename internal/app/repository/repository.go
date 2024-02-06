@@ -1,3 +1,4 @@
+// Package repository implements  the persistence layer of the application.
 package repository
 
 import (
@@ -10,6 +11,8 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// Repository is an abstraction over persistent storage.
+// It provides a common set of methods for interacting with data sources.
 type Repository interface {
 	Get(context.Context, string) (*model.ShortLink, error)
 	GetByUser(context.Context, string) ([]*model.ShortLink, error)
@@ -21,6 +24,7 @@ type Repository interface {
 	Close() error
 }
 
+// New creates a store based on the configuration.
 func New(cfg *config.Config) (Repository, error) {
 	if cfg.DBAddr != "" {
 		repo, err := db.New(cfg.DBAddr)

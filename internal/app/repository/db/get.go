@@ -6,6 +6,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// Get returns the entity for a given short URL.
 func (db *dbStore) Get(ctx context.Context, key string) (*model.ShortLink, error) {
 	row := db.store.QueryRowContext(
 		ctx,

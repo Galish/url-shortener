@@ -3,10 +3,12 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	sq "github.com/Masterminds/squirrel"
+
+	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
+// Delete marks the entity as deleted.
 func (db *dbStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
 	updateQuery := sq.Update("links").
 		Set("is_deleted", true).

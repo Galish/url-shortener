@@ -8,19 +8,24 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
 func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
+
+	handler := NewHandler(
+		&config.Config{BaseURL: baseURL},
+		memstore.New(),
+	)
+	defer handler.Close()
+
 	ts := httptest.NewServer(
-		NewRouter(
-			&config.Config{BaseURL: baseURL},
-			memstore.New(),
-		),
+		NewRouter(handler),
 	)
 	defer ts.Close()
 
@@ -88,6 +93,7 @@ func TestShorten(t *testing.T) {
 
 			raw, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
+
 			err = resp.Body.Close()
 			require.NoError(t, err)
 
@@ -102,4 +108,38 @@ func TestShorten(t *testing.T) {
 			}
 		})
 	}
+}
+
+func BenchmarkShorten(b *testing.B) {
+	r, _ := http.NewRequest(
+		http.MethodPost,
+		"/",
+		strings.NewReader("qwewqewqe"),
+	)
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodPost,
+		"/",
+		strings.NewReader(""),
+	)
+
+	w := httptest.NewRecorder()
+
+	handler := NewHandler(&config.Config{}, memstore.New())
+	defer handler.Close()
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	b.Run("empty", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.Shorten(w, rEmpty)
+		}
+	})
+
+	b.Run("valid", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			handler.Shorten(w, r)
+		}
+	})
 }
