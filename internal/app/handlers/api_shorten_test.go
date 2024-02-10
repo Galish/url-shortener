@@ -132,7 +132,8 @@ func TestAPIShorten(t *testing.T) {
 					respBody.Result,
 				)
 			} else {
-				raw, err := io.ReadAll(resp.Body)
+				var raw []byte
+				raw, err = io.ReadAll(resp.Body)
 				require.NoError(t, err)
 
 				assert.Equal(t, resp.Header.Get("Content-Type"), tt.want.contentType)

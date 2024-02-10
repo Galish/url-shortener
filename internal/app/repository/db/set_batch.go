@@ -27,7 +27,7 @@ func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink)
 			)
 		}
 
-		_, err := conn.CopyFrom(
+		_, err = conn.CopyFrom(
 			ctx,
 			pgx.Identifier{"links"},
 			[]string{"short_url", "original_url", "user_id"},
