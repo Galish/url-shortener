@@ -14,6 +14,7 @@ import (
 	"golang.org/x/tools/go/analysis/passes/unusedresult"
 )
 
+// Analyzers represents a list of analyzers.
 var Analyzers = []*analysis.Analyzer{
 	shadow.Analyzer,
 	structtag.Analyzer,

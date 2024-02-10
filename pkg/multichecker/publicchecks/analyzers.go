@@ -7,6 +7,7 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
+// Analyzers represents a list of analyzers.
 var Analyzers = []*analysis.Analyzer{
 	analyzer.New(),     // Checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
 	bodyclose.Analyzer, // Checks whether HTTP response body is closed.

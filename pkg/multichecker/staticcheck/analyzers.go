@@ -125,6 +125,7 @@ var simpleChecks = map[string]bool{
 	"S1028": true, // Simplify error construction with fmt.Errorf
 }
 
+// Analyzers represents a list of analyzers.
 var Analyzers = func() []*analysis.Analyzer {
 	var checks []*analysis.Analyzer
 
