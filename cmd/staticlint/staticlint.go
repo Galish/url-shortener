@@ -1,3 +1,5 @@
+// Package main is the entry point to the static analysis tool.
+// This package makes it easy to build an analysis tool containing specified analyzers.
 package main
 
 import (

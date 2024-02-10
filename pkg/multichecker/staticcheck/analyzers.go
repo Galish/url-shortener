@@ -1,4 +1,4 @@
-// Package staticcheck defines a list of staticcheck.io static analyzers.
+// Package staticcheck defines a list of `staticcheck.io` static analyzers.
 // Includes the following list of checks:
 //
 //	SA	Static checks

@@ -1,4 +1,8 @@
-// Package publicchecks defines a list of static community analyzers.
+// Package publicchecks defines a list of community static analyzers.
+//
+// Includes the following list of checks:
+//   - `errname` checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+//   - `bodyclose` checks whether HTTP response body is closed.
 package publicchecks
 
 import (
@@ -9,6 +13,6 @@ import (
 
 // Analyzers represents a list of analyzers.
 var Analyzers = []*analysis.Analyzer{
-	analyzer.New(),     // Checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
-	bodyclose.Analyzer, // Checks whether HTTP response body is closed.
+	analyzer.New(),
+	bodyclose.Analyzer,
 }

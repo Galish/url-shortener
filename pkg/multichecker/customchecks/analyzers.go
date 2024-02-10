@@ -1,4 +1,7 @@
 // Package customchecks defines a list of custom static analyzers.
+//
+// Includes the following list of checks:
+//   - `osexitcheckanalyzer` checks for a direct os.Exit call in the main function of the main package.
 package customchecks
 
 import (
