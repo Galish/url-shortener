@@ -118,11 +118,11 @@ import (
 )
 
 var simpleChecks = map[string]bool{
-	"S1000": true, // Use plain channel send or receive instead of single-case select
-	"S1002": true, // Omit comparison with boolean constant
-	"S1009": true, // Omit redundant nil check on slices
-	"S1012": true, // S1012 - Replace time.Now().Sub(x) with time.Since(x)
-	"S1028": true, // Simplify error construction with fmt.Errorf
+	"S1000": true,
+	"S1002": true,
+	"S1009": true,
+	"S1012": true,
+	"S1028": true,
 }
 
 // Analyzers represents a list of analyzers.
