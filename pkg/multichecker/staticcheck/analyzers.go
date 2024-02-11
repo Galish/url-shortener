@@ -108,6 +108,8 @@
 //	S1009	Omit redundant nil check on slices
 //	S1012	Replace time.Now().Sub(x) with time.Since(x)
 //	S1028	Simplify error construction with fmt.Errorf
+//
+// Package unused contains code for finding unused code.
 package staticcheck
 
 import (
@@ -126,21 +128,18 @@ var simpleChecks = map[string]bool{
 }
 
 // Analyzers represents a list of analyzers.
-var Analyzers = func() []*analysis.Analyzer {
-	var checks []*analysis.Analyzer
+var Analyzers []*analysis.Analyzer
 
+func init() {
 	for _, v := range staticcheck.Analyzers {
-		checks = append(checks, v.Analyzer)
+		Analyzers = append(Analyzers, v.Analyzer)
 	}
 
 	for _, v := range simple.Analyzers {
 		if simpleChecks[v.Analyzer.Name] {
-			checks = append(checks, v.Analyzer)
+			Analyzers = append(Analyzers, v.Analyzer)
 		}
 	}
 
-	// Package unused contains code for finding unused code.
-	checks = append(checks, unused.Analyzer.Analyzer)
-
-	return checks
-}()
+	Analyzers = append(Analyzers, unused.Analyzer.Analyzer)
+}
