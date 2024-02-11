@@ -2,6 +2,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/logger"
@@ -9,7 +11,20 @@ import (
 	"github.com/Galish/url-shortener/pkg/server"
 )
 
+var (
+	buildVersion string = "N/A"
+	buildDate    string = "N/A"
+	buildCommit  string = "N/A"
+)
+
 func main() {
+	fmt.Printf(
+		"Build version: %s\nBuild date: %s\nBuild commit: %s\n",
+		buildVersion,
+		buildDate,
+		buildCommit,
+	)
+
 	cfg := config.New()
 
 	logger.Initialize(cfg.LogLevel)
