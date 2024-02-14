@@ -1,26 +1,26 @@
 // Package contains custom repository errors.
 package repoerrors
 
-// RepoErr is a custom repository error object.
-type RepoErr struct {
+// RepoError is a custom repository error object.
+type RepoError struct {
 	Err         error
 	ShortURL    string
 	OriginalURL string
 }
 
 // Unwrap refers to the initial error Error method.
-func (er *RepoErr) Error() string {
+func (er *RepoError) Error() string {
 	return er.Err.Error()
 }
 
 // Unwrap refers to the initial error Unwrap method.
-func (er *RepoErr) Unwrap() error {
+func (er *RepoError) Unwrap() error {
 	return er.Err
 }
 
 // New returns a custom repository error instance.
 func New(err error, shortURL, originalURL string) error {
-	return &RepoErr{
+	return &RepoError{
 		Err:         err,
 		ShortURL:    shortURL,
 		OriginalURL: originalURL,
