@@ -10,6 +10,7 @@ type server interface {
 	Run() error
 }
 
+// New creates a server instance.
 func New(cfg *config.Config, handler http.Handler) server {
 	if cfg.IsHTTPSEnabled {
 		return NewHTTPSServer(cfg.ServAddr, handler)
