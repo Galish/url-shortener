@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 func parseEnvVars() {
 	if envAddr := os.Getenv("SERVER_ADDRESS"); envAddr != "" {
@@ -21,5 +24,10 @@ func parseEnvVars() {
 
 	if dbAddr := os.Getenv("DATABASE_DSN"); dbAddr != "" {
 		cfg.DBAddr = dbAddr
+	}
+
+	if httpsEnabled, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
+		isHTTPSEnabled, _ := strconv.ParseBool(httpsEnabled)
+		cfg.IsHTTPSEnabled = isHTTPSEnabled
 	}
 }
