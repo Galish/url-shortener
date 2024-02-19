@@ -39,9 +39,9 @@ func main() {
 	defer handler.Close()
 
 	router := handlers.NewRouter(handler)
-	httpServer := server.NewHTTPServer(cfg.ServAddr, router)
+	server := server.New(cfg, router)
 
-	if err := httpServer.Run(); err != nil {
+	if err := server.Run(); err != nil {
 		panic(err)
 	}
 }

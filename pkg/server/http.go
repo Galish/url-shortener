@@ -22,6 +22,6 @@ func NewHTTPServer(addr string, handler http.Handler) *httpServer {
 
 // Run listens and serves requests sent to HTTP handlers.
 func (s *httpServer) Run() error {
-	logger.Info("running server on", s.addr)
+	logger.Info("running HTTP server on", s.addr)
 	return http.ListenAndServe(s.addr, s.handler)
 }
