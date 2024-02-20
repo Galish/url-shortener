@@ -8,7 +8,6 @@ import (
 	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/pkg/server"
 )
 
 var (
@@ -39,7 +38,7 @@ func main() {
 	defer handler.Close()
 
 	router := handlers.NewRouter(handler)
-	server := server.New(cfg, router)
+	server := handlers.NewServer(cfg, router)
 
 	if err := server.Run(); err != nil {
 		panic(err)
