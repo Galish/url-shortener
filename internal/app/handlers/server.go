@@ -12,6 +12,7 @@ var (
 	dirCert       = "certs"
 )
 
+// NewServer configures and creates an HTTP server.
 func NewServer(cfg *config.Config, handler http.Handler) *server.Server {
 	var options = []server.Option{
 		server.WithAddress(cfg.ServAddr),
