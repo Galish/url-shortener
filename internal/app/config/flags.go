@@ -8,7 +8,7 @@ func init() {
 	flag.StringVar(&cfg.LogLevel, "l", "info", "Log level")
 	flag.StringVar(&cfg.FilePath, "f", "/tmp/short-url-db.json", "File storage path")
 	flag.StringVar(&cfg.DBAddr, "d", "", "DB address")
-	flag.BoolVar(&cfg.IsHTTPSEnabled, "s", false, "Enable HTTPS")
+	flag.BoolVar(&cfg.IsTLSEnabled, "s", false, "Enable HTTPS")
 }
 
 func parseFlags() {

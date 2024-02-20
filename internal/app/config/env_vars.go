@@ -26,8 +26,8 @@ func parseEnvVars() {
 		cfg.DBAddr = dbAddr
 	}
 
-	if httpsEnabled, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
-		isHTTPSEnabled, _ := strconv.ParseBool(httpsEnabled)
-		cfg.IsHTTPSEnabled = isHTTPSEnabled
+	if tlsEnabled, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
+		isEnabled, _ := strconv.ParseBool(tlsEnabled)
+		cfg.IsTLSEnabled = isEnabled
 	}
 }

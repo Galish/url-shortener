@@ -17,10 +17,10 @@ func NewServer(cfg *config.Config, handler http.Handler) *server.Server {
 		server.WithAddress(cfg.ServAddr),
 	}
 
-	if cfg.IsHTTPSEnabled {
+	if cfg.IsTLSEnabled {
 		options = append(
 			options,
-			server.WithSecureTransport(&server.TLSConfig{
+			server.WithTLS(&server.TLSConfig{
 				DirCert:       dirCert,
 				HostWhitelist: hostWhitelist,
 			}),
