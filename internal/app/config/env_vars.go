@@ -5,34 +5,34 @@ import (
 	"strconv"
 )
 
-func parseEnvVars(s *settings) {
-	if envAddr := os.Getenv("SERVER_ADDRESS"); envAddr != "" {
-		s.ServAddr = envAddr
+func parseEnvVars(c *settings, configFile *string) {
+	if servAddr := os.Getenv("SERVER_ADDRESS"); servAddr != "" {
+		c.ServAddr = servAddr
 	}
 
-	if envBaseURL := os.Getenv("BASE_URL"); envBaseURL != "" {
-		s.BaseURL = envBaseURL
+	if baseURL := os.Getenv("BASE_URL"); baseURL != "" {
+		c.BaseURL = baseURL
 	}
 
 	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
-		s.logLevel = logLevel
+		c.LogLevel = logLevel
 	}
 
 	if filePath := os.Getenv("FILE_STORAGE_PATH"); filePath != "" {
-		s.FilePath = filePath
+		c.FilePath = filePath
 	}
 
 	if dbAddr := os.Getenv("DATABASE_DSN"); dbAddr != "" {
-		s.DBAddr = dbAddr
+		c.DBAddr = dbAddr
 	}
 
-	if tlsEnabled := os.Getenv("ENABLE_HTTPS"); tlsEnabled == "" {
-		if isEnabled, _ := strconv.ParseBool(tlsEnabled); isEnabled {
-			s.IsTLSEnabled = true
+	if tlsEnabled := os.Getenv("ENABLE_HTTPS"); tlsEnabled != "" {
+		if isEnabled, err := strconv.ParseBool(tlsEnabled); err == nil {
+			c.IsTLSEnabled = &isEnabled
 		}
 	}
 
-	if configPath := os.Getenv("CONFIG"); configPath != "" {
-		s.fileConfigPath = configPath
+	if config := os.Getenv("CONFIG"); config != "" {
+		*configFile = config
 	}
 }

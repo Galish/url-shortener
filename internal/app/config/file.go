@@ -6,21 +6,12 @@ import (
 	"os"
 )
 
-func parseFile(s *settings, fileName ...string) error {
-	var name string
-
-	for _, n := range fileName {
-		if n != "" {
-			name = n
-			break
-		}
-	}
-
-	if name == "" {
+func parseFile(fileName string, c *settings) error {
+	if fileName == "" {
 		return nil
 	}
 
-	f, err := os.Open(name)
+	f, err := os.Open(fileName)
 	if err != nil {
 		return err
 	}
@@ -32,7 +23,7 @@ func parseFile(s *settings, fileName ...string) error {
 		return err
 	}
 
-	err = json.Unmarshal(b, &s)
+	err = json.Unmarshal(b, &c)
 	if err != nil {
 		return err
 	}

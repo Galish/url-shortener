@@ -1,18 +1,14 @@
 // Package config represents the application configuration.
 package config
 
-import (
-	"fmt"
-)
-
 // Config stores the application configuration.
 type Config struct {
-	ServAddr     string
 	BaseURL      string
-	LogLevel     string
-	FilePath     string
 	DBAddr       string
+	FilePath     string
 	IsTLSEnabled bool
+	LogLevel     string
+	ServAddr     string
 }
 
 type option func(*Config)
@@ -22,16 +18,11 @@ func New() *Config {
 	var flags = new(settings)
 	var envVars = new(settings)
 	var file = new(settings)
+	var configFile string
 
-	parseFlags(flags)
-	parseEnvVars(envVars)
-	if err := parseFile(
-		file,
-		flags.fileConfigPath,
-		envVars.fileConfigPath,
-	); err != nil {
-		fmt.Println(fmt.Errorf("unable to read config file: %s", err))
-	}
+	parseFlags(flags, &configFile)
+	parseEnvVars(envVars, &configFile)
+	parseFile(configFile, file)
 
 	return newConfig(
 		withSettings(defaultSettings),

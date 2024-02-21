@@ -4,23 +4,30 @@ import (
 	"flag"
 )
 
-func parseFlags(s *settings) {
-	flag.StringVar(&s.ServAddr, "a", "", "Server address")
-	flag.StringVar(&s.BaseURL, "b", "", "Base link URL")
-	flag.StringVar(&s.logLevel, "l", "", "Log level")
-	flag.StringVar(&s.FilePath, "f", "", "File storage path")
-	flag.StringVar(&s.DBAddr, "d", "", "DB address")
-	flag.BoolVar(&s.IsTLSEnabled, "s", false, "Enable HTTPS")
+func parseFlags(c *settings, configFile *string) {
+	var (
+		isTLSEnabled bool
+		config       string
+	)
 
-	flag.Func("c", "Config file path", func(v string) error {
-		s.fileConfigPath = v
-		return nil
-	})
-
-	flag.Func("config", "Config file path", func(v string) error {
-		s.fileConfigPath = v
-		return nil
-	})
+	flag.StringVar(&c.ServAddr, "a", "", "Server address")
+	flag.StringVar(&c.BaseURL, "b", "", "Base link URL")
+	flag.StringVar(&c.LogLevel, "l", "", "Log level")
+	flag.StringVar(&c.FilePath, "f", "", "File storage path")
+	flag.StringVar(&c.DBAddr, "d", "", "DB address")
+	flag.BoolVar(&isTLSEnabled, "s", false, "Enable HTTPS")
+	flag.StringVar(&config, "c", "", "Config file path")
+	flag.StringVar(&config, "config", "", "Config file path")
 
 	flag.Parse()
+
+	flag.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "s":
+			c.IsTLSEnabled = &isTLSEnabled
+
+		case "c", "config":
+			*configFile = f.Value.String()
+		}
+	})
 }
