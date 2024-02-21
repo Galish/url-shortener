@@ -26,6 +26,8 @@ func main() {
 
 	cfg := config.New()
 
+	fmt.Printf("Config: %+v\n", cfg)
+
 	logger.Initialize(cfg.LogLevel)
 
 	store, err := repository.New(cfg)

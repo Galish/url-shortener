@@ -1,16 +1,26 @@
 package config
 
-import "flag"
+import (
+	"flag"
+)
 
-func init() {
-	flag.StringVar(&cfg.ServAddr, "a", ":8080", "Server address")
-	flag.StringVar(&cfg.BaseURL, "b", "http://localhost:8080", "Base link URL")
-	flag.StringVar(&cfg.LogLevel, "l", "info", "Log level")
-	flag.StringVar(&cfg.FilePath, "f", "/tmp/short-url-db.json", "File storage path")
-	flag.StringVar(&cfg.DBAddr, "d", "", "DB address")
-	flag.BoolVar(&cfg.IsTLSEnabled, "s", false, "Enable HTTPS")
-}
+func parseFlags(s *settings) {
+	flag.StringVar(&s.ServAddr, "a", "", "Server address")
+	flag.StringVar(&s.BaseURL, "b", "", "Base link URL")
+	flag.StringVar(&s.logLevel, "l", "", "Log level")
+	flag.StringVar(&s.FilePath, "f", "", "File storage path")
+	flag.StringVar(&s.DBAddr, "d", "", "DB address")
+	flag.BoolVar(&s.IsTLSEnabled, "s", false, "Enable HTTPS")
 
-func parseFlags() {
+	flag.Func("c", "Config file path", func(v string) error {
+		s.fileConfigPath = v
+		return nil
+	})
+
+	flag.Func("config", "Config file path", func(v string) error {
+		s.fileConfigPath = v
+		return nil
+	})
+
 	flag.Parse()
 }

@@ -37,7 +37,7 @@ func New(handler http.Handler, options ...Option) *Server {
 
 // Run listens and serves requests sent to HTTP handlers.
 func (s Server) Run() error {
-	logger.Info("running HTTP server on", s.addr)
+	logger.Info("running HTTP server on ", s.addr)
 
 	if s.tlsConfig == nil {
 		return http.ListenAndServe(s.addr, s.handler)
@@ -55,7 +55,7 @@ func (s Server) Run() error {
 		TLSConfig: manager.TLSConfig(),
 	}
 
-	logger.Info("running server HTTPS on", s.addr)
+	logger.Info("running server HTTPS on ", s.addr)
 
 	return server.ListenAndServeTLS("", "")
 }

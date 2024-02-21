@@ -5,29 +5,34 @@ import (
 	"strconv"
 )
 
-func parseEnvVars() {
+func parseEnvVars(s *settings) {
 	if envAddr := os.Getenv("SERVER_ADDRESS"); envAddr != "" {
-		cfg.ServAddr = envAddr
+		s.ServAddr = envAddr
 	}
 
 	if envBaseURL := os.Getenv("BASE_URL"); envBaseURL != "" {
-		cfg.BaseURL = envBaseURL
+		s.BaseURL = envBaseURL
 	}
 
 	if logLevel := os.Getenv("LOG_LEVEL"); logLevel != "" {
-		cfg.LogLevel = logLevel
+		s.logLevel = logLevel
 	}
 
 	if filePath := os.Getenv("FILE_STORAGE_PATH"); filePath != "" {
-		cfg.FilePath = filePath
+		s.FilePath = filePath
 	}
 
 	if dbAddr := os.Getenv("DATABASE_DSN"); dbAddr != "" {
-		cfg.DBAddr = dbAddr
+		s.DBAddr = dbAddr
 	}
 
-	if tlsEnabled, ok := os.LookupEnv("ENABLE_HTTPS"); ok {
-		isEnabled, _ := strconv.ParseBool(tlsEnabled)
-		cfg.IsTLSEnabled = isEnabled
+	if tlsEnabled := os.Getenv("ENABLE_HTTPS"); tlsEnabled == "" {
+		if isEnabled, _ := strconv.ParseBool(tlsEnabled); isEnabled {
+			s.IsTLSEnabled = true
+		}
+	}
+
+	if configPath := os.Getenv("CONFIG"); configPath != "" {
+		s.fileConfigPath = configPath
 	}
 }
