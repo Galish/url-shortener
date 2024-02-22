@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/crypto/acme/autocert"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // Server represents HTTP server.

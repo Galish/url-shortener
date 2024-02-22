@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 type loggerResponseWriter struct {

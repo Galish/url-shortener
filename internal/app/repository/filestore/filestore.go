@@ -6,9 +6,9 @@ import (
 	"context"
 	"os"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 type fileStore struct {

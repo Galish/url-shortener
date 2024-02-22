@@ -6,8 +6,8 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/handlers"
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 var (
@@ -25,8 +25,6 @@ func main() {
 	)
 
 	cfg := config.New()
-
-	fmt.Printf("Config: %+v\n", cfg)
 
 	logger.Initialize(cfg.LogLevel)
 

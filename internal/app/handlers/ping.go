@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // ping verifies the server is running.

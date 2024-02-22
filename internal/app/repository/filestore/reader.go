@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 func (fs *fileStore) restore() error {
