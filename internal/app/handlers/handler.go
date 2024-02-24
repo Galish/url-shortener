@@ -88,7 +88,7 @@ func (h *HTTPHandler) deleteLink(sl *model.ShortLink) {
 
 // Close  is executed to release the memory
 func (h *HTTPHandler) Close() error {
-	logger.Info("shutting down handler")
+	logger.Info("shutting down API handler")
 
 	close(h.messageCh)
 	h.messageCh = nil
