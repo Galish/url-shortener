@@ -30,7 +30,6 @@ func ExampleHTTPHandler_Shorten() {
 	defer apiHandler.Close()
 
 	apiHandler.Shorten(w, r)
-	defer apiHandler.Close()
 
 	resp := w.Result()
 	body, err := io.ReadAll(resp.Body)

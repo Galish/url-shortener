@@ -1,18 +1,15 @@
 package server
 
 import (
+	"context"
 	"net/http"
-
-	"golang.org/x/crypto/acme/autocert"
 
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // Server represents HTTP server.
 type Server struct {
-	addr      string
-	handler   http.Handler
-	tlsConfig *TLSConfig
+	*http.Server
 }
 
 // TLSConfig represents TLS server configuration.
@@ -23,10 +20,12 @@ type TLSConfig struct {
 
 // New creates an instance of HTTP server.
 func New(handler http.Handler, options ...Option) *Server {
-	server := &Server{
-		addr:    ":8080",
-		handler: handler,
+	httpServer := &http.Server{
+		Addr:    ":8080",
+		Handler: handler,
 	}
+
+	server := &Server{httpServer}
 
 	for _, opt := range options {
 		opt(server)
@@ -37,25 +36,19 @@ func New(handler http.Handler, options ...Option) *Server {
 
 // Run listens and serves requests sent to HTTP handlers.
 func (s Server) Run() error {
-	if s.tlsConfig == nil {
-		logger.Info("running HTTP server on ", s.addr)
+	if s.TLSConfig == nil {
+		logger.Info("running HTTP server on ", s.Addr)
 
-		return http.ListenAndServe(s.addr, s.handler)
+		return s.ListenAndServe()
 	}
 
-	manager := &autocert.Manager{
-		Cache:      autocert.DirCache(s.tlsConfig.DirCert),
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(s.tlsConfig.HostWhitelist...),
-	}
+	logger.Info("running HTTPS server on ", s.Addr)
 
-	server := &http.Server{
-		Addr:      s.addr,
-		Handler:   s.handler,
-		TLSConfig: manager.TLSConfig(),
-	}
+	return s.ListenAndServeTLS("", "")
+}
 
-	logger.Info("running HTTPS server on ", s.addr)
+func (s *Server) Close() error {
+	logger.Info("shutting down the server")
 
-	return server.ListenAndServeTLS("", "")
+	return s.Shutdown(context.Background())
 }

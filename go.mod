@@ -13,6 +13,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/timakin/bodyclose v0.0.0-20240125160201-f835fa56326a
 	golang.org/x/crypto v0.18.0
+	golang.org/x/sync v0.6.0
 	golang.org/x/tools v0.17.0
 	honnef.co/go/tools v0.4.6
 )
