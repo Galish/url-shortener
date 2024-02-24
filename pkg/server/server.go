@@ -47,6 +47,7 @@ func (s Server) Run() error {
 	return s.ListenAndServeTLS("", "")
 }
 
+// Close shuts down the server.
 func (s *Server) Close() error {
 	logger.Info("shutting down the server")
 
