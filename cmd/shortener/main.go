@@ -39,11 +39,11 @@ func main() {
 	router := handlers.NewRouter(handler)
 	server := handlers.NewServer(cfg, router)
 
-	shutdowner := shutdowner.New(server, handler, store)
+	sd := shutdowner.New(server, handler, store)
 
 	if err := server.Run(); err != http.ErrServerClosed {
 		panic(err)
 	}
 
-	shutdowner.Wait()
+	sd.Wait()
 }

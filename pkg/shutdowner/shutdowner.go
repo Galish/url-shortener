@@ -1,3 +1,4 @@
+// Package shutdowner implements a utility to perform application graceful shutdown.
 package shutdowner
 
 import (
@@ -5,19 +6,23 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
-type shutdowner struct {
-	list []io.Closer
-	done chan struct{}
+// Shutdowner implements graceful shutdown.
+type Shutdowner struct {
+	closers []func() error
+	done    chan struct{}
 }
 
 // New returns a new Shutdowner instance.
-func New(list ...io.Closer) *shutdowner {
-	sd := shutdowner{
+func New(cs ...io.Closer) *Shutdowner {
+	sd := Shutdowner{
 		done: make(chan struct{}),
-		list: list,
 	}
+
+	sd.Add(cs...)
 
 	sigs := make(chan os.Signal, 1)
 
@@ -37,20 +42,24 @@ func New(list ...io.Closer) *shutdowner {
 }
 
 // Add saves items to close on shutdown.
-func (sd *shutdowner) Add(c ...io.Closer) {
-	sd.list = append(sd.list, c...)
+func (sd *Shutdowner) Add(cs ...io.Closer) {
+	for _, c := range cs {
+		sd.closers = append(sd.closers, c.Close)
+	}
 }
 
 // Shutdown closes all items.
-func (sd shutdowner) Shutdown() {
-	for _, c := range sd.list {
-		c.Close()
+func (sd *Shutdowner) Shutdown() {
+	for _, c := range sd.closers {
+		if err := c(); err != nil {
+			logger.WithError(err).Debug("failed to close")
+		}
 	}
 
 	close(sd.done)
 }
 
 // Wait for the shutdown to complete.
-func (sd shutdowner) Wait() {
+func (sd *Shutdowner) Wait() {
 	<-sd.done
 }
