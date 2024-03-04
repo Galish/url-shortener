@@ -28,7 +28,7 @@ func main() {
 
 	cfg := config.New()
 
-	logger.Initialize(cfg.LogLevel)
+	logger.SetLevel(cfg.LogLevel)
 
 	store, err := repository.New(cfg)
 	if err != nil {

@@ -26,6 +26,10 @@ func parseEnvVars(c *settings, configFile *string) {
 		c.DBAddr = dbAddr
 	}
 
+	if trustedSubnet := os.Getenv("TRUSTED_SUBNET"); trustedSubnet != "" {
+		c.TrustedSubnet = trustedSubnet
+	}
+
 	if tlsEnabled := os.Getenv("ENABLE_HTTPS"); tlsEnabled != "" {
 		if isEnabled, err := strconv.ParseBool(tlsEnabled); err == nil {
 			c.IsTLSEnabled = &isEnabled

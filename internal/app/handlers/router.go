@@ -16,8 +16,6 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 		r.Use(middleware.WithRequestLogger)
 
 		r.Get("/ping", handler.ping)
-
-		r.Get("/api/internal/stats", handler.APIStats)
 	})
 
 	router.Group(func(r chi.Router) {
@@ -43,6 +41,13 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 				r.Post("/batch", handler.APIShortenBatch)
 			})
 		})
+	})
+
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.WithTrustedSubnet(handler.cfg.TrustedSubnet))
+		r.Use(middleware.WithRequestLogger)
+
+		r.Get("/api/internal/stats", handler.APIStats)
 	})
 
 	return router

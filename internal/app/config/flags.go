@@ -17,6 +17,7 @@ func parseFlags(c *settings, configFile *string) {
 	flag.StringVar(&c.DBAddr, "d", "", "DB address")
 	flag.BoolVar(&isTLSEnabled, "s", false, "Enable HTTPS")
 	flag.StringVar(&config, "c", "", "Config file path")
+	flag.StringVar(&c.TrustedSubnet, "t", "", "Trusted subnet in CIDR notation")
 	flag.StringVar(&config, "config", "", "Config file path")
 
 	flag.Parse()
