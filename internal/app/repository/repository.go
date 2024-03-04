@@ -19,6 +19,7 @@ type Repository interface {
 	Set(context.Context, *model.ShortLink) error
 	SetBatch(context.Context, ...*model.ShortLink) error
 	Delete(context.Context, ...*model.ShortLink) error
+	Stats(context.Context) (int, int, error)
 	Has(context.Context, string) bool
 	Ping(context.Context) (bool, error)
 	Close() error

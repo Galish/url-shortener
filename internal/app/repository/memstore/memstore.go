@@ -74,6 +74,27 @@ func (ms *MemStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) 
 	return nil
 }
 
+// Stats returns the number shortened URLs and users.
+func (ms *MemStore) Stats(ctx context.Context) (int, int, error) {
+	var urls int
+
+	users := make(map[string]bool)
+
+	for _, v := range ms.store {
+		if v.IsDeleted {
+			continue
+		}
+
+		if v.User != "" {
+			users[v.User] = true
+		}
+
+		urls++
+	}
+
+	return urls, len(users), nil
+}
+
 // Has checks whether an entity with a given short URL exists.
 func (ms *MemStore) Has(ctx context.Context, shortURL string) bool {
 	_, ok := ms.store[shortURL]

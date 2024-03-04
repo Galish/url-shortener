@@ -16,3 +16,9 @@ type APIBatchEntity struct {
 	OriginalURL   string `json:"original_url,omitempty"`
 	ShortURL      string `json:"short_url,omitempty"`
 }
+
+// APIStatsResponse represents an API statistics response payload.
+type APIStatsResponse struct {
+	Urls  int `json:"urls"`
+	Users int `json:"users"`
+}

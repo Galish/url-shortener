@@ -95,7 +95,11 @@ func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink)
 	}
 
 	return nil
+}
 
+// Stats returns the number shortened URLs and users.
+func (fs *fileStore) Stats(ctx context.Context) (int, int, error) {
+	return fs.store.Stats(ctx)
 }
 
 // Has checks whether an entity with a given short URL exists.
