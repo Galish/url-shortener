@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // APIShorten is an API handler for creating a short link.

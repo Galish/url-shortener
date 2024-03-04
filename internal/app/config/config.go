@@ -3,19 +3,41 @@ package config
 
 // Config stores the application configuration.
 type Config struct {
-	ServAddr string
-	BaseURL  string
-	LogLevel string
-	FilePath string
-	DBAddr   string
+	BaseURL      string
+	DBAddr       string
+	FilePath     string
+	IsTLSEnabled bool
+	LogLevel     string
+	ServAddr     string
 }
 
-var cfg Config
+type option func(*Config)
 
 // New generates a configuration by parsing flags and environment variables.
 func New() *Config {
-	parseFlags()
-	parseEnvVars()
+	var flags = new(settings)
+	var envVars = new(settings)
+	var file = new(settings)
+	var configFile string
 
-	return &cfg
+	parseFlags(flags, &configFile)
+	parseEnvVars(envVars, &configFile)
+	parseFile(configFile, file)
+
+	return newConfig(
+		withSettings(defaultSettings),
+		withSettings(file),
+		withSettings(flags),
+		withSettings(envVars),
+	)
+}
+
+func newConfig(opt ...option) *Config {
+	var cfg = new(Config)
+
+	for _, o := range opt {
+		o(cfg)
+	}
+
+	return cfg
 }

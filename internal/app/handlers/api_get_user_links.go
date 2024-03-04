@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // APIGetUserLinks is an API handler that returns a list of links created by the user.

@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 func (fs *fileStore) initWriter() error {

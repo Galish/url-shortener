@@ -1,15 +1,33 @@
 package config
 
-import "flag"
+import (
+	"flag"
+)
 
-func init() {
-	flag.StringVar(&cfg.ServAddr, "a", ":8080", "Server address")
-	flag.StringVar(&cfg.BaseURL, "b", "http://localhost:8080", "Base link URL")
-	flag.StringVar(&cfg.LogLevel, "l", "info", "Log level")
-	flag.StringVar(&cfg.FilePath, "f", "/tmp/short-url-db.json", "File storage path")
-	flag.StringVar(&cfg.DBAddr, "d", "", "DB address")
-}
+func parseFlags(c *settings, configFile *string) {
+	var (
+		isTLSEnabled bool
+		config       string
+	)
 
-func parseFlags() {
+	flag.StringVar(&c.ServAddr, "a", "", "Server address")
+	flag.StringVar(&c.BaseURL, "b", "", "Base link URL")
+	flag.StringVar(&c.LogLevel, "l", "", "Log level")
+	flag.StringVar(&c.FilePath, "f", "", "File storage path")
+	flag.StringVar(&c.DBAddr, "d", "", "DB address")
+	flag.BoolVar(&isTLSEnabled, "s", false, "Enable HTTPS")
+	flag.StringVar(&config, "c", "", "Config file path")
+	flag.StringVar(&config, "config", "", "Config file path")
+
 	flag.Parse()
+
+	flag.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "s":
+			c.IsTLSEnabled = &isTLSEnabled
+
+		case "c", "config":
+			*configFile = f.Value.String()
+		}
+	})
 }

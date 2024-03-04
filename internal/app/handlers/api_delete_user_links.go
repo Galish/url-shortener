@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // APIDeleteUserLinks is an API handler for deleting user short links.

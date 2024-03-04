@@ -5,17 +5,20 @@ import (
 	"time"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/logger"
 	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // HTTPHandler represents API handler.
 type HTTPHandler struct {
-	cfg       *config.Config
-	repo      repository.Repository
-	messageCh chan *handlerMessage
-	ticker    *time.Ticker
+	cfg         *config.Config
+	repo        repository.Repository
+	messageCh   chan *handlerMessage
+	deleteLinks []*model.ShortLink
+	ticker      *time.Ticker
+	close       chan struct{}
+	done        chan struct{}
 }
 
 type handlerMessage struct {
@@ -29,52 +32,70 @@ func NewHandler(cfg *config.Config, repo repository.Repository) *HTTPHandler {
 		cfg:       cfg,
 		repo:      repo,
 		messageCh: make(chan *handlerMessage, 100),
+		close:     make(chan struct{}),
+		done:      make(chan struct{}),
 	}
 
-	go handler.flushMessages()
+	go handler.run()
 
 	return handler
 }
 
-func (h *HTTPHandler) flushMessages() {
+func (h *HTTPHandler) run() {
 	h.ticker = time.NewTicker(2 * time.Second)
 
-	var deleteLinks []*model.ShortLink
-
+loop:
 	for {
 		select {
 		case message := <-h.messageCh:
+			if message == nil {
+				continue
+			}
+
 			switch message.action {
 			case "delete":
-				deleteLinks = append(deleteLinks, message.shortLink)
-
+				h.deleteLink(message.shortLink)
 			}
 
 		case <-h.ticker.C:
-			if len(deleteLinks) == 0 {
-				continue
-			}
+			h.flush()
 
-			if err := h.repo.Delete(context.TODO(), deleteLinks...); err != nil {
-				logger.WithError(err).Debug("cannot delete messages")
-				continue
-			}
-
-			deleteLinks = nil
+		case <-h.close:
+			h.flush()
+			break loop
 		}
 	}
+
+	close(h.done)
+}
+
+func (h *HTTPHandler) flush() {
+	if len(h.deleteLinks) == 0 {
+		return
+	}
+
+	if err := h.repo.Delete(context.TODO(), h.deleteLinks...); err != nil {
+		logger.WithError(err).Debug("cannot delete messages")
+		return
+	}
+
+	h.deleteLinks = nil
+}
+
+func (h *HTTPHandler) deleteLink(sl *model.ShortLink) {
+	h.deleteLinks = append(h.deleteLinks, sl)
 }
 
 // Close  is executed to release the memory
-func (h *HTTPHandler) Close() {
-	if h.ticker != nil {
-		h.ticker.Stop()
-	}
+func (h *HTTPHandler) Close() error {
+	logger.Info("shutting down API handler")
 
-	select {
-	case <-h.messageCh:
-		close(h.messageCh)
-		return
-	default:
-	}
+	close(h.messageCh)
+	h.messageCh = nil
+
+	close(h.close)
+
+	<-h.done
+
+	return nil
 }

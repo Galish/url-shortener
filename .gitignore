@@ -27,3 +27,4 @@ vendor/
 
 #misc
 cmd/client
+certs

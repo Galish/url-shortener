@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/Galish/url-shortener/internal/app/logger"
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 type dbStore struct {
