@@ -12,6 +12,8 @@ import (
 func NewRouter(handler *HTTPHandler) *chi.Mux {
 	router := chi.NewRouter()
 
+	var withCompression = middleware.WithCompressor(compress.NewGzipCompressor())
+
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.WithRequestLogger)
 
@@ -25,7 +27,7 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 		r.Get("/{id}", handler.GetFullLink)
 
 		r.Group(func(r chi.Router) {
-			r.Use(middleware.WithCompressor(compress.NewGzipCompressor()))
+			r.Use(withCompression)
 
 			r.Post("/", handler.Shorten)
 
@@ -46,6 +48,7 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.WithTrustedSubnet(handler.cfg.TrustedSubnet))
 		r.Use(middleware.WithRequestLogger)
+		r.Use(withCompression)
 
 		r.Get("/api/internal/stats", handler.APIStats)
 	})

@@ -23,6 +23,7 @@ func (h *HTTPHandler) APIStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
 	if err := json.NewEncoder(w).Encode(stats); err != nil {
 		http.Error(w, "cannot encode request JSON body", http.StatusInternalServerError)
