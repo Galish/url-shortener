@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/Galish/url-shortener/pkg/logger"
 	"github.com/Galish/url-shortener/pkg/shutdowner"
@@ -35,9 +35,9 @@ func main() {
 		panic(err)
 	}
 
-	handler := handlers.NewHandler(cfg, store)
-	router := handlers.NewRouter(handler)
-	server := handlers.NewServer(cfg, router)
+	handler := restapi.NewHandler(cfg, store)
+	router := restapi.NewRouter(handler)
+	server := restapi.NewServer(cfg, router)
 
 	sd := shutdowner.New(server, handler, store)
 

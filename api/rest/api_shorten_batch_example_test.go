@@ -1,4 +1,4 @@
-package handlers_test
+package restapi_test
 
 import (
 	"bytes"
@@ -10,14 +10,17 @@ import (
 	"net/http/httptest"
 	"regexp"
 
+	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
-func ExampleHTTPHandler_APIShorten() {
-	bodyRaw, err := json.Marshal(handlers.APIRequest{
-		URL: "https://practicum.yandex.ru/",
+func ExampleHTTPHandler_APIShortenBatch() {
+	bodyRaw, err := json.Marshal([]restapi.APIBatchEntity{
+		{
+			CorrelationID: "#12345",
+			OriginalURL:   "https://practicum.yandex.ru/",
+		},
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -25,19 +28,19 @@ func ExampleHTTPHandler_APIShorten() {
 
 	r, _ := http.NewRequest(
 		http.MethodPost,
-		"/api/shorten",
+		"/api/shorten/batch",
 		bytes.NewBuffer(bodyRaw),
 	)
 
 	w := httptest.NewRecorder()
 
-	apiHandler := handlers.NewHandler(
+	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		memstore.New(),
 	)
 	defer apiHandler.Close()
 
-	apiHandler.APIShorten(w, r)
+	apiHandler.APIShortenBatch(w, r)
 
 	resp := w.Result()
 
@@ -53,5 +56,5 @@ func ExampleHTTPHandler_APIShorten() {
 	// Output:
 	// 201
 	// application/json
-	// {"result":"http://www.shortener.io/xxxxxx"}
+	// [{"correlation_id":"#12345","short_url":"http://www.shortener.io/xxxxxx"}]
 }

@@ -1,4 +1,4 @@
-package handlers
+package restapi
 
 // APIRequest represents API request payload.
 type APIRequest struct {

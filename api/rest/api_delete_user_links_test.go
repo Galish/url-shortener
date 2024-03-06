@@ -1,7 +1,9 @@
-package handlers
+package restapi
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -16,7 +18,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-func TestAPIGetUserLinks(t *testing.T) {
+func TestAPIDeleteUserLinks(t *testing.T) {
 	store := memstore.New()
 	defer store.Close()
 
@@ -50,13 +52,15 @@ func TestAPIGetUserLinks(t *testing.T) {
 		name   string
 		method string
 		path   string
+		req    []string
 		token  string
 		want   want
 	}{
 		{
 			"invalid API endpoint",
-			http.MethodGet,
+			http.MethodDelete,
 			"/api/user-urls",
+			[]string{"qw21dfasf"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJjYTUxM2ZmNy0yMDEwLTQzOTctYWExYS0wNjU4MjhiNGJhMGUifQ.BHuk4u8KXMSEKSXTdI3_DOorpDKaapZzuSZQCSkFX9o",
 			want{
 				http.StatusNotFound,
@@ -68,6 +72,7 @@ func TestAPIGetUserLinks(t *testing.T) {
 			"invalid request method",
 			http.MethodPost,
 			"/api/user/urls",
+			[]string{"qw21dfasf"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJjYTUxM2ZmNy0yMDEwLTQzOTctYWExYS0wNjU4MjhiNGJhMGUifQ.BHuk4u8KXMSEKSXTdI3_DOorpDKaapZzuSZQCSkFX9o",
 			want{
 				http.StatusMethodNotAllowed,
@@ -76,55 +81,47 @@ func TestAPIGetUserLinks(t *testing.T) {
 			},
 		},
 		{
-			"unauthorized",
-			http.MethodGet,
+			"non-existent link",
+			http.MethodDelete,
 			"/api/user/urls",
-			"",
-			want{
-				http.StatusUnauthorized,
-				"",
-				"",
-			},
-		},
-		{
-			"user has no links",
-			http.MethodGet,
-			"/api/user/urls",
+			[]string{"qw21df123"},
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJjYTUxM2ZmNy0yMDEwLTQzOTctYWExYS0wNjU4MjhiNGJhMGUifQ.BHuk4u8KXMSEKSXTdI3_DOorpDKaapZzuSZQCSkFX9o",
 			want{
-				http.StatusNoContent,
+				http.StatusAccepted,
 				"",
 				"",
 			},
 		},
 		{
-			"user has links",
-			http.MethodGet,
+			"existing link",
+			http.MethodDelete,
 			"/api/user/urls",
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJlNDRkOTA4OC0xYmQ2LTQ0ZGMtYWY4Ni1mMWE1NTFiMDJkYjMifQ.e8r2pJHwwLWRKXyWR6Rk3MYpNkyV2LIGAthqGIheyUU",
+			[]string{"qw21dfasf"},
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJjYTUxM2ZmNy0yMDEwLTQzOTctYWExYS0wNjU4MjhiNGJhMGUifQ.BHuk4u8KXMSEKSXTdI3_DOorpDKaapZzuSZQCSkFX9o",
 			want{
-				http.StatusOK,
-				"[{\"original_url\":\"https://practicum.yandex.ru/\",\"short_url\":\"http://localhost:8080/qw21dfasf\"}]\n",
-				"application/json",
+				http.StatusAccepted,
+				"",
+				"",
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			body, err := json.Marshal(tt.req)
+			require.NoError(t, err)
+
 			req, err := http.NewRequest(
 				tt.method,
 				ts.URL+tt.path,
-				nil,
+				bytes.NewBuffer(body),
 			)
 			require.NoError(t, err)
 
-			if tt.token != "" {
-				req.AddCookie(&http.Cookie{
-					Name:  middleware.AuthCookieName,
-					Value: tt.token,
-				})
-			}
+			req.AddCookie(&http.Cookie{
+				Name:  middleware.AuthCookieName,
+				Value: tt.token,
+			})
 
 			// Disable compression
 			req.Header.Set("Accept-Encoding", "identity")
@@ -146,14 +143,22 @@ func TestAPIGetUserLinks(t *testing.T) {
 	}
 }
 
-func BenchmarkAPIGetUserLinks(b *testing.B) {
+func BenchmarkAPIDeleteUserLinks(b *testing.B) {
+	bodyRaw, _ := json.Marshal([]string{"qw21df123"})
+
 	r, _ := http.NewRequest(
-		http.MethodGet,
+		http.MethodDelete,
 		"/api/user/urls",
-		nil,
+		bytes.NewBuffer(bodyRaw),
 	)
 
-	rEmpty := r.Clone(context.Background())
+	bodyEmptyRaw, _ := json.Marshal([]string{})
+
+	rEmpty, _ := http.NewRequest(
+		http.MethodDelete,
+		"/api/user/urls",
+		bytes.NewBuffer(bodyEmptyRaw),
+	)
 
 	r.Header.Add(middleware.AuthHeaderName, "e44d9088-1bd6-44dc-af86-f1a551b02db3")
 
@@ -177,13 +182,13 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.APIGetUserLinks(w, rEmpty)
+			handler.APIDeleteUserLinks(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.APIGetUserLinks(w, r)
+			handler.APIDeleteUserLinks(w, r)
 		}
 	})
 }

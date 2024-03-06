@@ -1,31 +1,23 @@
-package handlers_test
+package restapi_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 
+	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
-func ExampleHTTPHandler_APIDeleteUserLinks() {
-	bodyRaw, err := json.Marshal([]string{"Edz0Thb1"})
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func ExampleHTTPHandler_APIGetUserLinks() {
 	r, _ := http.NewRequest(
-		http.MethodDelete,
+		http.MethodGet,
 		"/api/user/urls",
-		bytes.NewBuffer(bodyRaw),
+		nil,
 	)
 
 	r.Header.Add("X-User", "e44d9088-1bd6-44dc-af86-f1a551b02db3")
@@ -43,13 +35,13 @@ func ExampleHTTPHandler_APIDeleteUserLinks() {
 		},
 	)
 
-	apiHandler := handlers.NewHandler(
+	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		store,
 	)
 	defer apiHandler.Close()
 
-	apiHandler.APIDeleteUserLinks(w, r)
+	apiHandler.APIGetUserLinks(w, r)
 
 	resp := w.Result()
 
@@ -61,7 +53,7 @@ func ExampleHTTPHandler_APIDeleteUserLinks() {
 	fmt.Println(string(body))
 
 	// Output:
-	// 202
-	//
-	//
+	// 200
+	// application/json
+	// [{"original_url":"https://practicum.yandex.ru/","short_url":"http://www.shortener.io/Edz0Thb1"}]
 }

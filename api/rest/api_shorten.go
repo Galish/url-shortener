@@ -1,4 +1,4 @@
-package handlers
+package restapi
 
 import (
 	"encoding/json"
@@ -6,59 +6,59 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/middleware"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
-// APIShortenBatch is an API handler for creating short links in batches.
+// APIShorten is an API handler for creating a short link.
 //
-//	POST /api/shorten/batch
-func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
+//	POST /api/shorten
+func (h *HTTPHandler) APIShorten(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var req []APIBatchEntity
+	var req APIRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
 		logger.WithError(err).Debug("cannot decode request JSON body")
 		return
 	}
 
-	if len(req) == 0 {
-		http.Error(w, "empty request body", http.StatusBadRequest)
+	if req.URL == "" {
+		http.Error(w, "link not provided", http.StatusBadRequest)
 		return
 	}
 
-	resp := make([]APIBatchEntity, len(req))
-	rows := make([]*model.ShortLink, len(req))
+	id := h.generateUniqueID(ctx, idLength)
 
-	for i, entity := range req {
-		if entity.OriginalURL == "" {
-			http.Error(w, "link not provided", http.StatusBadRequest)
-			return
-		}
-
-		id := h.generateUniqueID(ctx, idLength)
-
-		resp[i] = APIBatchEntity{
-			CorrelationID: entity.CorrelationID,
-			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
-		}
-
-		rows[i] = &model.ShortLink{
+	err := h.repo.Set(
+		ctx,
+		&model.ShortLink{
 			Short:    id,
-			Original: entity.OriginalURL,
+			Original: req.URL,
 			User:     r.Header.Get(middleware.AuthHeaderName),
-		}
-	}
+		},
+	)
+	errConflict := repoErr.AsErrConflict(err)
 
-	if err := h.repo.SetBatch(ctx, rows...); err != nil {
+	if err != nil && errConflict == nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+
+	if errConflict != nil {
+		id = errConflict.ShortURL
+		w.WriteHeader(http.StatusConflict)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+
+	resp := APIResponse{
+		Result: fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
+	}
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, "cannot encode request JSON body", http.StatusInternalServerError)

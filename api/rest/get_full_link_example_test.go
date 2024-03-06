@@ -1,4 +1,4 @@
-package handlers_test
+package restapi_test
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
@@ -31,7 +31,7 @@ func ExampleHTTPHandler_GetFullLink() {
 		},
 	)
 
-	apiHandler := handlers.NewHandler(
+	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
 		store,
 	)

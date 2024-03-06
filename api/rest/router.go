@@ -1,5 +1,5 @@
 // Package implements the HTTP router and handlers.
-package handlers
+package restapi
 
 import (
 	"github.com/go-chi/chi/v5"
