@@ -8,25 +8,26 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
+	"github.com/Galish/url-shortener/internal/app/repository/memstore"
 )
 
 func TestAPIStats(t *testing.T) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &model.ShortLink{
+	store.Set(context.Background(), &entity.ShortLink{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	store.Set(context.Background(), &model.ShortLink{
+	store.Set(context.Background(), &entity.ShortLink{
 		ID:        "#222222",
 		Short:     "asd343dgs",
 		Original:  "https://www.yandex.ru/",
@@ -34,7 +35,7 @@ func TestAPIStats(t *testing.T) {
 		IsDeleted: true,
 	})
 
-	store.Set(context.Background(), &model.ShortLink{
+	store.Set(context.Background(), &entity.ShortLink{
 		ID:       "#3333333",
 		Short:    "lkjsdfu43",
 		Original: "https://kinopoisk.ru/",

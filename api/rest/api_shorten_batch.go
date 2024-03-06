@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -29,10 +29,10 @@ func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := make([]APIBatchEntity, len(req))
-	rows := make([]*model.ShortLink, len(req))
+	rows := make([]*entity.ShortLink, len(req))
 
-	for i, entity := range req {
-		if entity.OriginalURL == "" {
+	for i, item := range req {
+		if item.OriginalURL == "" {
 			http.Error(w, "link not provided", http.StatusBadRequest)
 			return
 		}
@@ -40,13 +40,13 @@ func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
 		id := h.generateUniqueID(ctx, idLength)
 
 		resp[i] = APIBatchEntity{
-			CorrelationID: entity.CorrelationID,
+			CorrelationID: item.CorrelationID,
 			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
 		}
 
-		rows[i] = &model.ShortLink{
+		rows[i] = &entity.ShortLink{
 			Short:    id,
-			Original: entity.OriginalURL,
+			Original: item.OriginalURL,
 			User:     r.Header.Get(middleware.AuthHeaderName),
 		}
 	}

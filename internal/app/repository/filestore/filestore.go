@@ -6,8 +6,8 @@ import (
 	"context"
 	"os"
 
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -38,17 +38,17 @@ func New(filepath string) (*fileStore, error) {
 }
 
 // Get returns the entity for a given short URL.
-func (fs *fileStore) Get(ctx context.Context, key string) (*model.ShortLink, error) {
+func (fs *fileStore) Get(ctx context.Context, key string) (*entity.ShortLink, error) {
 	return fs.store.Get(ctx, key)
 }
 
 // GetByUser returns all entities created by the user.
-func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*model.ShortLink, error) {
+func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*entity.ShortLink, error) {
 	return fs.store.GetByUser(ctx, userID)
 }
 
 // Set adds a new entity to the store.
-func (fs *fileStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
+func (fs *fileStore) Set(ctx context.Context, shortLink *entity.ShortLink) error {
 	if err := fs.write(shortLink); err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (fs *fileStore) Set(ctx context.Context, shortLink *model.ShortLink) error 
 }
 
 // SetBatch inserts new entities into the store in batches.
-func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {
+func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*entity.ShortLink) error {
 	for _, shortLink := range shortLinks {
 		fs.Set(ctx, shortLink)
 	}
@@ -72,7 +72,7 @@ func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLin
 }
 
 // Delete marks the entity as deleted.
-func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
+func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*entity.ShortLink) error {
 	if err := fs.store.Delete(ctx, shortLinks...); err != nil {
 		return err
 	}

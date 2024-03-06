@@ -11,16 +11,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func TestAPIGetUserLinks(t *testing.T) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &model.ShortLink{
+	store.Set(context.Background(), &entity.ShortLink{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",
@@ -162,7 +162,7 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &model.ShortLink{
+	store.Set(context.Background(), &entity.ShortLink{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",

@@ -3,26 +3,26 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/internal/app/entity"
 )
 
 // GetByUser returns all entities created by the user.
-func (db *dbStore) GetByUser(ctx context.Context, userID string) ([]*model.ShortLink, error) {
+func (db *dbStore) GetByUser(ctx context.Context, userID string) ([]*entity.ShortLink, error) {
 	rows, err := db.store.QueryContext(
 		ctx,
 		"SELECT * FROM links WHERE user_id = $1;",
 		userID,
 	)
 	if err != nil {
-		return []*model.ShortLink{}, err
+		return []*entity.ShortLink{}, err
 	}
 
 	defer rows.Close()
 
-	var list []*model.ShortLink
+	var list []*entity.ShortLink
 
 	for rows.Next() {
-		var shortLink model.ShortLink
+		var shortLink entity.ShortLink
 
 		if err := rows.Scan(
 			&shortLink.ID,
@@ -31,14 +31,14 @@ func (db *dbStore) GetByUser(ctx context.Context, userID string) ([]*model.Short
 			&shortLink.User,
 			&shortLink.IsDeleted,
 		); err != nil {
-			return []*model.ShortLink{}, err
+			return []*entity.ShortLink{}, err
 		}
 
 		list = append(list, &shortLink)
 	}
 
 	if err := rows.Err(); err != nil {
-		return []*model.ShortLink{}, err
+		return []*entity.ShortLink{}, err
 	}
 
 	return list, nil

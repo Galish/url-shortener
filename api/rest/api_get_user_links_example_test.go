@@ -9,8 +9,8 @@ import (
 
 	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func ExampleHTTPHandler_APIGetUserLinks() {
@@ -28,7 +28,7 @@ func ExampleHTTPHandler_APIGetUserLinks() {
 
 	store.Set(
 		context.Background(),
-		&model.ShortLink{
+		&entity.ShortLink{
 			Short:    "Edz0Thb1",
 			Original: "https://practicum.yandex.ru/",
 			User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",

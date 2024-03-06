@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -33,7 +33,7 @@ func (h *HTTPHandler) APIShorten(w http.ResponseWriter, r *http.Request) {
 
 	err := h.repo.Set(
 		ctx,
-		&model.ShortLink{
+		&entity.ShortLink{
 			Short:    id,
 			Original: req.URL,
 			User:     r.Header.Get(middleware.AuthHeaderName),

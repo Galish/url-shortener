@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func TestGetFullLink(t *testing.T) {
@@ -21,11 +21,11 @@ func TestGetFullLink(t *testing.T) {
 
 	repo.SetBatch(
 		context.Background(),
-		&model.ShortLink{
+		&entity.ShortLink{
 			Short:    "c2WD8F2q",
 			Original: "https://practicum.yandex.ru/",
 		},
-		&model.ShortLink{
+		&entity.ShortLink{
 			Short:     "h9h2fhfU",
 			Original:  "https://practicum.yandex.ru/",
 			IsDeleted: true,
@@ -146,7 +146,7 @@ func BenchmarkGetFullLink(b *testing.B) {
 	w := httptest.NewRecorder()
 
 	store := memstore.New()
-	store.Set(context.Background(), &model.ShortLink{
+	store.Set(context.Background(), &entity.ShortLink{
 		ID:       "#123111",
 		Short:    "Edz0ThbX",
 		Original: "https://practicum.yandex.ru/",

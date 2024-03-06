@@ -1,4 +1,4 @@
-package model
+package entity
 
 // ShortLink represents a link short link entity.
 type ShortLink struct {

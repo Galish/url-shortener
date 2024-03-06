@@ -6,11 +6,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/internal/app/entity"
 )
 
 // SetBatch inserts new entities in batches.
-func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {
+func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*entity.ShortLink) error {
 	conn, err := db.store.Conn(context.Background())
 	if err != nil {
 		return err

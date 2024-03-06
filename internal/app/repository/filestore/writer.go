@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -26,7 +26,7 @@ func (fs *fileStore) initWriter() error {
 	return nil
 }
 
-func (fs *fileStore) write(shortLink *model.ShortLink) error {
+func (fs *fileStore) write(shortLink *entity.ShortLink) error {
 	if fs.filepath == "" {
 		return nil
 	}

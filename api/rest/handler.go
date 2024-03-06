@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -15,7 +15,7 @@ type HTTPHandler struct {
 	cfg         *config.Config
 	repo        repository.Repository
 	messageCh   chan *handlerMessage
-	deleteLinks []*model.ShortLink
+	deleteLinks []*entity.ShortLink
 	ticker      *time.Ticker
 	close       chan struct{}
 	done        chan struct{}
@@ -23,7 +23,7 @@ type HTTPHandler struct {
 
 type handlerMessage struct {
 	action    string
-	shortLink *model.ShortLink
+	shortLink *entity.ShortLink
 }
 
 // NewHandler implements HTTP handlers.
@@ -82,7 +82,7 @@ func (h *HTTPHandler) flush() {
 	h.deleteLinks = nil
 }
 
-func (h *HTTPHandler) deleteLink(sl *model.ShortLink) {
+func (h *HTTPHandler) deleteLink(sl *entity.ShortLink) {
 	h.deleteLinks = append(h.deleteLinks, sl)
 }
 

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -25,7 +25,7 @@ func (h *HTTPHandler) APIDeleteUserLinks(w http.ResponseWriter, r *http.Request)
 			for _, shortURL := range shortURLs {
 				h.messageCh <- &handlerMessage{
 					action: "delete",
-					shortLink: &model.ShortLink{
+					shortLink: &entity.ShortLink{
 						Short: shortURL,
 						User:  r.Header.Get(middleware.AuthHeaderName),
 					},

@@ -8,8 +8,8 @@ import (
 
 	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 func ExampleHTTPHandler_GetFullLink() {
@@ -25,7 +25,7 @@ func ExampleHTTPHandler_GetFullLink() {
 
 	store.Set(
 		context.Background(),
-		&model.ShortLink{
+		&entity.ShortLink{
 			Short:    "Edz0Thb1",
 			Original: "https://practicum.yandex.ru/",
 		},
