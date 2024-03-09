@@ -16,6 +16,7 @@ var (
 	ErrConflict   = errors.New("URL already exists")
 )
 
+// ShortenerUseCase implements shortener logic.
 type ShortenerUseCase struct {
 	cfg       *config.Config
 	repo      repository.Repository
@@ -31,6 +32,7 @@ type shortenerMessage struct {
 	url    *entity.URL
 }
 
+// New configures and returns Shortener usecase.
 func New(cfg *config.Config, repo repository.Repository) *ShortenerUseCase {
 	uc := &ShortenerUseCase{
 		cfg:       cfg,

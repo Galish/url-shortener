@@ -48,6 +48,7 @@ func (uc *ShortenerUseCase) Shorten(ctx context.Context, urls ...*entity.URL) er
 	return err
 }
 
+// ShortURL returns a short URL string.
 func (uc *ShortenerUseCase) ShortURL(url *entity.URL) string {
 	return fmt.Sprintf("%s/%s", uc.cfg.BaseURL, url.Short)
 }
