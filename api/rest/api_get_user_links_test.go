@@ -14,13 +14,14 @@ import (
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
-func TestAPIGetUserLinks(t *testing.T) {
+func TestAPIGetByUser(t *testing.T) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &entity.ShortLink{
+	store.Set(context.Background(), &entity.URL{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",
@@ -29,11 +30,14 @@ func TestAPIGetUserLinks(t *testing.T) {
 
 	baseURL := "http://localhost:8080"
 
+	uc := usecase.New(store)
+	defer uc.Close()
+
 	handler := NewHandler(
 		&config.Config{BaseURL: baseURL},
-		store,
+		uc,
+		nil,
 	)
-	defer handler.Close()
 
 	ts := httptest.NewServer(
 		NewRouter(handler),
@@ -87,7 +91,7 @@ func TestAPIGetUserLinks(t *testing.T) {
 			},
 		},
 		{
-			"user has no links",
+			"user has no URLs",
 			http.MethodGet,
 			"/api/user/urls",
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJjYTUxM2ZmNy0yMDEwLTQzOTctYWExYS0wNjU4MjhiNGJhMGUifQ.BHuk4u8KXMSEKSXTdI3_DOorpDKaapZzuSZQCSkFX9o",
@@ -98,7 +102,7 @@ func TestAPIGetUserLinks(t *testing.T) {
 			},
 		},
 		{
-			"user has links",
+			"user has URLs",
 			http.MethodGet,
 			"/api/user/urls",
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJlNDRkOTA4OC0xYmQ2LTQ0ZGMtYWY4Ni1mMWE1NTFiMDJkYjMifQ.e8r2pJHwwLWRKXyWR6Rk3MYpNkyV2LIGAthqGIheyUU",
@@ -146,7 +150,7 @@ func TestAPIGetUserLinks(t *testing.T) {
 	}
 }
 
-func BenchmarkAPIGetUserLinks(b *testing.B) {
+func BenchmarkAPIGetByUser(b *testing.B) {
 	r, _ := http.NewRequest(
 		http.MethodGet,
 		"/api/user/urls",
@@ -162,28 +166,30 @@ func BenchmarkAPIGetUserLinks(b *testing.B) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &entity.ShortLink{
+	store.Set(context.Background(), &entity.URL{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	handler := NewHandler(&config.Config{}, store)
-	defer handler.Close()
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
+	handler := NewHandler(&config.Config{}, uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.APIGetUserLinks(w, rEmpty)
+			handler.APIGetByUser(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.APIGetUserLinks(w, r)
+			handler.APIGetByUser(w, r)
 		}
 	})
 }

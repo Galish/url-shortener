@@ -2,100 +2,35 @@ package restapi
 
 import (
 	"context"
-	"time"
 
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/entity"
-	"github.com/Galish/url-shortener/internal/app/repository"
-	"github.com/Galish/url-shortener/pkg/logger"
 )
+
+type Usecase interface {
+	Shorten(context.Context, ...*entity.URL) error
+	Get(context.Context, string) (*entity.URL, error)
+	GetByUser(context.Context, string) ([]*entity.URL, error)
+	GetStats(context.Context) (int, int, error)
+	Delete(context.Context, []*entity.URL)
+}
+
+type Pinger interface {
+	Ping(context.Context) (bool, error)
+}
 
 // HTTPHandler represents API handler.
 type HTTPHandler struct {
-	cfg         *config.Config
-	repo        repository.Repository
-	messageCh   chan *handlerMessage
-	deleteLinks []*entity.ShortLink
-	ticker      *time.Ticker
-	close       chan struct{}
-	done        chan struct{}
-}
-
-type handlerMessage struct {
-	action    string
-	shortLink *entity.ShortLink
+	cfg     *config.Config
+	repo    Pinger
+	usecase Usecase
 }
 
 // NewHandler implements HTTP handlers.
-func NewHandler(cfg *config.Config, repo repository.Repository) *HTTPHandler {
-	handler := &HTTPHandler{
-		cfg:       cfg,
-		repo:      repo,
-		messageCh: make(chan *handlerMessage, 100),
-		close:     make(chan struct{}),
-		done:      make(chan struct{}),
+func NewHandler(cfg *config.Config, usecase Usecase, repo Pinger) *HTTPHandler {
+	return &HTTPHandler{
+		cfg:     cfg,
+		usecase: usecase,
+		repo:    repo,
 	}
-
-	go handler.run()
-
-	return handler
-}
-
-func (h *HTTPHandler) run() {
-	h.ticker = time.NewTicker(2 * time.Second)
-
-loop:
-	for {
-		select {
-		case message := <-h.messageCh:
-			if message == nil {
-				continue
-			}
-
-			switch message.action {
-			case "delete":
-				h.deleteLink(message.shortLink)
-			}
-
-		case <-h.ticker.C:
-			h.flush()
-
-		case <-h.close:
-			h.flush()
-			break loop
-		}
-	}
-
-	close(h.done)
-}
-
-func (h *HTTPHandler) flush() {
-	if len(h.deleteLinks) == 0 {
-		return
-	}
-
-	if err := h.repo.Delete(context.TODO(), h.deleteLinks...); err != nil {
-		logger.WithError(err).Debug("cannot delete messages")
-		return
-	}
-
-	h.deleteLinks = nil
-}
-
-func (h *HTTPHandler) deleteLink(sl *entity.ShortLink) {
-	h.deleteLinks = append(h.deleteLinks, sl)
-}
-
-// Close  is executed to release the memory
-func (h *HTTPHandler) Close() error {
-	logger.Info("shutting down API handler")
-
-	close(h.messageCh)
-	h.messageCh = nil
-
-	close(h.close)
-
-	<-h.done
-
-	return nil
 }

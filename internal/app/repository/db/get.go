@@ -7,23 +7,23 @@ import (
 )
 
 // Get returns the entity for a given short URL.
-func (db *dbStore) Get(ctx context.Context, key string) (*entity.ShortLink, error) {
+func (db *dbStore) Get(ctx context.Context, key string) (*entity.URL, error) {
 	row := db.store.QueryRowContext(
 		ctx,
 		"SELECT * FROM links WHERE short_url = $1;", key,
 	)
 
-	var shortLink entity.ShortLink
+	var url entity.URL
 
 	if err := row.Scan(
-		&shortLink.ID,
-		&shortLink.Short,
-		&shortLink.Original,
-		&shortLink.User,
-		&shortLink.IsDeleted,
+		&url.ID,
+		&url.Short,
+		&url.Original,
+		&url.User,
+		&url.IsDeleted,
 	); err != nil {
 		return nil, err
 	}
 
-	return &shortLink, nil
+	return &url, nil
 }

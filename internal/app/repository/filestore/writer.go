@@ -26,14 +26,14 @@ func (fs *fileStore) initWriter() error {
 	return nil
 }
 
-func (fs *fileStore) write(shortLink *entity.ShortLink) error {
+func (fs *fileStore) write(url *entity.URL) error {
 	if fs.filepath == "" {
 		return nil
 	}
 
-	shortLink.ID = strconv.Itoa(fs.size)
+	url.ID = strconv.Itoa(fs.size)
 
-	data, err := json.Marshal(shortLink)
+	data, err := json.Marshal(url)
 	if err != nil {
 		return err
 	}

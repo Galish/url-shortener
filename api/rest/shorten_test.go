@@ -13,16 +13,20 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
 func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
 	handler := NewHandler(
 		&config.Config{BaseURL: baseURL},
-		memstore.New(),
+		uc,
+		nil,
 	)
-	defer handler.Close()
 
 	ts := httptest.NewServer(
 		NewRouter(handler),
@@ -47,14 +51,14 @@ func TestShorten(t *testing.T) {
 			"",
 			want{
 				400,
-				"link not provided\n",
+				"no URL provided\n",
 			},
 		},
 		{
 			"invalid request method",
 			http.MethodGet,
 			"/",
-			"",
+			"https://practicum.yandex.ru/",
 			want{
 				405,
 				"",
@@ -125,8 +129,10 @@ func BenchmarkShorten(b *testing.B) {
 
 	w := httptest.NewRecorder()
 
-	handler := NewHandler(&config.Config{}, memstore.New())
-	defer handler.Close()
+	usecase := usecase.New(memstore.New())
+	defer usecase.Close()
+
+	handler := NewHandler(&config.Config{}, usecase, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

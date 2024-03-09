@@ -14,29 +14,33 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
-func TestGetFullLink(t *testing.T) {
-	repo := memstore.New()
+func TestGet(t *testing.T) {
+	store := memstore.New()
 
-	repo.SetBatch(
+	store.SetBatch(
 		context.Background(),
-		&entity.ShortLink{
+		&entity.URL{
 			Short:    "c2WD8F2q",
 			Original: "https://practicum.yandex.ru/",
 		},
-		&entity.ShortLink{
+		&entity.URL{
 			Short:     "h9h2fhfU",
 			Original:  "https://practicum.yandex.ru/",
 			IsDeleted: true,
 		},
 	)
 
+	uc := usecase.New(store)
+	defer uc.Close()
+
 	handler := NewHandler(
 		&config.Config{},
-		repo,
+		uc,
+		nil,
 	)
-	defer handler.Close()
 
 	ts := httptest.NewServer(
 		NewRouter(handler),
@@ -81,7 +85,7 @@ func TestGetFullLink(t *testing.T) {
 			want{
 				http.StatusBadRequest,
 				"",
-				"record doesn't not exist\n",
+				"unable to read from repository: record doesn't not exist\n",
 			},
 		},
 		{
@@ -132,7 +136,7 @@ func TestGetFullLink(t *testing.T) {
 	}
 }
 
-func BenchmarkGetFullLink(b *testing.B) {
+func BenchmarkGet(b *testing.B) {
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
 	rCtxEmpty := chi.NewRouteContext()
@@ -146,34 +150,36 @@ func BenchmarkGetFullLink(b *testing.B) {
 	w := httptest.NewRecorder()
 
 	store := memstore.New()
-	store.Set(context.Background(), &entity.ShortLink{
+	store.Set(context.Background(), &entity.URL{
 		ID:       "#123111",
 		Short:    "Edz0ThbX",
 		Original: "https://practicum.yandex.ru/",
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	handler := NewHandler(&config.Config{}, store)
-	defer handler.Close()
+	uc := usecase.New(store)
+	defer uc.Close()
+
+	handler := NewHandler(&config.Config{}, uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	b.Run("wrong", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.GetFullLink(w, r)
+			handler.Get(w, r)
 		}
 	})
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.GetFullLink(w, rEmpty)
+			handler.Get(w, rEmpty)
 		}
 	})
 
 	b.Run("found", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.GetFullLink(w, rFound)
+			handler.Get(w, rFound)
 		}
 	})
 }

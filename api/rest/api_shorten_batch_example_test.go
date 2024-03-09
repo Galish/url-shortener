@@ -13,6 +13,7 @@ import (
 	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
 func ExampleHTTPHandler_APIShortenBatch() {
@@ -34,11 +35,14 @@ func ExampleHTTPHandler_APIShortenBatch() {
 
 	w := httptest.NewRecorder()
 
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
 	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
-		memstore.New(),
+		uc,
+		nil,
 	)
-	defer apiHandler.Close()
 
 	apiHandler.APIShortenBatch(w, r)
 

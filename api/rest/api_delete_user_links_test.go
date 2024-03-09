@@ -16,13 +16,14 @@ import (
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
-func TestAPIDeleteUserLinks(t *testing.T) {
+func TestAPIDeleteUserURLs(t *testing.T) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &entity.ShortLink{
+	store.Set(context.Background(), &entity.URL{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",
@@ -31,11 +32,14 @@ func TestAPIDeleteUserLinks(t *testing.T) {
 
 	baseURL := "http://localhost:8080"
 
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
 	handler := NewHandler(
 		&config.Config{BaseURL: baseURL},
-		store,
+		uc,
+		nil,
 	)
-	defer handler.Close()
 
 	ts := httptest.NewServer(
 		NewRouter(handler),
@@ -81,7 +85,7 @@ func TestAPIDeleteUserLinks(t *testing.T) {
 			},
 		},
 		{
-			"non-existent link",
+			"non-existent URL",
 			http.MethodDelete,
 			"/api/user/urls",
 			[]string{"qw21df123"},
@@ -93,7 +97,7 @@ func TestAPIDeleteUserLinks(t *testing.T) {
 			},
 		},
 		{
-			"existing link",
+			"existing URL",
 			http.MethodDelete,
 			"/api/user/urls",
 			[]string{"qw21dfasf"},
@@ -143,7 +147,7 @@ func TestAPIDeleteUserLinks(t *testing.T) {
 	}
 }
 
-func BenchmarkAPIDeleteUserLinks(b *testing.B) {
+func BenchmarkAPIDeleteUserURLs(b *testing.B) {
 	bodyRaw, _ := json.Marshal([]string{"qw21df123"})
 
 	r, _ := http.NewRequest(
@@ -167,28 +171,30 @@ func BenchmarkAPIDeleteUserLinks(b *testing.B) {
 	store := memstore.New()
 	defer store.Close()
 
-	store.Set(context.Background(), &entity.ShortLink{
+	store.Set(context.Background(), &entity.URL{
 		ID:       "#123111",
 		Short:    "qw21dfasf",
 		Original: "https://practicum.yandex.ru/",
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	handler := NewHandler(&config.Config{}, store)
-	defer handler.Close()
+	uc := usecase.New(store)
+	defer uc.Close()
+
+	handler := NewHandler(&config.Config{}, uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	b.Run("empty", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.APIDeleteUserLinks(w, rEmpty)
+			handler.APIDeleteUserURLs(w, rEmpty)
 		}
 	})
 
 	b.Run("valid", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			handler.APIDeleteUserLinks(w, r)
+			handler.APIDeleteUserURLs(w, r)
 		}
 	})
 }

@@ -17,14 +17,14 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.WithRequestLogger)
 
-		r.Get("/ping", handler.ping)
+		r.Get("/ping", handler.Ping)
 	})
 
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.WithAuthToken)
 		r.Use(middleware.WithRequestLogger)
 
-		r.Get("/{id}", handler.GetFullLink)
+		r.Get("/{id}", handler.Get)
 
 		r.Group(func(r chi.Router) {
 			r.Use(withCompression)
@@ -34,8 +34,8 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 			r.Route("/api/user/urls", func(r chi.Router) {
 				r.Use(middleware.WithAuthChecker)
 
-				r.Get("/", handler.APIGetUserLinks)
-				r.Delete("/", handler.APIDeleteUserLinks)
+				r.Get("/", handler.APIGetByUser)
+				r.Delete("/", handler.APIDeleteUserURLs)
 			})
 
 			r.Route("/api/shorten", func(r chi.Router) {

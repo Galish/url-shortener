@@ -10,18 +10,18 @@ import (
 
 // MemStore represents in-memory storage.
 type MemStore struct {
-	store map[string]*entity.ShortLink
+	store map[string]*entity.URL
 }
 
 // New returns a new in-memory storage instance.
 func New() *MemStore {
 	return &MemStore{
-		store: make(map[string]*entity.ShortLink),
+		store: make(map[string]*entity.URL),
 	}
 }
 
 // Get returns the entity for a given short URL.
-func (ms *MemStore) Get(ctx context.Context, shortURL string) (*entity.ShortLink, error) {
+func (ms *MemStore) Get(ctx context.Context, shortURL string) (*entity.URL, error) {
 	shortLink, ok := ms.store[shortURL]
 	if ok {
 		return shortLink, nil
@@ -31,26 +31,26 @@ func (ms *MemStore) Get(ctx context.Context, shortURL string) (*entity.ShortLink
 }
 
 // GetByUser returns all entities created by the user.
-func (ms *MemStore) GetByUser(ctx context.Context, userID string) ([]*entity.ShortLink, error) {
-	var userShortLinks []*entity.ShortLink
+func (ms *MemStore) GetByUser(ctx context.Context, userID string) ([]*entity.URL, error) {
+	var userURLs []*entity.URL
 
 	for _, shortLink := range ms.store {
 		if shortLink.User == userID {
-			userShortLinks = append(userShortLinks, shortLink)
+			userURLs = append(userURLs, shortLink)
 		}
 	}
 
-	return userShortLinks, nil
+	return userURLs, nil
 }
 
 // Set adds a new entity to the store.
-func (ms *MemStore) Set(ctx context.Context, shortLink *entity.ShortLink) error {
+func (ms *MemStore) Set(ctx context.Context, shortLink *entity.URL) error {
 	ms.store[shortLink.Short] = shortLink
 	return nil
 }
 
 // SetBatch inserts new entities into the store in batches.
-func (ms *MemStore) SetBatch(ctx context.Context, shortLinks ...*entity.ShortLink) error {
+func (ms *MemStore) SetBatch(ctx context.Context, shortLinks ...*entity.URL) error {
 	for _, shortLink := range shortLinks {
 		ms.Set(ctx, shortLink)
 	}
@@ -59,7 +59,7 @@ func (ms *MemStore) SetBatch(ctx context.Context, shortLinks ...*entity.ShortLin
 }
 
 // Delete marks the entity as deleted.
-func (ms *MemStore) Delete(ctx context.Context, shortLinks ...*entity.ShortLink) error {
+func (ms *MemStore) Delete(ctx context.Context, shortLinks ...*entity.URL) error {
 	for _, shortLink := range shortLinks {
 		deleteLink, ok := ms.store[shortLink.Short]
 		if !ok {

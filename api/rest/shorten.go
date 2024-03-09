@@ -1,6 +1,7 @@
 package restapi
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -8,17 +9,14 @@ import (
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
-
-const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 // Shorten generates and returns a short URL for the given one.
 //
 //	POST /
 func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
 	rawBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "unable to read request body", http.StatusBadRequest)
@@ -26,23 +24,18 @@ func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := string(rawBody)
-	if url == "" {
-		http.Error(w, "link not provided", http.StatusBadRequest)
-		return
+	url := &entity.URL{
+		User:     r.Header.Get(middleware.AuthHeaderName),
+		Original: string(rawBody),
 	}
 
-	id := h.generateUniqueID(ctx, idLength)
-
-	err = h.repo.Set(
-		ctx,
-		&entity.ShortLink{
-			Short:    id,
-			Original: url,
-			User:     r.Header.Get(middleware.AuthHeaderName),
-		},
-	)
+	err = h.usecase.Shorten(r.Context(), url)
 	errConflict := repoErr.AsErrConflict(err)
+
+	if errors.Is(err, usecase.ErrMissingURL) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	if err != nil && errConflict == nil {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
@@ -52,14 +45,16 @@ func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 
+	short := url.Short
+
 	if errConflict != nil {
-		id = errConflict.ShortURL
+		short = errConflict.ShortURL
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
 
-	fullLink := fmt.Sprintf("%s/%s", h.cfg.BaseURL, id)
+	shortURL := fmt.Sprintf("%s/%s", h.cfg.BaseURL, short)
 
-	w.Write([]byte(fullLink))
+	w.Write([]byte(shortURL))
 }

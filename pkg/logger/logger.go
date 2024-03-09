@@ -2,6 +2,7 @@
 package logger
 
 import (
+	"io"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -9,12 +10,17 @@ import (
 
 var logger = &log.Logger{
 	Formatter: new(log.JSONFormatter),
-	Out:       os.Stderr,
+	Out:       io.Discard,
 	Level:     log.DebugLevel,
 }
 
 // Fields type, used to pass to `WithFields`.
 type Fields map[string]interface{}
+
+// Init initializes the logger.
+func Init() {
+	logger.SetOutput(os.Stderr)
+}
 
 // SetLevel sets the logger level.
 func SetLevel(level string) {

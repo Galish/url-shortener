@@ -10,12 +10,10 @@ import (
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
-// APIShortenBatch is an API handler for creating short links in batches.
+// APIShortenBatch is an API handler for creating short URLs in batches.
 //
 //	POST /api/shorten/batch
 func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
 	var req []APIBatchEntity
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "cannot decode request JSON body", http.StatusInternalServerError)
@@ -28,33 +26,28 @@ func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := make([]APIBatchEntity, len(req))
-	rows := make([]*entity.ShortLink, len(req))
+	user := r.Header.Get(middleware.AuthHeaderName)
+	urls := make([]*entity.URL, len(req))
 
 	for i, item := range req {
-		if item.OriginalURL == "" {
-			http.Error(w, "link not provided", http.StatusBadRequest)
-			return
-		}
-
-		id := h.generateUniqueID(ctx, idLength)
-
-		resp[i] = APIBatchEntity{
-			CorrelationID: item.CorrelationID,
-			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, id),
-		}
-
-		rows[i] = &entity.ShortLink{
-			Short:    id,
+		urls[i] = &entity.URL{
 			Original: item.OriginalURL,
-			User:     r.Header.Get(middleware.AuthHeaderName),
+			User:     user,
 		}
 	}
 
-	if err := h.repo.SetBatch(ctx, rows...); err != nil {
-		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
-		logger.WithError(err).Debug("unable to write to repository")
+	err := h.usecase.Shorten(r.Context(), urls...)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	resp := make([]APIBatchEntity, len(req))
+	for i, row := range req {
+		resp[i] = APIBatchEntity{
+			CorrelationID: row.CorrelationID,
+			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, urls[i].Short),
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

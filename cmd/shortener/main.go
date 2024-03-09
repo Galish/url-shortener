@@ -8,6 +8,7 @@ import (
 	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
 	"github.com/Galish/url-shortener/pkg/shutdowner"
 )
@@ -26,6 +27,8 @@ func main() {
 		buildCommit,
 	)
 
+	logger.Init()
+
 	cfg := config.New()
 
 	logger.SetLevel(cfg.LogLevel)
@@ -35,11 +38,12 @@ func main() {
 		panic(err)
 	}
 
-	handler := restapi.NewHandler(cfg, store)
+	shortener := usecase.New(store)
+	handler := restapi.NewHandler(cfg, shortener, store)
 	router := restapi.NewRouter(handler)
 	server := restapi.NewServer(cfg, router)
 
-	sd := shutdowner.New(server, handler, store)
+	sd := shutdowner.New(server, shortener, store)
 
 	if err := server.Run(); err != http.ErrServerClosed {
 		panic(err)

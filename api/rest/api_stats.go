@@ -11,13 +11,14 @@ import (
 //
 //	GET /api/internal/stats
 func (h *HTTPHandler) APIStats(w http.ResponseWriter, r *http.Request) {
-	urls, users, err := h.repo.Stats(r.Context())
+	urls, users, err := h.usecase.GetStats(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger.WithError(err).Error("unable to read from repository")
+		logger.WithError(err).Error("unable to get stats")
+		return
 	}
 
-	stats := APIStatsResponse{
+	resp := APIStatsResponse{
 		Urls:  urls,
 		Users: users,
 	}
@@ -25,7 +26,7 @@ func (h *HTTPHandler) APIStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	if err := json.NewEncoder(w).Encode(stats); err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, "cannot encode request JSON body", http.StatusInternalServerError)
 		logger.WithError(err).Debug("cannot encode request JSON body")
 	}

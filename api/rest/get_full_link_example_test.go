@@ -10,9 +10,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
-func ExampleHTTPHandler_GetFullLink() {
+func ExampleHTTPHandler_Get() {
 	r, _ := http.NewRequest(
 		http.MethodGet,
 		"/Edz0Thb1",
@@ -25,19 +26,22 @@ func ExampleHTTPHandler_GetFullLink() {
 
 	store.Set(
 		context.Background(),
-		&entity.ShortLink{
+		&entity.URL{
 			Short:    "Edz0Thb1",
 			Original: "https://practicum.yandex.ru/",
 		},
 	)
 
+	uc := usecase.New(store)
+	defer uc.Close()
+
 	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
-		store,
+		uc,
+		nil,
 	)
-	defer apiHandler.Close()
 
-	apiHandler.GetFullLink(w, r)
+	apiHandler.Get(w, r)
 
 	resp := w.Result()
 	defer resp.Body.Close()

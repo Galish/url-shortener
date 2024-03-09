@@ -1,7 +1,7 @@
 package entity
 
-// ShortLink represents a link short link entity.
-type ShortLink struct {
+// URL represents shortener entity.
+type URL struct {
 	ID        string `json:"uuid"`
 	Short     string `json:"short_url"`
 	Original  string `json:"original_url"`

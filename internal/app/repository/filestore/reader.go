@@ -26,12 +26,12 @@ func (fs *fileStore) restore() error {
 
 	for scanner.Scan() {
 		data := scanner.Bytes()
-		var shortLink entity.ShortLink
-		if err := json.Unmarshal(data, &shortLink); err != nil {
+		var url entity.URL
+		if err := json.Unmarshal(data, &url); err != nil {
 			return err
 		}
 
-		fs.store.Set(context.Background(), &shortLink)
+		fs.store.Set(context.Background(), &url)
 		fs.size++
 	}
 

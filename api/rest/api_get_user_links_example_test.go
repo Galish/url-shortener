@@ -11,9 +11,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
-func ExampleHTTPHandler_APIGetUserLinks() {
+func ExampleHTTPHandler_APIGetByUser() {
 	r, _ := http.NewRequest(
 		http.MethodGet,
 		"/api/user/urls",
@@ -28,20 +29,23 @@ func ExampleHTTPHandler_APIGetUserLinks() {
 
 	store.Set(
 		context.Background(),
-		&entity.ShortLink{
+		&entity.URL{
 			Short:    "Edz0Thb1",
 			Original: "https://practicum.yandex.ru/",
 			User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 		},
 	)
 
+	uc := usecase.New(store)
+	defer uc.Close()
+
 	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
-		store,
+		uc,
+		nil,
 	)
-	defer apiHandler.Close()
 
-	apiHandler.APIGetUserLinks(w, r)
+	apiHandler.APIGetByUser(w, r)
 
 	resp := w.Result()
 

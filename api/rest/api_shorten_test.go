@@ -14,16 +14,20 @@ import (
 
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
 func TestAPIShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
 	handler := NewHandler(
 		&config.Config{BaseURL: baseURL},
-		memstore.New(),
+		uc,
+		nil,
 	)
-	defer handler.Close()
 
 	ts := httptest.NewServer(
 		NewRouter(handler),
@@ -76,7 +80,7 @@ func TestAPIShorten(t *testing.T) {
 			APIRequest{},
 			want{
 				http.StatusBadRequest,
-				"link not provided\n",
+				"no URL provided\n",
 				"text/plain; charset=utf-8",
 			},
 		},
@@ -169,8 +173,10 @@ func BenchmarkAPIShorten(b *testing.B) {
 
 	w := httptest.NewRecorder()
 
-	handler := NewHandler(&config.Config{}, memstore.New())
-	defer handler.Close()
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
+	handler := NewHandler(&config.Config{}, uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

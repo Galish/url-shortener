@@ -10,7 +10,7 @@ import (
 )
 
 // SetBatch inserts new entities in batches.
-func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*entity.ShortLink) error {
+func (db *dbStore) SetBatch(ctx context.Context, urls ...*entity.URL) error {
 	conn, err := db.store.Conn(context.Background())
 	if err != nil {
 		return err
@@ -20,10 +20,10 @@ func (db *dbStore) SetBatch(ctx context.Context, shortLinks ...*entity.ShortLink
 		conn := driverConn.(*stdlib.Conn).Conn()
 
 		var rows [][]interface{}
-		for _, link := range shortLinks {
+		for _, url := range urls {
 			rows = append(
 				rows,
-				[]interface{}{link.Short, link.Original, link.User},
+				[]interface{}{url.Short, url.Original, url.User},
 			)
 		}
 

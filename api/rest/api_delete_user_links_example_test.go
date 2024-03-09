@@ -14,9 +14,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
 
-func ExampleHTTPHandler_APIDeleteUserLinks() {
+func ExampleHTTPHandler_APIDeleteUserURLs() {
 	bodyRaw, err := json.Marshal([]string{"Edz0Thb1"})
 	if err != nil {
 		log.Fatal(err)
@@ -36,20 +37,23 @@ func ExampleHTTPHandler_APIDeleteUserLinks() {
 
 	store.Set(
 		context.Background(),
-		&entity.ShortLink{
+		&entity.URL{
 			Short:    "Edz0Thb1",
 			Original: "https://practicum.yandex.ru/",
 			User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 		},
 	)
 
+	uc := usecase.New(memstore.New())
+	defer uc.Close()
+
 	apiHandler := restapi.NewHandler(
 		&config.Config{BaseURL: "http://www.shortener.io"},
-		store,
+		uc,
+		nil,
 	)
-	defer apiHandler.Close()
 
-	apiHandler.APIDeleteUserLinks(w, r)
+	apiHandler.APIDeleteUserURLs(w, r)
 
 	resp := w.Result()
 

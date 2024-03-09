@@ -14,11 +14,11 @@ import (
 // Repository is an abstraction over persistent storage.
 // It provides a common set of methods for interacting with data sources.
 type Repository interface {
-	Get(context.Context, string) (*entity.ShortLink, error)
-	GetByUser(context.Context, string) ([]*entity.ShortLink, error)
-	Set(context.Context, *entity.ShortLink) error
-	SetBatch(context.Context, ...*entity.ShortLink) error
-	Delete(context.Context, ...*entity.ShortLink) error
+	Get(context.Context, string) (*entity.URL, error)
+	GetByUser(context.Context, string) ([]*entity.URL, error)
+	Set(context.Context, *entity.URL) error
+	SetBatch(context.Context, ...*entity.URL) error
+	Delete(context.Context, ...*entity.URL) error
 	Stats(context.Context) (int, int, error)
 	Has(context.Context, string) bool
 	Ping(context.Context) (bool, error)
