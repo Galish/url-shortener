@@ -10,7 +10,8 @@ func parseFlags(c *settings, configFile *string) {
 		config       string
 	)
 
-	flag.StringVar(&c.ServAddr, "a", "", "Server address")
+	flag.StringVar(&c.ServAddr, "a", "", "HTTP server address")
+	flag.StringVar(&c.GRPCAddr, "g", "", "GRPC server address")
 	flag.StringVar(&c.BaseURL, "b", "", "Base link URL")
 	flag.StringVar(&c.LogLevel, "l", "", "Log level")
 	flag.StringVar(&c.FilePath, "f", "", "File storage path")

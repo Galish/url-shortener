@@ -16,6 +16,15 @@ var (
 	ErrConflict   = errors.New("URL already exists")
 )
 
+type Shortener interface {
+	Shorten(context.Context, ...*entity.URL) error
+	ShortURL(*entity.URL) string
+	Get(context.Context, string) (*entity.URL, error)
+	GetByUser(context.Context, string) ([]*entity.URL, error)
+	GetStats(context.Context) (urls, users int, err error)
+	Delete(context.Context, []*entity.URL)
+}
+
 // ShortenerUseCase implements shortener logic.
 type ShortenerUseCase struct {
 	cfg       *config.Config

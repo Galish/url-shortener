@@ -3,17 +3,8 @@ package restapi
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/entity"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 )
-
-type Usecase interface {
-	Shorten(context.Context, ...*entity.URL) error
-	ShortURL(*entity.URL) string
-	Get(context.Context, string) (*entity.URL, error)
-	GetByUser(context.Context, string) ([]*entity.URL, error)
-	GetStats(context.Context) (int, int, error)
-	Delete(context.Context, []*entity.URL)
-}
 
 type Pinger interface {
 	Ping(context.Context) (bool, error)
@@ -22,11 +13,11 @@ type Pinger interface {
 // HTTPHandler represents API handler.
 type HTTPHandler struct {
 	repo    Pinger
-	usecase Usecase
+	usecase usecase.Shortener
 }
 
 // NewHandler implements HTTP handlers.
-func NewHandler(usecase Usecase, repo Pinger) *HTTPHandler {
+func NewHandler(usecase usecase.Shortener, repo Pinger) *HTTPHandler {
 	return &HTTPHandler{
 		usecase: usecase,
 		repo:    repo,

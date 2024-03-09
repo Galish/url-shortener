@@ -10,6 +10,10 @@ func parseEnvVars(c *settings, configFile *string) {
 		c.ServAddr = servAddr
 	}
 
+	if grpcAddr := os.Getenv("GRPC_ADDRESS"); grpcAddr != "" {
+		c.GRPCAddr = grpcAddr
+	}
+
 	if baseURL := os.Getenv("BASE_URL"); baseURL != "" {
 		c.BaseURL = baseURL
 	}

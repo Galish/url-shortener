@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Galish/url-shortener/api/grpc"
 	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/repository"
@@ -39,15 +40,26 @@ func main() {
 	}
 
 	shortener := usecase.New(cfg, store)
+
 	handler := restapi.NewHandler(shortener, store)
 	router := restapi.NewRouter(cfg, handler)
-	server := restapi.NewServer(cfg, router)
+	restServer := restapi.NewServer(cfg, router)
 
-	sd := shutdowner.New(server, shortener, store)
+	grpcServer := grpc.NewServer(cfg, shortener)
 
-	if err := server.Run(); err != http.ErrServerClosed {
-		panic(err)
-	}
+	sd := shutdowner.New(restServer, grpcServer, shortener, store)
+
+	go func() {
+		if err := restServer.Run(); err != http.ErrServerClosed {
+			panic(err)
+		}
+	}()
+
+	go func() {
+		if err := grpcServer.Run(); err != nil {
+			panic(err)
+		}
+	}()
 
 	sd.Wait()
 }

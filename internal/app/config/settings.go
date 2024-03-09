@@ -13,6 +13,7 @@ type settings struct {
 	IsTLSEnabled  *bool  `json:"enable_https"`
 	LogLevel      string `json:"log_level"`
 	ServAddr      string `json:"server_address"`
+	GRPCAddr      string `json:"grpc_address"`
 	TrustedSubnet string `json:"trusted_subnet"`
 }
 
@@ -21,12 +22,17 @@ var defaultSettings = &settings{
 	FilePath: "/tmp/short-url-db.json",
 	LogLevel: "info",
 	ServAddr: ":8080",
+	GRPCAddr: ":3200",
 }
 
 func withSettings(c *settings) func(*Config) {
 	return func(cfg *Config) {
 		if c.ServAddr != "" {
 			cfg.ServAddr = c.ServAddr
+		}
+
+		if c.GRPCAddr != "" {
+			cfg.GRPCAddr = c.GRPCAddr
 		}
 
 		if c.BaseURL != "" {

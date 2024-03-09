@@ -11,6 +11,7 @@ type Config struct {
 	IsTLSEnabled  bool
 	LogLevel      string
 	ServAddr      string
+	GRPCAddr      string
 	TrustedSubnet *net.IPNet
 }
 
