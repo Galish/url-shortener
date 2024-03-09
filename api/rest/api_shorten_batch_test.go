@@ -20,17 +20,15 @@ import (
 func TestAPIShortenBatch(t *testing.T) {
 	baseURL := "http://localhost:8080"
 
-	uc := usecase.New(memstore.New())
+	cfg := &config.Config{BaseURL: baseURL}
+
+	uc := usecase.New(cfg, memstore.New())
 	defer uc.Close()
 
-	handler := NewHandler(
-		&config.Config{BaseURL: baseURL},
-		uc,
-		nil,
-	)
+	handler := NewHandler(uc, nil)
 
 	ts := httptest.NewServer(
-		NewRouter(handler),
+		NewRouter(cfg, handler),
 	)
 	defer ts.Close()
 
@@ -219,10 +217,10 @@ func BenchmarkAPIShortenBatch(b *testing.B) {
 
 	w := httptest.NewRecorder()
 
-	uc := usecase.New(memstore.New())
+	uc := usecase.New(&config.Config{}, memstore.New())
 	defer uc.Close()
 
-	handler := NewHandler(&config.Config{}, uc, nil)
+	handler := NewHandler(uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

@@ -32,17 +32,15 @@ func TestAPIDeleteUserURLs(t *testing.T) {
 
 	baseURL := "http://localhost:8080"
 
-	uc := usecase.New(memstore.New())
+	cfg := &config.Config{BaseURL: baseURL}
+
+	uc := usecase.New(cfg, memstore.New())
 	defer uc.Close()
 
-	handler := NewHandler(
-		&config.Config{BaseURL: baseURL},
-		uc,
-		nil,
-	)
+	handler := NewHandler(uc, nil)
 
 	ts := httptest.NewServer(
-		NewRouter(handler),
+		NewRouter(cfg, handler),
 	)
 	defer ts.Close()
 
@@ -178,10 +176,10 @@ func BenchmarkAPIDeleteUserURLs(b *testing.B) {
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	uc := usecase.New(store)
+	uc := usecase.New(&config.Config{}, store)
 	defer uc.Close()
 
-	handler := NewHandler(&config.Config{}, uc, nil)
+	handler := NewHandler(uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

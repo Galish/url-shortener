@@ -2,13 +2,11 @@ package restapi
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
@@ -30,14 +28,13 @@ func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.usecase.Shorten(r.Context(), url)
-	errConflict := repoErr.AsErrConflict(err)
 
 	if errors.Is(err, usecase.ErrMissingURL) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err != nil && errConflict == nil {
+	if err != nil && !errors.Is(err, usecase.ErrConflict) {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
@@ -45,16 +42,13 @@ func (h *HTTPHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html")
 
-	short := url.Short
-
-	if errConflict != nil {
-		short = errConflict.ShortURL
+	if errors.Is(err, usecase.ErrConflict) {
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
 
-	shortURL := fmt.Sprintf("%s/%s", h.cfg.BaseURL, short)
+	shortURL := h.usecase.ShortURL(url)
 
 	w.Write([]byte(shortURL))
 }

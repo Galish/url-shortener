@@ -44,14 +44,13 @@ func ExampleHTTPHandler_APIDeleteUserURLs() {
 		},
 	)
 
-	uc := usecase.New(memstore.New())
+	uc := usecase.New(
+		&config.Config{BaseURL: "http://www.shortener.io"},
+		memstore.New(),
+	)
 	defer uc.Close()
 
-	apiHandler := restapi.NewHandler(
-		&config.Config{BaseURL: "http://www.shortener.io"},
-		uc,
-		nil,
-	)
+	apiHandler := restapi.NewHandler(uc, nil)
 
 	apiHandler.APIDeleteUserURLs(w, r)
 

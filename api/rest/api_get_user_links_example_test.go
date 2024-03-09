@@ -36,14 +36,10 @@ func ExampleHTTPHandler_APIGetByUser() {
 		},
 	)
 
-	uc := usecase.New(store)
+	uc := usecase.New(&config.Config{BaseURL: "http://www.shortener.io"}, store)
 	defer uc.Close()
 
-	apiHandler := restapi.NewHandler(
-		&config.Config{BaseURL: "http://www.shortener.io"},
-		uc,
-		nil,
-	)
+	apiHandler := restapi.NewHandler(uc, nil)
 
 	apiHandler.APIGetByUser(w, r)
 

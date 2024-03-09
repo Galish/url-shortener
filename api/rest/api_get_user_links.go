@@ -2,7 +2,6 @@ package restapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/middleware"
@@ -31,7 +30,7 @@ func (h *HTTPHandler) APIGetByUser(w http.ResponseWriter, r *http.Request) {
 		resp = append(
 			resp,
 			APIBatchEntity{
-				ShortURL:    fmt.Sprintf("%s/%s", h.cfg.BaseURL, url.Short),
+				ShortURL:    h.usecase.ShortURL(url),
 				OriginalURL: url.Original,
 			},
 		)

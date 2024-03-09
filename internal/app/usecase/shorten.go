@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Galish/url-shortener/internal/app/entity"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/Galish/url-shortener/pkg/generator"
 )
 
@@ -31,9 +33,21 @@ func (uc *ShortenerUseCase) Shorten(ctx context.Context, urls ...*entity.URL) er
 		url.Short = short
 	}
 
-	if len(urls) == 1 {
-		return uc.repo.Set(ctx, urls[0])
+	if len(urls) != 1 {
+		return uc.repo.SetBatch(ctx, urls...)
 	}
 
-	return uc.repo.SetBatch(ctx, urls...)
+	err := uc.repo.Set(ctx, urls[0])
+
+	errConflict := repoErr.AsErrConflict(err)
+	if errConflict != nil {
+		urls[0].Short = errConflict.ShortURL
+		return ErrConflict
+	}
+
+	return err
+}
+
+func (uc *ShortenerUseCase) ShortURL(url *entity.URL) string {
+	return fmt.Sprintf("%s/%s", uc.cfg.BaseURL, url.Short)
 }

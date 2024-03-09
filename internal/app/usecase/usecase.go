@@ -5,14 +5,19 @@ import (
 	"errors"
 	"time"
 
+	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
-var ErrMissingURL = errors.New("no URL provided")
+var (
+	ErrMissingURL = errors.New("no URL provided")
+	ErrConflict   = errors.New("URL already exists")
+)
 
 type ShortenerUseCase struct {
+	cfg       *config.Config
 	repo      repository.Repository
 	messageCh chan *shortenerMessage
 	deleteURL []*entity.URL
@@ -26,8 +31,9 @@ type shortenerMessage struct {
 	url    *entity.URL
 }
 
-func New(repo repository.Repository) *ShortenerUseCase {
+func New(cfg *config.Config, repo repository.Repository) *ShortenerUseCase {
 	uc := &ShortenerUseCase{
+		cfg:       cfg,
 		repo:      repo,
 		messageCh: make(chan *shortenerMessage, 100),
 		close:     make(chan struct{}),

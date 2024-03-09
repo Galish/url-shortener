@@ -32,15 +32,10 @@ func ExampleHTTPHandler_APIShorten() {
 
 	w := httptest.NewRecorder()
 
-	uc := usecase.New(memstore.New())
+	uc := usecase.New(&config.Config{BaseURL: "http://www.shortener.io"}, memstore.New())
 	defer uc.Close()
 
-	apiHandler := restapi.NewHandler(
-		&config.Config{BaseURL: "http://www.shortener.io"},
-		uc,
-		nil,
-	)
-
+	apiHandler := restapi.NewHandler(uc, nil)
 	apiHandler.APIShorten(w, r)
 
 	resp := w.Result()

@@ -2,7 +2,6 @@ package restapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/entity"
@@ -46,7 +45,7 @@ func (h *HTTPHandler) APIShortenBatch(w http.ResponseWriter, r *http.Request) {
 	for i, row := range req {
 		resp[i] = APIBatchEntity{
 			CorrelationID: row.CorrelationID,
-			ShortURL:      fmt.Sprintf("%s/%s", h.cfg.BaseURL, urls[i].Short),
+			ShortURL:      h.usecase.ShortURL(urls[i]),
 		}
 	}
 

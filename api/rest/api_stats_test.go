@@ -47,20 +47,18 @@ func TestAPIStats(t *testing.T) {
 
 	_, ipNet, _ := net.ParseCIDR("192.168.1.0/24")
 
-	uc := usecase.New(store)
+	cfg := &config.Config{
+		BaseURL:       baseURL,
+		TrustedSubnet: ipNet,
+	}
+
+	uc := usecase.New(cfg, store)
 	defer uc.Close()
 
-	handler := NewHandler(
-		&config.Config{
-			BaseURL:       baseURL,
-			TrustedSubnet: ipNet,
-		},
-		uc,
-		nil,
-	)
+	handler := NewHandler(uc, nil)
 
 	ts := httptest.NewServer(
-		NewRouter(handler),
+		NewRouter(cfg, handler),
 	)
 	defer ts.Close()
 

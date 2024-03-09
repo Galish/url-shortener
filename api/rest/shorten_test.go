@@ -19,17 +19,18 @@ import (
 func TestShorten(t *testing.T) {
 	baseURL := "http://localhost:8080"
 
-	uc := usecase.New(memstore.New())
+	cfg := &config.Config{BaseURL: baseURL}
+
+	uc := usecase.New(cfg, memstore.New())
 	defer uc.Close()
 
 	handler := NewHandler(
-		&config.Config{BaseURL: baseURL},
 		uc,
 		nil,
 	)
 
 	ts := httptest.NewServer(
-		NewRouter(handler),
+		NewRouter(cfg, handler),
 	)
 	defer ts.Close()
 
@@ -129,10 +130,10 @@ func BenchmarkShorten(b *testing.B) {
 
 	w := httptest.NewRecorder()
 
-	usecase := usecase.New(memstore.New())
+	usecase := usecase.New(&config.Config{}, memstore.New())
 	defer usecase.Close()
 
-	handler := NewHandler(&config.Config{}, usecase, nil)
+	handler := NewHandler(usecase, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

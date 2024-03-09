@@ -4,12 +4,13 @@ package restapi
 import (
 	"github.com/go-chi/chi/v5"
 
+	"github.com/Galish/url-shortener/internal/app/config"
 	"github.com/Galish/url-shortener/internal/app/middleware"
 	"github.com/Galish/url-shortener/pkg/compress"
 )
 
 // NewRouter returns a new Mux object that implements the Router interface.
-func NewRouter(handler *HTTPHandler) *chi.Mux {
+func NewRouter(cfg *config.Config, handler *HTTPHandler) *chi.Mux {
 	router := chi.NewRouter()
 
 	var withCompression = middleware.WithCompressor(compress.NewGzipCompressor())
@@ -46,7 +47,7 @@ func NewRouter(handler *HTTPHandler) *chi.Mux {
 	})
 
 	router.Group(func(r chi.Router) {
-		r.Use(middleware.WithTrustedSubnet(handler.cfg.TrustedSubnet))
+		r.Use(middleware.WithTrustedSubnet(cfg.TrustedSubnet))
 		r.Use(middleware.WithRequestLogger)
 		r.Use(withCompression)
 

@@ -8,6 +8,6 @@ func BenchmarkNewID(b *testing.B) {
 	}
 }
 
-func Example_NewID() {
+func ExampleNewID() {
 	NewID(10)
 }

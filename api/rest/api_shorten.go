@@ -3,12 +3,10 @@ package restapi
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/middleware"
-	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
@@ -35,9 +33,7 @@ func (h *HTTPHandler) APIShorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errConflict := repoErr.AsErrConflict(err)
-
-	if err != nil && errConflict == nil {
+	if err != nil && !errors.Is(err, usecase.ErrConflict) {
 		http.Error(w, "unable to write to repository", http.StatusInternalServerError)
 		logger.WithError(err).Debug("unable to write to repository")
 		return
@@ -45,17 +41,14 @@ func (h *HTTPHandler) APIShorten(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	short := url.Short
-
-	if errConflict != nil {
-		short = errConflict.ShortURL
+	if errors.Is(err, usecase.ErrConflict) {
 		w.WriteHeader(http.StatusConflict)
 	} else {
 		w.WriteHeader(http.StatusCreated)
 	}
 
 	resp := APIResponse{
-		Result: fmt.Sprintf("%s/%s", h.cfg.BaseURL, short),
+		Result: h.usecase.ShortURL(url),
 	}
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {

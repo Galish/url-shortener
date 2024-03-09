@@ -33,17 +33,15 @@ func TestGet(t *testing.T) {
 		},
 	)
 
-	uc := usecase.New(store)
+	cfg := &config.Config{}
+
+	uc := usecase.New(cfg, store)
 	defer uc.Close()
 
-	handler := NewHandler(
-		&config.Config{},
-		uc,
-		nil,
-	)
+	handler := NewHandler(uc, nil)
 
 	ts := httptest.NewServer(
-		NewRouter(handler),
+		NewRouter(cfg, handler),
 	)
 	defer ts.Close()
 
@@ -157,10 +155,10 @@ func BenchmarkGet(b *testing.B) {
 		User:     "e44d9088-1bd6-44dc-af86-f1a551b02db3",
 	})
 
-	uc := usecase.New(store)
+	uc := usecase.New(&config.Config{}, store)
 	defer uc.Close()
 
-	handler := NewHandler(&config.Config{}, uc, nil)
+	handler := NewHandler(uc, nil)
 
 	b.ReportAllocs()
 	b.ResetTimer()

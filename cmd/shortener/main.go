@@ -38,9 +38,9 @@ func main() {
 		panic(err)
 	}
 
-	shortener := usecase.New(store)
-	handler := restapi.NewHandler(cfg, shortener, store)
-	router := restapi.NewRouter(handler)
+	shortener := usecase.New(cfg, store)
+	handler := restapi.NewHandler(shortener, store)
+	router := restapi.NewRouter(cfg, handler)
 	server := restapi.NewServer(cfg, router)
 
 	sd := shutdowner.New(server, shortener, store)
