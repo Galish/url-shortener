@@ -6,6 +6,7 @@ import (
 
 	pb "github.com/Galish/url-shortener/api/proto"
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
 
@@ -24,7 +25,12 @@ type ShortenerServer struct {
 
 // NewServer configures and creates a GRPC server.
 func NewServer(cfg *config.Config, uc usecase.Shortener) *ShortenerServer {
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			interceptors.LoggerInterceptor,
+			interceptors.UserCheckInterceptor,
+		),
+	)
 	reflection.Register(s)
 
 	server := &ShortenerServer{

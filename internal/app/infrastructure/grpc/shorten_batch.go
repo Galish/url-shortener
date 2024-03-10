@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/Galish/url-shortener/api/proto"
 	"github.com/Galish/url-shortener/internal/app/entity"
+	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 )
 
 func (s *ShortenerServer) ShortenBatch(
@@ -13,11 +14,12 @@ func (s *ShortenerServer) ShortenBatch(
 ) (*pb.ShortenBatchResponse, error) {
 	var response pb.ShortenBatchResponse
 
+	user := ctx.Value(interceptors.UserContextKey).(string)
 	urls := make([]*entity.URL, len(in.Urls))
 
 	for i, url := range in.Urls {
 		urls[i] = &entity.URL{
-			// User:     r.Header.Get(middleware.AuthHeaderName),
+			User:     user,
 			Original: url.OriginalUrl,
 		}
 	}

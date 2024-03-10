@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pb "github.com/Galish/url-shortener/api/proto"
+	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -13,7 +14,9 @@ func (s *ShortenerServer) GetByUser(
 ) (*pb.UserUrlResponse, error) {
 	var response pb.UserUrlResponse
 
-	urls, err := s.usecase.GetByUser(ctx, "userid")
+	user := ctx.Value(interceptors.UserContextKey).(string)
+
+	urls, err := s.usecase.GetByUser(ctx, user)
 	if err != nil {
 		response.Error = err.Error()
 

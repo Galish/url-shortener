@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/Galish/url-shortener/api/proto"
 	"github.com/Galish/url-shortener/internal/app/entity"
+	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 )
 
 func (s *ShortenerServer) Delete(
@@ -13,13 +14,13 @@ func (s *ShortenerServer) Delete(
 ) (*pb.DeleteResponse, error) {
 	var response pb.DeleteResponse
 
-	// user := r.Header.Get(middleware.AuthHeaderName)
+	user := ctx.Value(interceptors.UserContextKey).(string)
 	urls := make([]*entity.URL, len(in.ShortUrl))
 
 	for i, id := range in.ShortUrl {
 		urls[i] = &entity.URL{
 			Short: id,
-			// User:  user,
+			User:  user,
 		}
 	}
 

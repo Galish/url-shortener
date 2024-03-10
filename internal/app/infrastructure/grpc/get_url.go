@@ -14,18 +14,12 @@ func (s *ShortenerServer) Get(
 
 	url, err := s.usecase.Get(ctx, in.ShortUrl)
 	if err != nil {
-		// http.Error(w, err.Error(), http.StatusBadRequest)
-		// logger.WithError(err).Debug("unable to fetch url")
-		// return
 		response.Error = err.Error()
+	} else if url.IsDeleted {
+		response.Error = "URL has been removed"
 	} else {
 		response.OriginalUrl = url.Original
 	}
-
-	// if url.IsDeleted {
-	// 	w.WriteHeader(http.StatusGone)
-	// 	return
-	// }
 
 	return &response, nil
 }
