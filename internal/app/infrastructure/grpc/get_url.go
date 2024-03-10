@@ -6,6 +6,7 @@ import (
 	pb "github.com/Galish/url-shortener/api/proto"
 )
 
+// Get returns original URL.
 func (s *ShortenerServer) Get(
 	ctx context.Context,
 	in *pb.UrlRequest,

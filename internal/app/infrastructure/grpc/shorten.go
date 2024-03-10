@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// Shorten returns short URLs.
 func (s *ShortenerServer) Shorten(
 	ctx context.Context,
 	in *pb.ShortenRequest,

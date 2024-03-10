@@ -8,6 +8,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// GetByUser returns a list of URLs created by the user.
 func (s *ShortenerServer) GetByUser(
 	ctx context.Context,
 	_ *emptypb.Empty,
@@ -23,10 +24,11 @@ func (s *ShortenerServer) GetByUser(
 		return &response, nil
 	}
 
-	// if len(urls) == 0 {
-	// 	w.WriteHeader(http.StatusNoContent)
-	// 	return
-	// }
+	if len(urls) == 0 {
+		response.Error = "nothing found"
+
+		return &response, nil
+	}
 
 	response.Urls = make([]*pb.UserUrlResponseEntity, len(urls))
 

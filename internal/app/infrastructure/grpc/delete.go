@@ -8,6 +8,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 )
 
+// Delete deletes user URLs.
 func (s *ShortenerServer) Delete(
 	ctx context.Context,
 	in *pb.DeleteRequest,

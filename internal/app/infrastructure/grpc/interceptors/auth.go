@@ -20,6 +20,7 @@ var methodsUserRequired = map[string]bool{
 	"/service.Shortener/Delete":       true,
 }
 
+// UserCheckInterceptor serves authentication error if user identifier not provided.
 func UserCheckInterceptor(
 	ctx context.Context,
 	req interface{},

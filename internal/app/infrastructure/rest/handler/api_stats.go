@@ -7,7 +7,7 @@ import (
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
-// APIStats is an API handler that returns the number shortened URLs and users.
+// APIStats is an API handler that returns the number of users and shortened URLs.
 //
 //	GET /api/internal/stats
 func (h *Handler) APIStats(w http.ResponseWriter, r *http.Request) {

@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// LoggerInterceptor provides request logging.
 func LoggerInterceptor(
 	ctx context.Context,
 	req interface{},

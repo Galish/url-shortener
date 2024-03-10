@@ -8,6 +8,7 @@ import (
 	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 )
 
+// ShortenBatch generates short URLs in batches.
 func (s *ShortenerServer) ShortenBatch(
 	ctx context.Context,
 	in *pb.ShortenBatchRequest,

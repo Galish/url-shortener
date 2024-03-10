@@ -7,6 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// GetStats returns the number of users and shortened URLs.
 func (s *ShortenerServer) GetStats(
 	ctx context.Context,
 	_ *emptypb.Empty,

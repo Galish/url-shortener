@@ -16,6 +16,7 @@ var (
 	ErrConflict   = errors.New("URL already exists")
 )
 
+// Shortener represents an instance of the shortener usecase.
 type Shortener interface {
 	Shorten(context.Context, ...*entity.URL) error
 	ShortURL(*entity.URL) string
