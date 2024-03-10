@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.3
-// source: api/grpc/proto/service.proto
+// source: api/proto/service.proto
 
 package grpc
 
@@ -23,6 +23,8 @@ const (
 	Shortener_Shorten_FullMethodName      = "/service.Shortener/Shorten"
 	Shortener_ShortenBatch_FullMethodName = "/service.Shortener/ShortenBatch"
 	Shortener_Get_FullMethodName          = "/service.Shortener/Get"
+	Shortener_GetByUser_FullMethodName    = "/service.Shortener/GetByUser"
+	Shortener_Delete_FullMethodName       = "/service.Shortener/Delete"
 	Shortener_GetStats_FullMethodName     = "/service.Shortener/GetStats"
 )
 
@@ -33,7 +35,9 @@ type ShortenerClient interface {
 	Shorten(ctx context.Context, in *ShortenRequest, opts ...grpc.CallOption) (*ShortenResponse, error)
 	ShortenBatch(ctx context.Context, in *ShortenBatchRequest, opts ...grpc.CallOption) (*ShortenBatchResponse, error)
 	Get(ctx context.Context, in *UrlRequest, opts ...grpc.CallOption) (*UrlResponse, error)
-	GetStats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*APIStatsResponse, error)
+	GetByUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserUrlResponse, error)
+	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+	GetStats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StatsResponse, error)
 }
 
 type shortenerClient struct {
@@ -71,8 +75,26 @@ func (c *shortenerClient) Get(ctx context.Context, in *UrlRequest, opts ...grpc.
 	return out, nil
 }
 
-func (c *shortenerClient) GetStats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*APIStatsResponse, error) {
-	out := new(APIStatsResponse)
+func (c *shortenerClient) GetByUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserUrlResponse, error) {
+	out := new(UserUrlResponse)
+	err := c.cc.Invoke(ctx, Shortener_GetByUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shortenerClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
+	out := new(DeleteResponse)
+	err := c.cc.Invoke(ctx, Shortener_Delete_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *shortenerClient) GetStats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StatsResponse, error) {
+	out := new(StatsResponse)
 	err := c.cc.Invoke(ctx, Shortener_GetStats_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,7 +109,9 @@ type ShortenerServer interface {
 	Shorten(context.Context, *ShortenRequest) (*ShortenResponse, error)
 	ShortenBatch(context.Context, *ShortenBatchRequest) (*ShortenBatchResponse, error)
 	Get(context.Context, *UrlRequest) (*UrlResponse, error)
-	GetStats(context.Context, *emptypb.Empty) (*APIStatsResponse, error)
+	GetByUser(context.Context, *emptypb.Empty) (*UserUrlResponse, error)
+	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
+	GetStats(context.Context, *emptypb.Empty) (*StatsResponse, error)
 	mustEmbedUnimplementedShortenerServer()
 }
 
@@ -104,7 +128,13 @@ func (UnimplementedShortenerServer) ShortenBatch(context.Context, *ShortenBatchR
 func (UnimplementedShortenerServer) Get(context.Context, *UrlRequest) (*UrlResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedShortenerServer) GetStats(context.Context, *emptypb.Empty) (*APIStatsResponse, error) {
+func (UnimplementedShortenerServer) GetByUser(context.Context, *emptypb.Empty) (*UserUrlResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByUser not implemented")
+}
+func (UnimplementedShortenerServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedShortenerServer) GetStats(context.Context, *emptypb.Empty) (*StatsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStats not implemented")
 }
 func (UnimplementedShortenerServer) mustEmbedUnimplementedShortenerServer() {}
@@ -174,6 +204,42 @@ func _Shortener_Get_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Shortener_GetByUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShortenerServer).GetByUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shortener_GetByUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShortenerServer).GetByUser(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Shortener_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShortenerServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shortener_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShortenerServer).Delete(ctx, req.(*DeleteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Shortener_GetStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -212,10 +278,18 @@ var Shortener_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Shortener_Get_Handler,
 		},
 		{
+			MethodName: "GetByUser",
+			Handler:    _Shortener_GetByUser_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Shortener_Delete_Handler,
+		},
+		{
 			MethodName: "GetStats",
 			Handler:    _Shortener_GetStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/grpc/proto/service.proto",
+	Metadata: "api/proto/service.proto",
 }

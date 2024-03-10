@@ -7,7 +7,7 @@ import (
 )
 
 // Delete deletes URLs based on the given identifiers.
-func (uc *ShortenerUseCase) Delete(ctx context.Context, urls []*entity.URL) {
+func (uc *ShortenerUseCase) Delete(ctx context.Context, urls ...*entity.URL) {
 	if len(urls) == 0 {
 		return
 	}

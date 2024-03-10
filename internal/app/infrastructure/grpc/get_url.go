@@ -6,7 +6,10 @@ import (
 	pb "github.com/Galish/url-shortener/api/proto"
 )
 
-func (s *ShortenerServer) Get(ctx context.Context, in *pb.UrlRequest) (*pb.UrlResponse, error) {
+func (s *ShortenerServer) Get(
+	ctx context.Context,
+	in *pb.UrlRequest,
+) (*pb.UrlResponse, error) {
 	var response pb.UrlResponse
 
 	url, err := s.usecase.Get(ctx, in.ShortUrl)

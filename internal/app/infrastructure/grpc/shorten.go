@@ -7,7 +7,10 @@ import (
 	"github.com/Galish/url-shortener/internal/app/entity"
 )
 
-func (s *ShortenerServer) Shorten(ctx context.Context, in *pb.ShortenRequest) (*pb.ShortenResponse, error) {
+func (s *ShortenerServer) Shorten(
+	ctx context.Context,
+	in *pb.ShortenRequest,
+) (*pb.ShortenResponse, error) {
 	var response pb.ShortenResponse
 
 	url := &entity.URL{

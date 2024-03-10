@@ -24,16 +24,6 @@ message ShortenResponse {
 }
 
 
-message UrlRequest {
-  string short_url = 1;
-}
-
-message UrlResponse {
-  string original_url = 1;
-  string error = 2;
-}
-
-
 message ShortenBatchRequestEntity {
   string correlation_id = 1;
   string original_url = 2;
@@ -54,7 +44,37 @@ message ShortenBatchResponse {
 }
 
 
-message APIStatsResponse {
+message UrlRequest {
+  string short_url = 1;
+}
+
+message UrlResponse {
+  string original_url = 1;
+  string error = 2;
+}
+
+
+message UserUrlResponseEntity {
+  string original_url = 1;
+  string short_url = 2;
+}
+
+message UserUrlResponse {
+  repeated UserUrlResponseEntity urls = 1;
+  string error = 2;
+}
+
+
+message DeleteRequest {
+  repeated string short_url = 1;
+}
+
+message DeleteResponse {
+  string error = 1;
+}
+
+
+message StatsResponse {
   int32 urls = 1;
   int32 users = 2;
   string error = 3;
@@ -65,5 +85,7 @@ service Shortener {
   rpc Shorten(ShortenRequest) returns (ShortenResponse);
   rpc ShortenBatch(ShortenBatchRequest) returns (ShortenBatchResponse);
   rpc Get(UrlRequest) returns (UrlResponse);
-  rpc GetStats(google.protobuf.Empty) returns (APIStatsResponse);
+  rpc GetByUser(google.protobuf.Empty) returns (UserUrlResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc GetStats(google.protobuf.Empty) returns (StatsResponse);
 }

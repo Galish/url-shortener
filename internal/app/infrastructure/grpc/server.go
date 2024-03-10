@@ -58,7 +58,3 @@ func (s *ShortenerServer) Close() error {
 
 	return nil
 }
-
-// Get user urls
-
-// Delete user urls

@@ -30,7 +30,7 @@ func (h *Handler) APIDeleteUserURLs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.usecase.Delete(r.Context(), urls)
+	h.usecase.Delete(r.Context(), urls...)
 
 	w.WriteHeader(http.StatusAccepted)
 }

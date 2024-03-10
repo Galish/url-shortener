@@ -7,8 +7,11 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s *ShortenerServer) GetStats(ctx context.Context, _ *emptypb.Empty) (*pb.APIStatsResponse, error) {
-	var response pb.APIStatsResponse
+func (s *ShortenerServer) GetStats(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*pb.StatsResponse, error) {
+	var response pb.StatsResponse
 
 	urls, users, err := s.usecase.GetStats(ctx)
 	if err != nil {
