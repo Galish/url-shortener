@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Galish/url-shortener/api/grpc"
-	restapi "github.com/Galish/url-shortener/api/rest"
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc"
+	restAPI "github.com/Galish/url-shortener/internal/app/infrastructure/rest"
+	restHandler "github.com/Galish/url-shortener/internal/app/infrastructure/rest/handler"
 	"github.com/Galish/url-shortener/internal/app/repository"
 	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
@@ -41,9 +42,9 @@ func main() {
 
 	shortener := usecase.New(cfg, store)
 
-	handler := restapi.NewHandler(shortener, store)
-	router := restapi.NewRouter(cfg, handler)
-	restServer := restapi.NewServer(cfg, router)
+	handler := restHandler.New(shortener, store)
+	router := restAPI.NewRouter(cfg, handler)
+	restServer := restAPI.NewServer(cfg, router)
 
 	grpcServer := grpc.NewServer(cfg, shortener)
 
