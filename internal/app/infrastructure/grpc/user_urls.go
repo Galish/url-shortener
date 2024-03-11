@@ -3,9 +3,10 @@ package grpc
 import (
 	"context"
 
+	"google.golang.org/protobuf/types/known/emptypb"
+
 	pb "github.com/Galish/url-shortener/api/proto"
 	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // GetByUser returns a list of URLs created by the user.

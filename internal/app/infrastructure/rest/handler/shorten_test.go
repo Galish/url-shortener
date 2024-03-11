@@ -77,6 +77,16 @@ func TestShorten(t *testing.T) {
 				"",
 			},
 		},
+		{
+			"conflict error",
+			http.MethodPost,
+			"/",
+			"https://practicum.yandex.ru/",
+			want{
+				409,
+				"",
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -104,7 +114,7 @@ func TestShorten(t *testing.T) {
 			err = resp.Body.Close()
 			require.NoError(t, err)
 
-			if resp.StatusCode < 300 {
+			if resp.StatusCode < 300 || resp.StatusCode == http.StatusConflict {
 				assert.Regexp(
 					t,
 					regexp.MustCompile(baseURL+"/[0-9A-Za-z]{8}"),

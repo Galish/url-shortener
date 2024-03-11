@@ -11,7 +11,7 @@ import (
 //
 //	GET /api/internal/stats
 func (h *Handler) APIStats(w http.ResponseWriter, r *http.Request) {
-	urls, users, err := h.usecase.GetStats(r.Context())
+	urls, users, err := h.usecase.Stats(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger.WithError(err).Error("unable to get stats")

@@ -3,8 +3,9 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/entity"
 	sq "github.com/Masterminds/squirrel"
+
+	"github.com/Galish/url-shortener/internal/app/entity"
 )
 
 // Delete marks the entity as deleted.

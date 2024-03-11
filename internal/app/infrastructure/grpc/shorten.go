@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	pb "github.com/Galish/url-shortener/api/proto"
 	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc/interceptors"
 	"github.com/Galish/url-shortener/internal/app/usecase"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // Shorten returns short URLs.

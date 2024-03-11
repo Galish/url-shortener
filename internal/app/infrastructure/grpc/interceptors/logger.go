@@ -4,9 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/Galish/url-shortener/pkg/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	"github.com/Galish/url-shortener/pkg/logger"
 )
 
 // LoggerInterceptor provides request logging.

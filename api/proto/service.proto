@@ -87,5 +87,5 @@ service Shortener {
   rpc Get(UrlRequest) returns (UrlResponse);
   rpc GetByUser(google.protobuf.Empty) returns (UserUrlResponse);
   rpc Delete(DeleteRequest) returns (DeleteResponse);
-  rpc GetStats(google.protobuf.Empty) returns (StatsResponse);
+  rpc Stats(google.protobuf.Empty) returns (StatsResponse);
 }

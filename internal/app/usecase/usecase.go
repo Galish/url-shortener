@@ -12,8 +12,10 @@ import (
 )
 
 var (
-	ErrMissingURL = errors.New("no URL provided")
-	ErrConflict   = errors.New("URL already exists")
+	ErrConflict    = errors.New("URL already exists")
+	ErrInvalidID   = errors.New("invalid URL identifier")
+	ErrInvalidUser = errors.New("invalid user identifier")
+	ErrMissingURL  = errors.New("no URL provided")
 )
 
 // Shortener represents an instance of the shortener usecase.
@@ -22,22 +24,23 @@ type Shortener interface {
 	ShortURL(*entity.URL) string
 	Get(context.Context, string) (*entity.URL, error)
 	GetByUser(context.Context, string) ([]*entity.URL, error)
-	GetStats(context.Context) (urls, users int, err error)
-	Delete(context.Context, ...*entity.URL)
+	Delete(context.Context, ...*entity.URL) error
+	Stats(context.Context) (urls, users int, err error)
 }
 
 // ShortenerUseCase implements shortener logic.
 type ShortenerUseCase struct {
 	cfg       *config.Config
 	repo      repository.Repository
-	messageCh chan *shortenerMessage
+	messageCh chan *Message
 	deleteURL []*entity.URL
 	ticker    *time.Ticker
 	close     chan struct{}
 	done      chan struct{}
 }
 
-type shortenerMessage struct {
+// Message implements shortener action message.
+type Message struct {
 	action string
 	url    *entity.URL
 }
@@ -47,7 +50,7 @@ func New(cfg *config.Config, repo repository.Repository) *ShortenerUseCase {
 	uc := &ShortenerUseCase{
 		cfg:       cfg,
 		repo:      repo,
-		messageCh: make(chan *shortenerMessage, 100),
+		messageCh: make(chan *Message, 100),
 		close:     make(chan struct{}),
 		done:      make(chan struct{}),
 	}

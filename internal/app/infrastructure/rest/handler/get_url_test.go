@@ -30,7 +30,7 @@ func TestGet(t *testing.T) {
 		},
 		&entity.URL{
 			Short:     "h9h2fhfU",
-			Original:  "https://practicum.yandex.ru/",
+			Original:  "https://www.yandex.ru/",
 			IsDeleted: true,
 		},
 	)

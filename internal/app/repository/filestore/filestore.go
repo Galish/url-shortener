@@ -63,8 +63,8 @@ func (fs *fileStore) Set(ctx context.Context, shortLink *entity.URL) error {
 }
 
 // SetBatch inserts new entities into the store in batches.
-func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*entity.URL) error {
-	for _, shortLink := range shortLinks {
+func (fs *fileStore) SetBatch(ctx context.Context, urls ...*entity.URL) error {
+	for _, shortLink := range urls {
 		fs.Set(ctx, shortLink)
 	}
 
@@ -72,13 +72,13 @@ func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*entity.URL) er
 }
 
 // Delete marks the entity as deleted.
-func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*entity.URL) error {
-	if err := fs.store.Delete(ctx, shortLinks...); err != nil {
+func (fs *fileStore) Delete(ctx context.Context, urls ...*entity.URL) error {
+	if err := fs.store.Delete(ctx, urls...); err != nil {
 		return err
 	}
 
-	for _, shortLink := range shortLinks {
-		deleteLink, err := fs.store.Get(ctx, shortLink.Short)
+	for _, url := range urls {
+		deleteLink, err := fs.store.Get(ctx, url.Short)
 		if err != nil {
 			logger.WithError(err).Debug("unable to read from store")
 			continue

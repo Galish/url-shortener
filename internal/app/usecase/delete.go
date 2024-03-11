@@ -7,17 +7,19 @@ import (
 )
 
 // Delete deletes URLs based on the given identifiers.
-func (uc *ShortenerUseCase) Delete(ctx context.Context, urls ...*entity.URL) {
+func (uc *ShortenerUseCase) Delete(ctx context.Context, urls ...*entity.URL) error {
 	if len(urls) == 0 {
-		return
+		return ErrMissingURL
 	}
 
 	go func() {
 		for _, url := range urls {
-			uc.messageCh <- &shortenerMessage{
+			uc.messageCh <- &Message{
 				action: "delete",
 				url:    url,
 			}
 		}
 	}()
+
+	return nil
 }

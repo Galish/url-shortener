@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/Galish/url-shortener/internal/app/entity"
+	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
 )
 
 // MemStore represents in-memory storage.
@@ -44,30 +45,41 @@ func (ms *MemStore) GetByUser(ctx context.Context, userID string) ([]*entity.URL
 }
 
 // Set adds a new entity to the store.
-func (ms *MemStore) Set(ctx context.Context, shortLink *entity.URL) error {
-	ms.store[shortLink.Short] = shortLink
+func (ms *MemStore) Set(ctx context.Context, url *entity.URL) error {
+	for _, u := range ms.store {
+		if u.Original == url.Original {
+			return repoErr.New(
+				repoErr.ErrConflict,
+				u.Short,
+				u.Original,
+			)
+		}
+	}
+
+	ms.store[url.Short] = url
+
 	return nil
 }
 
 // SetBatch inserts new entities into the store in batches.
-func (ms *MemStore) SetBatch(ctx context.Context, shortLinks ...*entity.URL) error {
-	for _, shortLink := range shortLinks {
-		ms.Set(ctx, shortLink)
+func (ms *MemStore) SetBatch(ctx context.Context, urls ...*entity.URL) error {
+	for _, url := range urls {
+		ms.Set(ctx, url)
 	}
 
 	return nil
 }
 
 // Delete marks the entity as deleted.
-func (ms *MemStore) Delete(ctx context.Context, shortLinks ...*entity.URL) error {
-	for _, shortLink := range shortLinks {
-		deleteLink, ok := ms.store[shortLink.Short]
+func (ms *MemStore) Delete(ctx context.Context, urls ...*entity.URL) error {
+	for _, url := range urls {
+		delete, ok := ms.store[url.Short]
 		if !ok {
 			continue
 		}
 
-		if shortLink.User == deleteLink.User {
-			ms.store[shortLink.Short].IsDeleted = true
+		if url.User == delete.User {
+			ms.store[url.Short].IsDeleted = true
 		}
 	}
 

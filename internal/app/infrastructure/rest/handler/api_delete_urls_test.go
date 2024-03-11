@@ -85,6 +85,18 @@ func TestAPIDeleteUserURLs(t *testing.T) {
 			},
 		},
 		{
+			"no URL provided",
+			http.MethodDelete,
+			"/api/user/urls",
+			[]string{},
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOiJjYTUxM2ZmNy0yMDEwLTQzOTctYWExYS0wNjU4MjhiNGJhMGUifQ.BHuk4u8KXMSEKSXTdI3_DOorpDKaapZzuSZQCSkFX9o",
+			want{
+				http.StatusBadRequest,
+				"no URL provided\n",
+				"text/plain; charset=utf-8",
+			},
+		},
+		{
 			"non-existent URL",
 			http.MethodDelete,
 			"/api/user/urls",
