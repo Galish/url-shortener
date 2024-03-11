@@ -94,6 +94,10 @@ func TestPing(t *testing.T) {
 			client := &http.Client{}
 			resp, err := client.Do(req)
 
+			if err != nil {
+				defer resp.Body.Close()
+			}
+
 			assert.Equal(t, tt.want.err, err)
 			assert.Equal(t, tt.want.statusCode, resp.StatusCode)
 		})
