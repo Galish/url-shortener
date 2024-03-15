@@ -10,6 +10,10 @@ func parseEnvVars(c *settings, configFile *string) {
 		c.ServAddr = servAddr
 	}
 
+	if grpcAddr := os.Getenv("GRPC_ADDRESS"); grpcAddr != "" {
+		c.GRPCAddr = grpcAddr
+	}
+
 	if baseURL := os.Getenv("BASE_URL"); baseURL != "" {
 		c.BaseURL = baseURL
 	}
@@ -24,6 +28,10 @@ func parseEnvVars(c *settings, configFile *string) {
 
 	if dbAddr := os.Getenv("DATABASE_DSN"); dbAddr != "" {
 		c.DBAddr = dbAddr
+	}
+
+	if trustedSubnet := os.Getenv("TRUSTED_SUBNET"); trustedSubnet != "" {
+		c.TrustedSubnet = trustedSubnet
 	}
 
 	if tlsEnabled := os.Getenv("ENABLE_HTTPS"); tlsEnabled != "" {

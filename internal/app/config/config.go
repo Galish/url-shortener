@@ -1,14 +1,18 @@
 // Package config represents the application configuration.
 package config
 
+import "net"
+
 // Config stores the application configuration.
 type Config struct {
-	BaseURL      string
-	DBAddr       string
-	FilePath     string
-	IsTLSEnabled bool
-	LogLevel     string
-	ServAddr     string
+	BaseURL       string
+	DBAddr        string
+	FilePath      string
+	IsTLSEnabled  bool
+	LogLevel      string
+	ServAddr      string
+	GRPCAddr      string
+	TrustedSubnet *net.IPNet
 }
 
 type option func(*Config)

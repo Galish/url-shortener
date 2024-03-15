@@ -5,20 +5,21 @@ import (
 	"context"
 
 	"github.com/Galish/url-shortener/internal/app/config"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/db"
 	"github.com/Galish/url-shortener/internal/app/repository/filestore"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 // Repository is an abstraction over persistent storage.
 // It provides a common set of methods for interacting with data sources.
 type Repository interface {
-	Get(context.Context, string) (*model.ShortLink, error)
-	GetByUser(context.Context, string) ([]*model.ShortLink, error)
-	Set(context.Context, *model.ShortLink) error
-	SetBatch(context.Context, ...*model.ShortLink) error
-	Delete(context.Context, ...*model.ShortLink) error
+	Get(context.Context, string) (*entity.URL, error)
+	GetByUser(context.Context, string) ([]*entity.URL, error)
+	Set(context.Context, *entity.URL) error
+	SetBatch(context.Context, ...*entity.URL) error
+	Delete(context.Context, ...*entity.URL) error
+	Stats(context.Context) (int, int, error)
 	Has(context.Context, string) bool
 	Ping(context.Context) (bool, error)
 	Close() error

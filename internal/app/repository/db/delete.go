@@ -5,23 +5,23 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/internal/app/entity"
 )
 
 // Delete marks the entity as deleted.
-func (db *dbStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
+func (db *dbStore) Delete(ctx context.Context, urls ...*entity.URL) error {
 	updateQuery := sq.Update("links").
 		Set("is_deleted", true).
 		PlaceholderFormat(sq.Dollar)
 
 	where := sq.Or{}
 
-	for _, link := range shortLinks {
+	for _, url := range urls {
 		where = append(
 			where,
 			sq.Eq{
-				"links.short_url":  link.Short,
-				"links.user_id":    link.User,
+				"links.short_url":  url.Short,
+				"links.user_id":    url.User,
 				"links.is_deleted": false,
 			})
 	}

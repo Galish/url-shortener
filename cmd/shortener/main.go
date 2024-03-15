@@ -6,8 +6,11 @@ import (
 	"net/http"
 
 	"github.com/Galish/url-shortener/internal/app/config"
-	"github.com/Galish/url-shortener/internal/app/handlers"
+	"github.com/Galish/url-shortener/internal/app/infrastructure/grpc"
+	restAPI "github.com/Galish/url-shortener/internal/app/infrastructure/rest"
+	restHandler "github.com/Galish/url-shortener/internal/app/infrastructure/rest/handler"
 	"github.com/Galish/url-shortener/internal/app/repository"
+	"github.com/Galish/url-shortener/internal/app/usecase"
 	"github.com/Galish/url-shortener/pkg/logger"
 	"github.com/Galish/url-shortener/pkg/shutdowner"
 )
@@ -26,24 +29,38 @@ func main() {
 		buildCommit,
 	)
 
+	logger.Init()
+
 	cfg := config.New()
 
-	logger.Initialize(cfg.LogLevel)
+	logger.SetLevel(cfg.LogLevel)
 
 	store, err := repository.New(cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	handler := handlers.NewHandler(cfg, store)
-	router := handlers.NewRouter(handler)
-	server := handlers.NewServer(cfg, router)
+	shortener := usecase.New(cfg, store)
 
-	sd := shutdowner.New(server, handler, store)
+	handler := restHandler.New(shortener, store)
+	router := restAPI.NewRouter(cfg, handler)
+	restServer := restAPI.NewServer(cfg, router)
 
-	if err := server.Run(); err != http.ErrServerClosed {
-		panic(err)
-	}
+	grpcServer := grpc.NewServer(cfg, shortener)
+
+	sd := shutdowner.New(restServer, grpcServer, shortener, store)
+
+	go func() {
+		if err := restServer.Run(); err != http.ErrServerClosed {
+			panic(err)
+		}
+	}()
+
+	go func() {
+		if err := grpcServer.Run(); err != nil {
+			panic(err)
+		}
+	}()
 
 	sd.Wait()
 }

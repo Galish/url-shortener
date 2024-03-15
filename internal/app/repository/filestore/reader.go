@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -26,12 +26,12 @@ func (fs *fileStore) restore() error {
 
 	for scanner.Scan() {
 		data := scanner.Bytes()
-		var shortLink model.ShortLink
-		if err := json.Unmarshal(data, &shortLink); err != nil {
+		var url entity.URL
+		if err := json.Unmarshal(data, &url); err != nil {
 			return err
 		}
 
-		fs.store.Set(context.Background(), &shortLink)
+		fs.store.Set(context.Background(), &url)
 		fs.size++
 	}
 

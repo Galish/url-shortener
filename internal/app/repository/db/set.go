@@ -3,12 +3,12 @@ package db
 import (
 	"context"
 
+	"github.com/Galish/url-shortener/internal/app/entity"
 	repoErr "github.com/Galish/url-shortener/internal/app/repository/errors"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 )
 
 // Set inserts a new entity or returns a conflict error if one exists.
-func (db *dbStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
+func (db *dbStore) Set(ctx context.Context, url *entity.URL) error {
 	row := db.store.QueryRowContext(
 		ctx,
 		`
@@ -18,9 +18,9 @@ func (db *dbStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
 			DO UPDATE SET original_url=excluded.original_url
 			RETURNING short_url
 		`,
-		shortLink.Short,
-		shortLink.Original,
-		shortLink.User,
+		url.Short,
+		url.Original,
+		url.User,
 	)
 
 	var shortURL string
@@ -28,11 +28,11 @@ func (db *dbStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
 		return err
 	}
 
-	if shortURL != shortLink.Short {
+	if shortURL != url.Short {
 		return repoErr.New(
 			repoErr.ErrConflict,
 			shortURL,
-			shortLink.Original,
+			url.Original,
 		)
 	}
 

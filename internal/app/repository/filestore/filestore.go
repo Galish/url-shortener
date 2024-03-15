@@ -6,8 +6,8 @@ import (
 	"context"
 	"os"
 
+	"github.com/Galish/url-shortener/internal/app/entity"
 	"github.com/Galish/url-shortener/internal/app/repository/memstore"
-	"github.com/Galish/url-shortener/internal/app/repository/model"
 	"github.com/Galish/url-shortener/pkg/logger"
 )
 
@@ -38,17 +38,17 @@ func New(filepath string) (*fileStore, error) {
 }
 
 // Get returns the entity for a given short URL.
-func (fs *fileStore) Get(ctx context.Context, key string) (*model.ShortLink, error) {
+func (fs *fileStore) Get(ctx context.Context, key string) (*entity.URL, error) {
 	return fs.store.Get(ctx, key)
 }
 
 // GetByUser returns all entities created by the user.
-func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*model.ShortLink, error) {
+func (fs *fileStore) GetByUser(ctx context.Context, userID string) ([]*entity.URL, error) {
 	return fs.store.GetByUser(ctx, userID)
 }
 
 // Set adds a new entity to the store.
-func (fs *fileStore) Set(ctx context.Context, shortLink *model.ShortLink) error {
+func (fs *fileStore) Set(ctx context.Context, shortLink *entity.URL) error {
 	if err := fs.write(shortLink); err != nil {
 		return err
 	}
@@ -63,8 +63,8 @@ func (fs *fileStore) Set(ctx context.Context, shortLink *model.ShortLink) error 
 }
 
 // SetBatch inserts new entities into the store in batches.
-func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLink) error {
-	for _, shortLink := range shortLinks {
+func (fs *fileStore) SetBatch(ctx context.Context, urls ...*entity.URL) error {
+	for _, shortLink := range urls {
 		fs.Set(ctx, shortLink)
 	}
 
@@ -72,13 +72,13 @@ func (fs *fileStore) SetBatch(ctx context.Context, shortLinks ...*model.ShortLin
 }
 
 // Delete marks the entity as deleted.
-func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink) error {
-	if err := fs.store.Delete(ctx, shortLinks...); err != nil {
+func (fs *fileStore) Delete(ctx context.Context, urls ...*entity.URL) error {
+	if err := fs.store.Delete(ctx, urls...); err != nil {
 		return err
 	}
 
-	for _, shortLink := range shortLinks {
-		deleteLink, err := fs.store.Get(ctx, shortLink.Short)
+	for _, url := range urls {
+		deleteLink, err := fs.store.Get(ctx, url.Short)
 		if err != nil {
 			logger.WithError(err).Debug("unable to read from store")
 			continue
@@ -95,7 +95,11 @@ func (fs *fileStore) Delete(ctx context.Context, shortLinks ...*model.ShortLink)
 	}
 
 	return nil
+}
 
+// Stats returns the number shortened URLs and users.
+func (fs *fileStore) Stats(ctx context.Context) (int, int, error) {
+	return fs.store.Stats(ctx)
 }
 
 // Has checks whether an entity with a given short URL exists.

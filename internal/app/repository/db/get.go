@@ -3,27 +3,27 @@ package db
 import (
 	"context"
 
-	"github.com/Galish/url-shortener/internal/app/repository/model"
+	"github.com/Galish/url-shortener/internal/app/entity"
 )
 
 // Get returns the entity for a given short URL.
-func (db *dbStore) Get(ctx context.Context, key string) (*model.ShortLink, error) {
+func (db *dbStore) Get(ctx context.Context, key string) (*entity.URL, error) {
 	row := db.store.QueryRowContext(
 		ctx,
 		"SELECT * FROM links WHERE short_url = $1;", key,
 	)
 
-	var shortLink model.ShortLink
+	var url entity.URL
 
 	if err := row.Scan(
-		&shortLink.ID,
-		&shortLink.Short,
-		&shortLink.Original,
-		&shortLink.User,
-		&shortLink.IsDeleted,
+		&url.ID,
+		&url.Short,
+		&url.Original,
+		&url.User,
+		&url.IsDeleted,
 	); err != nil {
 		return nil, err
 	}
 
-	return &shortLink, nil
+	return &url, nil
 }
